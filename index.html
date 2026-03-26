@@ -376,6 +376,219 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 #rdr-mushaf::-webkit-scrollbar{display:none}
 #rdr-mushaf *::-webkit-scrollbar{display:none}
 
+
+/* ══════════════════════════════════════════════════════
+   APPLE-GRADE ANIMATION SYSTEM
+   Extracted from apple.com/ae/apple-watch-ultra-3/
+   Easing: cubic-bezier(0.4, 0, 0.6, 1) — Apple signature
+   Duration: 0.32s — feels instant but physical
+   Pattern: opacity(0→1) + translateY(-12px→0)
+   Stagger: 0.04s per element
+   Engine: IntersectionObserver (zero JS overhead)
+══════════════════════════════════════════════════════ */
+
+/* ── Base reveal state ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: opacity, transform;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.70s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.70s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Stagger delays — each child slightly later ── */
+.reveal-d1  { transition-delay: 0.04s !important; }
+.reveal-d2  { transition-delay: 0.08s !important; }
+.reveal-d3  { transition-delay: 0.12s !important; }
+.reveal-d4  { transition-delay: 0.16s !important; }
+.reveal-d5  { transition-delay: 0.20s !important; }
+.reveal-d6  { transition-delay: 0.24s !important; }
+.reveal-d7  { transition-delay: 0.28s !important; }
+.reveal-d8  { transition-delay: 0.32s !important; }
+.reveal-d9  { transition-delay: 0.36s !important; }
+.reveal-d10 { transition-delay: 0.40s !important; }
+
+/* ── Scale-up variant for cards ── */
+.reveal-scale {
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+  will-change: opacity, transform;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.75s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.75s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Screen entrance: content cascades in ── */
+.screen.active .screen-header  { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.00s both; }
+.screen.active .screen-block-1 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.10s both; }
+.screen.active .screen-block-2 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.20s both; }
+.screen.active .screen-block-3 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.30s both; }
+.screen.active .screen-block-4 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.40s both; }
+.screen.active .screen-block-5 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.50s both; }
+.screen.active .screen-block-6 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.60s both; }
+
+@keyframes appleSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Nav item entrance ── */
+.fnav .ni { 
+  animation: appleNavIn 0.40s cubic-bezier(0.4, 0, 0.6, 1) both;
+  will-change: opacity, transform;
+}
+.fnav .ni:nth-child(1) { animation-delay: 0.00s; }
+.fnav .ni:nth-child(2) { animation-delay: 0.04s; }
+.fnav .ni:nth-child(3) { animation-delay: 0.08s; }
+.fnav .ni:nth-child(4) { animation-delay: 0.12s; }
+@keyframes appleNavIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Tap / press feedback — Apple's physical press ── */
+.card:active, .pb:active, .vc:active, .qa:active,
+.rec-row:active, .surah-row:active, .pr-row:active,
+.srow:active, .qibla-card:active, .cont-card:active,
+.dk-btn:active, .lp-play:active {
+  transform: scale(0.97) !important;
+  filter: brightness(1.06);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.6, 1),
+              filter 0.22s cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+/* ── Hover glow on interactive cards ── */
+.qa, .rec-row, .card, .pb, .vc {
+  transition: box-shadow 0.42s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.42s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Nav active state spring ── */
+.ni {
+  transition: background 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ni svg {
+  transition: stroke 0.40s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ni.active svg {
+  transform: scale(1.12);
+}
+.ni-lbl {
+  transition: color 0.35s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Surah row scroll reveal (list) ── */
+.surah-row {
+  transition: opacity 0.60s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.60s cubic-bezier(0.4, 0, 0.6, 1),
+              background 0.35s ease;
+  will-change: opacity, transform;
+}
+
+/* ── Prayer row reveal ── */
+.pr-row {
+  transition: opacity 0.60s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.60s cubic-bezier(0.4, 0, 0.6, 1);
+  will-change: opacity, transform;
+}
+
+/* ── Dhikr counter — spring pop on tap ── */
+#dk-n {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ── Listen player verse line ── */
+.lp-vline {
+  transition: color 0.70s cubic-bezier(0.4, 0, 0.6, 1),
+              font-size 0.60s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.70s cubic-bezier(0.4, 0, 0.6, 1);
+  will-change: color, font-size;
+}
+
+/* ── Heart beat on toggle ── */
+.lp-heart.hearted svg {
+  animation: heartBeat 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes heartBeat {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ── Pill tab switch ── */
+.tab, .rdr-pill, .lang-btn, .dk-pr {
+  transition: background 0.45s cubic-bezier(0.4, 0, 0.6, 1),
+              color 0.45s cubic-bezier(0.4, 0, 0.6, 1),
+              border-color 0.45s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Profile toggle spring ── */
+.tog-knob {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tog {
+  transition: background 0.42s cubic-bezier(0.4, 0, 0.6, 1),
+              border-color 0.42s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Screen transition upgrade — Apple's exact feel ── */
+.screen {
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.6, 1),
+              transform 0.55s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ── Progress bar fill animation ── */
+.ph-fill {
+  animation: progressFill 2.2s cubic-bezier(0.4, 0, 0.6, 1) 0.5s both;
+}
+@keyframes progressFill {
+  from { width: 0%; }
+  to   { width: 65%; }
+}
+
+/* ── Khatm progress bar ── */
+.khatm-fill {
+  animation: khatmFill 2.5s cubic-bezier(0.4, 0, 0.6, 1) 0.6s both;
+}
+@keyframes khatmFill {
+  from { width: 0%; }
+  to   { width: 47%; }
+}
+
+/* ── Qibla compass entrance ── */
+.compass-wrap svg {
+  animation: compassIn 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+@keyframes compassIn {
+  from { opacity: 0; transform: scale(0.8) rotate(-20deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* ── Stat chips count-up feel ── */
+.stat {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.stat:active { transform: scale(0.95); }
+
+/* ── Searchbar focus ── */
+.sbar {
+  transition: border-color 0.35s cubic-bezier(0.4, 0, 0.6, 1),
+              box-shadow 0.35s cubic-bezier(0.4, 0, 0.6, 1);
+}
+.sbar:focus-within {
+  border-color: rgba(76,175,125,.4);
+  box-shadow: 0 0 0 3px rgba(76,175,125,.08);
+}
+
 </style>
 </head>
 <body>
@@ -395,14 +608,14 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <!-- ══════════ HOME ══════════ -->
 <div class="screen active" id="s-home">
   <div class="body">
-    <div class="hdr">
+    <div class="hdr screen-header">
       <div class="hdr-left">
         <div style="font-family:var(--ffa);font-size:26px;font-weight:700;color:var(--text);direction:rtl;letter-spacing:.02em">السلام عليكم</div>
       </div>
       <div class="av" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></div>
     </div>
     <!-- Prayer banner -->
-    <div class="pb" onclick="go('prayer')">
+    <div class="pb screen-block-1" onclick="go('prayer')">
       <div class="pb-left">
         <div class="pb-tag">NEXT PRAYER</div>
         <div class="pb-time">1:24</div>
@@ -416,21 +629,21 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
     </div>
     <!-- Verse of Day -->
-    <div class="vc" onclick="goToVerse()">
+    <div class="vc screen-block-2" onclick="goToVerse()">
       <div class="vc-tag">VERSE OF THE DAY</div>
       <div class="vc-ar">وَلَقَدْ يَسَّرْنَا ٱلْقُرْءَانَ لِلذِّكْرِ</div>
       <div class="vc-en">And We have certainly made the Quran easy for remembrance, so is there any who will remember?</div>
       <div class="vc-ref">Al-Qamar · 54:17</div>
     </div>
     <!-- Stats -->
-    <div class="stats-row">
+    <div class="stats-row screen-block-3">
       <div class="stat" style="--c:#4CAF7D"><div class="stat-val">◈ 7</div><div class="stat-lbl">DAY STREAK</div></div>
       <div class="stat" style="--c:#C9A96E"><div class="stat-val">14/30</div><div class="stat-lbl">JUZ DONE</div></div>
       <div class="stat" style="--c:#5B8FD4"><div class="stat-val" style="color:#5B8FD4">22m</div><div class="stat-lbl">TODAY</div></div>
     </div>
     <!-- Quick Access -->
-    <div class="sec-lbl">Quick Access</div>
-    <div class="qa-grid">
+    <div class="sec-lbl screen-block-4">Quick Access</div>
+    <div class="qa-grid screen-block-5">
       <div class="qa" style="--ib:linear-gradient(135deg,#1A5C38,#2E8B57);--glow:rgba(76,175,125,.25)" onclick="go('reader')">
         <div class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
         <div><div class="qa-title">Read</div><div class="qa-sub">Al-Hujurat</div></div>
@@ -449,7 +662,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
     </div>
     <!-- Continue Reading -->
-    <div class="cont-card" onclick="go('reader')">
+    <div class="cont-card screen-block-6" onclick="go('reader')">
       <div class="cont-ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
       <div>
         <div class="cont-title">Al-Hujurat · Verse 3</div>
@@ -609,7 +822,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <div class="screen" id="s-prayer">
   <div class="body">
     <div class="hdr"><div class="hdr-left"><div class="hdr-sm">Dubai, UAE</div><div class="hdr-big">Prayer Times</div></div><div class="av" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div></div>
-    <div class="ph-card"><div class="ph-tag">NEXT PRAYER</div><div class="ph-name">Maghrib</div><div class="ph-cd">in 1 hour 24 minutes</div><div class="ph-bar"><div class="ph-fill"></div></div></div>
+    <div class="ph-card screen-block-1"><div class="ph-tag">NEXT PRAYER</div><div class="ph-name">Maghrib</div><div class="ph-cd">in 1 hour 24 minutes</div><div class="ph-bar"><div class="ph-fill"></div></div></div>
     <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#3A1A6E,#6B3FA0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/></svg></div><div class="pr-info"><div class="pr-name">Fajr</div><div class="pr-sub">Imsak 03:58</div></div><div class="pr-time">04:13</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
     <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#7A4A00,#C8841A)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg></div><div class="pr-info"><div class="pr-name">Dhuhr</div></div><div class="pr-time">12:45</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
     <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#1A5C38,#2E8B57)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg></div><div class="pr-info"><div class="pr-name">Asr</div></div><div class="pr-time">15:50</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
@@ -664,12 +877,12 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
       <div class="av" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
     </div>
-    <div class="prf-stats">
+    <div class="prf-stats screen-block-1">
       <div class="prf-stat" style="--c:#4CAF7D"><div class="prf-stat-val">7</div><div class="prf-stat-lbl">DAY STREAK</div></div>
       <div class="prf-stat" style="--c:#8B5CF6"><div class="prf-stat-val">14</div><div class="prf-stat-lbl">JUZ READ</div></div>
       <div class="prf-stat" style="--c:#C8841A"><div class="prf-stat-val">847</div><div class="prf-stat-lbl">TOTAL MINS</div></div>
     </div>
-    <div class="khatm-card"><div class="khatm-hd"><div class="khatm-lbl">Khatm Progress</div><div class="khatm-pct">47%</div></div><div class="khatm-bar"><div class="khatm-fill"></div></div></div>
+    <div class="khatm-card screen-block-2"><div class="khatm-hd"><div class="khatm-lbl">Khatm Progress</div><div class="khatm-pct">47%</div></div><div class="khatm-bar"><div class="khatm-fill"></div></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#1A2A4A,#2E4A8A)"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div><div class="s-lbl">Appearance<div class="s-sub" id="theme-lbl">Dark</div></div><div class="tog-wrap"><div class="tog" id="theme-tog" onclick="toggleTheme()"><div class="tog-knob"></div></div></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#1A5C38,#2E8B57)"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div><div class="s-lbl">Reciter<div class="s-sub">Mishary Al-Afasy</div></div><div class="s-arr"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#0D4A5E,#1A7A8C)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="s-lbl">Language<div class="s-sub">English</div></div><div class="s-arr"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
@@ -742,7 +955,7 @@ function go(s){
   if(s===cur)return;
   const oldEl=document.getElementById('s-'+cur);
   if(oldEl){
-    oldEl.style.cssText='opacity:0;transform:scale(.97) translateY(-6px);transition:opacity .18s ease,transform .18s ease';
+    oldEl.style.cssText='opacity:0;transform:scale(.97) translateY(-6px);transition:opacity .45s ease,transform .45s ease';
     setTimeout(()=>{oldEl.classList.remove('active');oldEl.style.cssText='';},160);
   }
   prev=cur; cur=s;
@@ -752,11 +965,13 @@ function go(s){
     el.style.cssText='opacity:0;transform:translateY(12px) scale(.99)';
     el.classList.add('active');
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      el.style.cssText='opacity:1;transform:translateY(0) scale(1);transition:opacity .3s cubic-bezier(.2,0,0,1),transform .3s cubic-bezier(.2,0,0,1)';
+      el.style.cssText='opacity:1;transform:translateY(0) scale(1);transition:opacity .70s cubic-bezier(.2,0,0,1),transform .70s cubic-bezier(.2,0,0,1)';
       setTimeout(()=>{el.style.cssText='';},320);
     }));
     updateNav(s);
     if(s==='listen') showLV('reciters');
+    // Re-trigger Apple scroll reveals on screen enter
+    setTimeout(()=>runScreenReveal('s-'+s), 100);
   },80);
 }
 function back(){go(prev===cur?'home':prev);}
@@ -1477,7 +1692,94 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('qibla-ov').style.display='none';
   updDk();
   // Home is the default screen — reader loads when user taps a surah
+  // Init Apple-grade animations
+  setTimeout(initAnimations, 50);
 });
+
+/* ══════════════════════════════════════════════════════
+   APPLE-GRADE ANIMATION ENGINE
+   IntersectionObserver — triggers as elements enter viewport
+   Staggered delays — cascade effect like Apple
+══════════════════════════════════════════════════════ */
+
+// ── IntersectionObserver for scroll reveals ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      // Once revealed, unobserve (Apple's approach — no reverse)
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, {
+  threshold: 0.08,       // trigger when 8% visible (Apple uses ~10%)
+  rootMargin: '0px 0px -20px 0px'  // slight offset from bottom
+});
+
+// ── Apply staggered reveal to list rows ──
+function applyReveal(container, selector, baseDelay=0) {
+  const els = container.querySelectorAll(selector);
+  els.forEach((el, i) => {
+    el.classList.add('reveal');
+    // Stagger: 0.04s per item, max 0.4s (Apple's exact cap)
+    const delay = Math.min(baseDelay + i * 0.09, 0.7);
+    el.style.transitionDelay = delay + 's';
+    revealObserver.observe(el);
+  });
+}
+
+// ── Apply scale reveal to cards ──
+function applyScaleReveal(container, selector, baseDelay=0) {
+  const els = container.querySelectorAll(selector);
+  els.forEach((el, i) => {
+    el.classList.add('reveal-scale');
+    const delay = Math.min(baseDelay + i * 0.10, 0.7);
+    el.style.transitionDelay = delay + 's';
+    revealObserver.observe(el);
+  });
+}
+
+// ── Re-run reveals when navigating to a screen ──
+function runScreenReveal(screenId) {
+  const screen = document.getElementById(screenId);
+  if(!screen) return;
+  
+  // Reset and re-observe all reveal elements in this screen
+  // (so they animate fresh each time you navigate to it)
+  screen.querySelectorAll('.reveal, .reveal-scale').forEach(el => {
+    el.classList.remove('visible');
+    // Force reflow
+    void el.offsetHeight;
+    revealObserver.observe(el);
+  });
+}
+
+// ── Initial setup — run once on load ──
+function initAnimations() {
+  // Surah list rows
+  applyReveal(document.getElementById('surah-list'), '.surah-row', 0.02);
+  
+  // Prayer rows
+  applyReveal(document.getElementById('s-prayer'), '.pr-row', 0.06);
+  
+  // Profile settings rows
+  applyReveal(document.getElementById('s-profile'), '.srow', 0.08);
+  
+  // Reciter rows (built dynamically — called after buildRecList)
+  setTimeout(() => {
+    applyReveal(document.querySelector('#lv-reciters .body'), '.rec-row', 0.03);
+  }, 100);
+  
+  // Stats chips — scale reveal
+  applyScaleReveal(document.getElementById('s-home'), '.stat', 0.08);
+  
+  // QA grid items
+  applyScaleReveal(document.getElementById('s-home'), '.qa', 0.12);
+  
+  // Profile stat chips
+  applyScaleReveal(document.getElementById('s-profile'), '.prf-stat', 0.04);
+}
+
 </script>
 </body>
 </html>
