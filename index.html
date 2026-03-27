@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Al-Noor</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -17,15 +17,20 @@
   --border:rgba(255,255,255,.07);
   --ff:'Plus Jakarta Sans',sans-serif;
   --ffa:'Amiri',serif;
+  --app-vh:100dvh;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+  --safe-right:env(safe-area-inset-right,0px);
 }
-html,body{width:100%;height:100%;background:#000;overflow:hidden}
-body{display:flex;align-items:center;justify-content:center;font-family:var(--ff)}
+html,body{width:100%;height:100%;min-height:var(--app-vh);background:#000;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center;font-family:var(--ff);padding:0}
 
 /* ═══════════════════════════════════════════
    PHONE SHELL
 ═══════════════════════════════════════════ */
 .shell{
-  width:375px;height:812px;
+  width:min(100vw,375px);height:min(var(--app-vh),812px);
   background:var(--bg);border-radius:52px;overflow:hidden;
   position:relative;flex-shrink:0;
   box-shadow:0 0 0 1.5px rgba(255,255,255,.08),0 0 0 3px #000,0 40px 100px rgba(0,0,0,.9)
@@ -46,7 +51,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 /* ═══════════════════════════════════════════
    SHARED COMPONENTS
 ═══════════════════════════════════════════ */
-.body{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:88px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(88px + var(--safe-bottom));-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .body::-webkit-scrollbar{display:none}
 .hdr{padding:56px 20px 14px;display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0}
 .hdr-left .hdr-sm{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.1em;margin-bottom:3px}
@@ -61,7 +66,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
    FLOATING NAV
 ═══════════════════════════════════════════ */
 .fnav{
-  position:absolute;bottom:20px;left:18px;right:18px;height:62px;
+  position:absolute;bottom:calc(20px + var(--safe-bottom));left:18px;right:18px;height:62px;
   background:rgba(10,16,12,.96);backdrop-filter:blur(30px);
   border:1px solid rgba(255,255,255,.08);border-radius:36px;
   display:flex;align-items:center;justify-content:space-around;
@@ -133,7 +138,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 /* ═══════════════════════════════════════════
    READER SCREEN
 ═══════════════════════════════════════════ */
-.rdr-topbar{background:#2C5F2E;padding:52px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.rdr-topbar{background:#2C5F2E;padding:calc(52px + var(--safe-top)) 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .rdr-back,.rdr-fs{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .rdr-back svg,.rdr-fs svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rdr-center{text-align:center}
@@ -160,7 +165,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .mpage-foot{text-align:center;font-family:var(--ffa);font-size:12px;color:#5A6A5A;padding:6px 0 10px;border-top:1.5px solid #2E7A50;margin:4px 14px 0;flex-shrink:0}
 .tj-g{color:#1B5E38;font-weight:600}.tj-r{color:#C03020}.tj-b{color:#1A4AA0}
 /* Translation */
-.trans-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:90px;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none}
+.trans-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + var(--safe-bottom));-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none}
 .trans-wrap::-webkit-scrollbar{display:none}
 .lang-bar{display:flex;gap:6px;padding:10px 16px 8px;flex-shrink:0}
 .lang-btn{padding:4px 12px;border-radius:100px;font-size:10px;font-weight:500;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);color:var(--text3)}
@@ -173,7 +178,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .vtr{font-size:12px;font-weight:300;color:var(--text2);line-height:1.7;font-style:italic}
 .var .g{color:var(--green)}.var .r{color:var(--red)}.var .b{color:var(--blue)}
 /* Tafsir */
-.tafsir-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:90px;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none}
+.tafsir-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + var(--safe-bottom));-webkit-overflow-scrolling:touch;scrollbar-width:none;display:none}
 .tafsir-wrap::-webkit-scrollbar{display:none}
 .tafsir-hdr{padding:14px 20px 6px}
 .tafsir-hdr .th-lbl{font-size:9px;font-weight:700;color:var(--green);letter-spacing:.18em}
@@ -184,9 +189,9 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .tf-text{font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:8px}
 .tf-hadith{font-size:11px;color:var(--text3);line-height:1.7;padding:8px 12px;border-left:2px solid rgba(76,175,125,.3);background:rgba(76,175,125,.04);border-radius:0 6px 6px 0;font-style:italic}
 /* Fullscreen */
-.rdr-fs-overlay{position:absolute;inset:0;z-index:200;background:#2C5F2E;display:none;flex-direction:column;overflow:hidden}
-.rdr-fs-content{flex:1;overflow-y:auto;overflow-x:hidden;background:#F5F0DC;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
-.rdr-fs-close{position:fixed;top:14px;right:14px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2101}
+.rdr-fs-overlay{position:absolute;inset:0;z-index:200;background:#2C5F2E;display:none;flex-direction:column}
+.rdr-fs-content{flex:1;overflow-y:auto;background:#E8F0E0;-webkit-overflow-scrolling:touch}
+.rdr-fs-close{position:absolute;top:calc(14px + var(--safe-top));right:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:201}
 .rdr-fs-close svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ═══════════════════════════════════════════
@@ -212,7 +217,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .sp-meta{font-size:10px;color:var(--text3);margin-top:1px}
 .sp-ar{font-family:var(--ffa);font-size:15px;color:var(--text2);margin-left:auto}
 /* Player */
-.lp-topbar{display:flex;align-items:center;justify-content:space-between;padding:52px 18px 10px;position:relative;z-index:2;flex-shrink:0}
+.lp-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(52px + var(--safe-top)) 18px 10px;position:relative;z-index:2;flex-shrink:0}
 .lp-ibtn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lp-ibtn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .lp-now{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.18em}
@@ -235,7 +240,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .lp-vline{font-family:var(--ffa);font-size:15px;color:rgba(255,255,255,.2);direction:rtl;text-align:right;padding:7px 0;line-height:1.9;transition:color .35s,font-size .25s;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lp-vline.passed{color:rgba(255,255,255,.3)}
 .lp-vline.active{color:#fff;font-size:17px;font-weight:700}
-.lp-bottom{padding:0 20px 20px;flex-shrink:0}
+.lp-bottom{padding:0 20px calc(20px + var(--safe-bottom));flex-shrink:0}
 .lp-prog{height:3px;background:rgba(255,255,255,.12);border-radius:2px;position:relative;margin-bottom:6px;cursor:pointer}
 .lp-prog-f{height:100%;width:18%;background:#fff;border-radius:2px}
 .lp-prog-dot{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:50%;left:18%;transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(255,255,255,.4)}
@@ -277,7 +282,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .qt{font-size:13px;font-weight:600;color:#fff}.qs{font-size:10px;color:var(--text3);margin-top:2px}
 /* Qibla overlay */
 .qibla-overlay{position:absolute;inset:0;z-index:150;background:#080808;display:none;flex-direction:column;align-items:center}
-.qibla-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:54px 20px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.qibla-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:calc(54px + var(--safe-top)) 20px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
 .qibla-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .qibla-close svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .qibla-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;width:100%}
@@ -312,7 +317,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 /* ═══════════════════════════════════════════
    PROFILE SCREEN
 ═══════════════════════════════════════════ */
-.prf-hdr{padding:56px 20px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.prf-hdr{padding:calc(56px + var(--safe-top)) 20px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .prf-av-wrap{display:flex;align-items:center;gap:14px}
 .prf-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0A2818,#1B5E38);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .prf-av svg{width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -345,7 +350,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 /* ═══════════════════════════════════════════
    LIGHT MODE
 ═══════════════════════════════════════════ */
-.shell.light{--bg:#F5F2EE;--bg2:#EDE8E2;--surf:#fff;--surf2:#F0EBE4;--text:#0A1A10;--text2:#1F4030;--text3:#3D5A4A;--border:rgba(0,0,0,.1);--green:#1B5E42}
+.shell.light{--bg:#F5F2EE;--bg2:#EDE8E2;--surf:#fff;--surf2:#F0EBE4;--text:#0D1F16;--text2:#4A6655;--text3:#9AB0A4;--border:rgba(0,0,0,.07);--green:#1B5E42}
 .shell.light .statusbar .t,.shell.light .statusbar svg{color:#000;fill:#000}
 .shell.light .fnav{background:rgba(240,240,235,.96);border-color:rgba(0,0,0,.08)}
 .shell.light .av svg{stroke:#555}
@@ -356,7 +361,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 .shell.light #lv-reciters .hdr-big,.shell.light #lv-reciters .hdr-sm{color:#E8F0EA}
 .shell.light #lv-surahs .hdr-big,.shell.light #lv-surahs .hdr-sm{color:#E8F0EA}
 .shell.light .rec-row{background:#141414;border-color:rgba(255,255,255,.07)}
-.shell.light .rec-name{color:#E8F0EA}.shell.light .rec-meta{color:#1F4030}
+.shell.light .rec-name{color:#E8F0EA}.shell.light .rec-meta{color:#555}
 .shell.light .sp-en{color:#E8F0EA}.shell.light .sp-ar{color:#888}.shell.light .sp-meta{color:#555}
 .shell.light .sp-row{border-bottom-color:rgba(255,255,255,.06)}
 .shell.light .sp-num{background:rgba(255,255,255,.07)}
@@ -376,403 +381,38 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 #rdr-mushaf::-webkit-scrollbar{display:none}
 #rdr-mushaf *::-webkit-scrollbar{display:none}
 
-
-/* ══════════════════════════════════════════════════════
-   APPLE-GRADE ANIMATION SYSTEM
-   Extracted from apple.com/ae/apple-watch-ultra-3/
-   Easing: cubic-bezier(0.4, 0, 0.6, 1) — Apple signature
-   Duration: 0.32s — feels instant but physical
-   Pattern: opacity(0→1) + translateY(-12px→0)
-   Stagger: 0.04s per element
-   Engine: IntersectionObserver (zero JS overhead)
-══════════════════════════════════════════════════════ */
-
-/* ── Base reveal state ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  will-change: opacity, transform;
+/* ── DEVICE RESPONSIVE MODE ── */
+.shell.device-fit{
+  width:100vw;
+  max-width:100vw;
+  height:var(--app-vh);
+  border-radius:0;
+  box-shadow:none;
 }
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.70s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.70s cubic-bezier(0.4, 0, 0.6, 1);
+.shell.device-fit .island,
+.shell.device-fit .statusbar{display:none}
+.shell.device-fit .hdr{padding:calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) 14px calc(16px + var(--safe-left))}
+.shell.device-fit .prf-hdr{padding:calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) 16px calc(16px + var(--safe-left))}
+.shell.device-fit .rdr-topbar{padding:calc(14px + var(--safe-top)) calc(16px + var(--safe-right)) 10px calc(16px + var(--safe-left))}
+.shell.device-fit .lp-topbar{padding:calc(14px + var(--safe-top)) calc(18px + var(--safe-right)) 10px calc(18px + var(--safe-left))}
+.shell.device-fit .qibla-topbar{padding:calc(14px + var(--safe-top)) calc(20px + var(--safe-right)) 14px calc(20px + var(--safe-left))}
+.shell.device-fit .rdr-fs-close{top:calc(10px + var(--safe-top));right:calc(14px + var(--safe-right))}
+.shell.device-fit .body{padding-bottom:calc(86px + var(--safe-bottom))}
+.shell.device-fit .fnav{left:calc(14px + var(--safe-left));right:calc(14px + var(--safe-right));bottom:calc(8px + var(--safe-bottom))}
+.shell.device-fit .trans-wrap,
+.shell.device-fit .tafsir-wrap{padding-bottom:calc(84px + var(--safe-bottom))}
+.shell.device-fit .lp-bottom{padding:0 calc(20px + var(--safe-right)) calc(14px + var(--safe-bottom)) calc(20px + var(--safe-left))}
+
+@media (max-width:768px) and (pointer:coarse){
+  body{display:block}
+  .shell{
+    width:100vw;
+    height:var(--app-vh);
+    max-width:100vw;
+    border-radius:0;
+    box-shadow:none;
+  }
 }
-
-/* ── Stagger delays — each child slightly later ── */
-.reveal-d1  { transition-delay: 0.04s !important; }
-.reveal-d2  { transition-delay: 0.08s !important; }
-.reveal-d3  { transition-delay: 0.12s !important; }
-.reveal-d4  { transition-delay: 0.16s !important; }
-.reveal-d5  { transition-delay: 0.20s !important; }
-.reveal-d6  { transition-delay: 0.24s !important; }
-.reveal-d7  { transition-delay: 0.28s !important; }
-.reveal-d8  { transition-delay: 0.32s !important; }
-.reveal-d9  { transition-delay: 0.36s !important; }
-.reveal-d10 { transition-delay: 0.40s !important; }
-
-/* ── Scale-up variant for cards ── */
-.reveal-scale {
-  opacity: 0;
-  transform: translateY(12px) scale(0.97);
-  will-change: opacity, transform;
-}
-.reveal-scale.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transition: opacity 0.75s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.75s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Screen entrance: content cascades in ── */
-.screen.active .screen-header  { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.00s both; }
-.screen.active .screen-block-1 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.10s both; }
-.screen.active .screen-block-2 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.20s both; }
-.screen.active .screen-block-3 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.30s both; }
-.screen.active .screen-block-4 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.40s both; }
-.screen.active .screen-block-5 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.50s both; }
-.screen.active .screen-block-6 { animation: appleSlideIn 0.70s cubic-bezier(0.4, 0, 0.6, 1) 0.60s both; }
-
-@keyframes appleSlideIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Nav item entrance ── */
-.fnav .ni { 
-  animation: appleNavIn 0.40s cubic-bezier(0.4, 0, 0.6, 1) both;
-  will-change: opacity, transform;
-}
-.fnav .ni:nth-child(1) { animation-delay: 0.00s; }
-.fnav .ni:nth-child(2) { animation-delay: 0.04s; }
-.fnav .ni:nth-child(3) { animation-delay: 0.08s; }
-.fnav .ni:nth-child(4) { animation-delay: 0.12s; }
-@keyframes appleNavIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Tap / press feedback — Apple's physical press ── */
-.card:active, .pb:active, .vc:active, .qa:active,
-.rec-row:active, .surah-row:active, .pr-row:active,
-.srow:active, .qibla-card:active, .cont-card:active,
-.dk-btn:active, .lp-play:active {
-  transform: scale(0.97) !important;
-  filter: brightness(1.06);
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.6, 1),
-              filter 0.22s cubic-bezier(0.4, 0, 0.6, 1) !important;
-}
-
-/* ── Hover glow on interactive cards ── */
-.qa, .rec-row, .card, .pb, .vc {
-  transition: box-shadow 0.42s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.42s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Nav active state spring ── */
-.ni {
-  transition: background 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ni svg {
-  transition: stroke 0.40s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ni.active svg {
-  transform: scale(1.12);
-}
-.ni-lbl {
-  transition: color 0.35s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Surah row scroll reveal (list) ── */
-.surah-row {
-  transition: opacity 0.60s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.60s cubic-bezier(0.4, 0, 0.6, 1),
-              background 0.35s ease;
-  will-change: opacity, transform;
-}
-
-/* ── Prayer row reveal ── */
-.pr-row {
-  transition: opacity 0.60s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.60s cubic-bezier(0.4, 0, 0.6, 1);
-  will-change: opacity, transform;
-}
-
-/* ── Dhikr counter — spring pop on tap ── */
-#dk-n {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* ── Listen player verse line ── */
-.lp-vline {
-  transition: color 0.70s cubic-bezier(0.4, 0, 0.6, 1),
-              font-size 0.60s cubic-bezier(0.34, 1.56, 0.64, 1),
-              opacity 0.70s cubic-bezier(0.4, 0, 0.6, 1);
-  will-change: color, font-size;
-}
-
-/* ── Heart beat on toggle ── */
-.lp-heart.hearted svg {
-  animation: heartBeat 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-@keyframes heartBeat {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.35); }
-  100% { transform: scale(1); }
-}
-
-/* ── Pill tab switch ── */
-.tab, .rdr-pill, .lang-btn, .dk-pr {
-  transition: background 0.45s cubic-bezier(0.4, 0, 0.6, 1),
-              color 0.45s cubic-bezier(0.4, 0, 0.6, 1),
-              border-color 0.45s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Profile toggle spring ── */
-.tog-knob {
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.tog {
-  transition: background 0.42s cubic-bezier(0.4, 0, 0.6, 1),
-              border-color 0.42s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Screen transition upgrade — Apple's exact feel ── */
-.screen {
-  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.6, 1),
-              transform 0.55s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* ── Progress bar fill animation ── */
-.ph-fill {
-  animation: progressFill 2.2s cubic-bezier(0.4, 0, 0.6, 1) 0.5s both;
-}
-@keyframes progressFill {
-  from { width: 0%; }
-  to   { width: 65%; }
-}
-
-/* ── Khatm progress bar ── */
-.khatm-fill {
-  animation: khatmFill 2.5s cubic-bezier(0.4, 0, 0.6, 1) 0.6s both;
-}
-@keyframes khatmFill {
-  from { width: 0%; }
-  to   { width: 47%; }
-}
-
-/* ── Qibla compass entrance ── */
-.compass-wrap svg {
-  animation: compassIn 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
-}
-@keyframes compassIn {
-  from { opacity: 0; transform: scale(0.8) rotate(-20deg); }
-  to   { opacity: 1; transform: scale(1) rotate(0deg); }
-}
-
-/* ── Stat chips count-up feel ── */
-.stat {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.stat:active { transform: scale(0.95); }
-
-/* ── Searchbar focus ── */
-.sbar {
-  transition: border-color 0.35s cubic-bezier(0.4, 0, 0.6, 1),
-              box-shadow 0.35s cubic-bezier(0.4, 0, 0.6, 1);
-}
-.sbar:focus-within {
-  border-color: rgba(76,175,125,.4);
-  box-shadow: 0 0 0 3px rgba(76,175,125,.08);
-}
-
-
-/* ══════════════════════════════════════════════════════
-   LIGHT MODE — COMPREHENSIVE TEXT & COLOUR FIXES
-   Every element with hardcoded dark colours overridden
-   Principle: dark text on light surfaces, green accents
-══════════════════════════════════════════════════════ */
-
-/* ── Core text colours ── */
-.shell.light .hdr-big,
-.shell.light .hdr-left .hdr-big { color: #0D1F16; }
-
-.shell.light .hdr-sm,
-.shell.light .hdr-left .hdr-sm { color: #1F4030; }
-
-/* ── Status bar ── */
-.shell.light .statusbar .t { color: #000; }
-
-/* ── Prayer banner ── */
-.shell.light .pb { background: #fff; border-color: rgba(0,0,0,.08); box-shadow: 0 2px 16px rgba(0,0,0,.06); }
-.shell.light .pb-time { color: #0D1F16; }
-.shell.light .pb-name { color: #4A6655; }
-.shell.light .pb-row { color: #3D5A4A; }
-.shell.light .pb-row span { color: #1F4030; }
-
-/* ── Verse card ── */
-.shell.light .vc { background: #fff; border-color: rgba(0,0,0,.08); }
-.shell.light .vc-ar { color: #0D1F16; }
-.shell.light .vc-en { color: #1F4030; }
-
-/* ── Stats ── */
-.shell.light .stat { background: #fff; border-color: rgba(0,0,0,.07); }
-.shell.light .stat-val { color: #0D1F16; }
-.shell.light .stat-lbl { color: #3D5A4A; }
-
-/* ── Quick Access grid ── */
-.shell.light .qa { background: #fff; border-color: rgba(0,0,0,.07); }
-.shell.light .qa-title { color: #0D1F16; }
-.shell.light .qa-sub { color: #1F4030; }
-
-/* ── Continue reading card ── */
-.shell.light .cont-card { background: linear-gradient(135deg,#E8EFF8,#D4E3F5); border-color: rgba(91,143,212,.2); }
-.shell.light .cont-title { color: #0D1F16; }
-.shell.light .cont-sub { color: #1F4030; }
-.shell.light .cont-ic { background: rgba(91,143,212,.15); }
-.shell.light .cont-ic svg { stroke: #2A6AB4; }
-
-/* ── Section labels ── */
-.shell.light .sec-lbl { color: #0D1F16; }
-
-/* ── Surah list ── */
-.shell.light .surah-row { border-bottom-color: rgba(0,0,0,.06); }
-.shell.light .surah-row:active { background: rgba(0,0,0,.03); }
-.shell.light .surah-row.cur { background: rgba(27,94,66,.06); }
-.shell.light .snum { background: rgba(0,0,0,.05); color: #4A6655; }
-.shell.light .snum.cur { background: rgba(27,94,66,.12); color: #1B5E42; }
-.shell.light .sen { color: #0D1F16; }
-.shell.light .smeta { color: #3D5A4A; }
-.shell.light .sar { color: #1F4030; }
-.shell.light .snow { color: #0F3D28; }
-
-/* ── Tabs ── */
-.shell.light .tab { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.1); color: #1F4030; }
-.shell.light .tab.active { background: rgba(27,94,66,.1); border-color: rgba(27,94,66,.3); color: #1B5E42; }
-
-/* ── Search bar ── */
-.shell.light .sbar { background: #fff; border-color: rgba(0,0,0,.1); }
-.shell.light .sbar svg { stroke: #3D5A4A; }
-.shell.light .sbar input { color: #0D1F16; }
-.shell.light .sbar input::placeholder { color: #3D5A4A; }
-
-/* ── Reader topbar (mushaf green — always stays green) ── */
-.shell.light .rdr-topbar { background: #2C5F2E; }
-.shell.light .rc-surah { color: #fff; }
-.shell.light .rc-info { color: rgba(255,255,255,.7); }
-.shell.light .rdr-pg-num { color: #fff; }
-.shell.light .rdr-back svg, .shell.light .rdr-fs svg { stroke: #fff; }
-
-/* ── Reader modebar ── */
-.shell.light .rdr-modebar { background: #F5F2EE; border-bottom-color: rgba(0,0,0,.08); }
-.shell.light .rdr-pill { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); color: #1F4030; }
-.shell.light .rdr-pill.active { background: rgba(27,94,66,.1); border-color: rgba(27,94,66,.35); color: #1B5E42; }
-
-/* ── Translation ── */
-.shell.light .lang-btn { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); color: #1F4030; }
-.shell.light .lang-btn.active { background: rgba(27,94,66,.1); border-color: rgba(27,94,66,.3); color: #1B5E42; }
-.shell.light .bism { color: #8A6020; }
-.shell.light .vblock { border-bottom-color: rgba(0,0,0,.06); }
-.shell.light .vblock.hl { background: rgba(27,94,66,.04); border-left-color: #1B5E42; }
-.shell.light .vnum { color: #1B5E42; border-color: rgba(27,94,66,.3); }
-.shell.light .var { color: #0D1F16; }
-.shell.light .vtr { color: #1F4030; }
-.shell.light .var .g { color: #1B5E42; }
-.shell.light .var .r { color: #C03020; }
-.shell.light .var .b { color: #1A4AA0; }
-
-/* ── Tafsir ── */
-.shell.light .tafsir-wrap { background: #F5F2EE; }
-.shell.light .tafsir-hdr .th-lbl { color: #1B5E42; }
-.shell.light .tafsir-hdr .th-title { color: #0D1F16; }
-.shell.light .tafsir-hdr .th-sub { color: #4A6655; }
-.shell.light .tafsir-block { border-bottom-color: rgba(0,0,0,.06); }
-.shell.light .tf-ref { color: #1B5E42; }
-.shell.light .tf-text { color: #0A1A10; }
-.shell.light .tf-hadith { color: #1F4030; border-left-color: rgba(27,94,66,.4); background: rgba(27,94,66,.06); }
-
-/* ── Prayer times ── */
-.shell.light .ph-card { background: #fff; border-color: rgba(0,0,0,.08); }
-.shell.light .ph-tag { color: #1B5E42; }
-.shell.light .ph-name { color: #0D1F16; }
-.shell.light .ph-cd { color: #1F4030; }
-.shell.light .ph-bar { background: rgba(0,0,0,.08); }
-.shell.light .pr-row { border-bottom-color: rgba(0,0,0,.06); }
-.shell.light .pr-row.cur { background: rgba(27,94,66,.05); border-left-color: #1B5E42; }
-.shell.light .pr-name { color: #0D1F16; }
-.shell.light .pr-sub { color: #3D5A4A; }
-.shell.light .pr-time { color: #1F4030; }
-.shell.light .pr-time.cur-t { color: #1B5E42; }
-.shell.light .qt { color: #0D1F16; }
-.shell.light .qs { color: #1F4030; }
-.shell.light .qibla-card { background: #fff; border-color: rgba(0,0,0,.08); }
-
-/* ── Dhikr ── */
-.shell.light .dk-pr { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.1); color: #1F4030; }
-.shell.light .dk-pr.active { background: rgba(27,94,66,.1); border-color: rgba(27,94,66,.35); color: #1B5E42; }
-.shell.light .dk-n { color: #0D1F16; }
-.shell.light .dk-of { color: #3D5A4A; }
-.shell.light .dk-ar { color: #0D1F16; }
-.shell.light .dk-tr { color: #1F4030; }
-.shell.light .dk-reset { color: #3D5A4A; }
-
-/* ── Profile ── */
-.shell.light .prf-name { color: #0D1F16; }
-.shell.light .prf-loc { color: #1F4030; }
-.shell.light .prf-stat { background: #fff; border-color: rgba(0,0,0,.07); }
-.shell.light .prf-stat-val { color: #0D1F16; }
-.shell.light .prf-stat-lbl { color: #3D5A4A; }
-.shell.light .khatm-card { background: #fff; border-color: rgba(0,0,0,.08); }
-.shell.light .khatm-lbl { color: #0D1F16; }
-.shell.light .khatm-pct { color: #1B5E42; }
-.shell.light .khatm-bar { background: rgba(0,0,0,.08); }
-.shell.light .srow { border-bottom-color: rgba(0,0,0,.05); }
-.shell.light .srow:active { background: rgba(0,0,0,.03); }
-.shell.light .s-lbl { color: #0D1F16; }
-.shell.light .s-sub { color: #3D5A4A; }
-.shell.light .s-arr svg { stroke: #3D5A4A; }
-
-/* ── Avatar button ── */
-.shell.light .av { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
-.shell.light .av svg { stroke: #1F4030; }
-
-/* ── Qibla overlay ── */
-.shell.light .qibla-overlay { background: #F5F2EE; }
-.shell.light .qibla-topbar { border-bottom-color: rgba(0,0,0,.08); }
-.shell.light .qibla-deg { color: #0D1F16; }
-.shell.light .qibla-sublbl { color: #1B5E42; }
-.shell.light .qibla-close { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.08); }
-.shell.light .qibla-close svg { stroke: #0D1F16; }
-.shell.light .qibla-info-box { background: #fff; border-color: rgba(0,0,0,.08); }
-.shell.light .qib-status { color: #1F4030; }
-.shell.light .qib-dist { color: #3D5A4A; }
-.shell.light .leg-item { color: #1F4030; }
-.shell.light #compass-dial circle:first-child { fill: #F0EDE8; }
-
-/* ── Card active states in light mode ── */
-.shell.light .card:active, .shell.light .pb:active,
-.shell.light .vc:active, .shell.light .qa:active { filter: brightness(0.96); }
-
-
-/* ── LIGHT MODE TEXT CONTRAST BOOST ── */
-/* Ensures anything using CSS vars also gets darkened */
-.shell.light { font-synthesis: none; }
-.shell.light .pb-name { color: #1F4030 !important; }
-.shell.light .hdr-sm { color: #1F4030 !important; }
-.shell.light .stat-lbl { color: #3D5A4A !important; }
-.shell.light .smeta { color: #3D5A4A !important; }
-.shell.light .qa-sub { color: #1F4030 !important; }
-.shell.light .pr-sub { color: #3D5A4A !important; }
-.shell.light .s-sub { color: #3D5A4A !important; }
-.shell.light .prf-stat-lbl { color: #3D5A4A !important; }
-.shell.light .dk-of { color: #3D5A4A !important; }
-.shell.light .dk-tr { color: #1F4030 !important; }
-.shell.light .snow { color: #0F3D28 !important; }
-.shell.light .rec-meta { color: #1F4030 !important; }
-.shell.light .vtr { color: #1F4030 !important; }
 
 </style>
 </head>
@@ -793,14 +433,14 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <!-- ══════════ HOME ══════════ -->
 <div class="screen active" id="s-home">
   <div class="body">
-    <div class="hdr screen-header">
+    <div class="hdr">
       <div class="hdr-left">
         <div style="font-family:var(--ffa);font-size:26px;font-weight:700;color:var(--text);direction:rtl;letter-spacing:.02em">السلام عليكم</div>
       </div>
       <div class="av" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></div>
     </div>
     <!-- Prayer banner -->
-    <div class="pb screen-block-1" onclick="go('prayer')">
+    <div class="pb" onclick="go('prayer')">
       <div class="pb-left">
         <div class="pb-tag">NEXT PRAYER</div>
         <div class="pb-time">1:24</div>
@@ -814,21 +454,21 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
     </div>
     <!-- Verse of Day -->
-    <div class="vc screen-block-2" onclick="goToVerse()">
+    <div class="vc" onclick="goToVerse()">
       <div class="vc-tag">VERSE OF THE DAY</div>
       <div class="vc-ar">وَلَقَدْ يَسَّرْنَا ٱلْقُرْءَانَ لِلذِّكْرِ</div>
       <div class="vc-en">And We have certainly made the Quran easy for remembrance, so is there any who will remember?</div>
       <div class="vc-ref">Al-Qamar · 54:17</div>
     </div>
     <!-- Stats -->
-    <div class="stats-row screen-block-3">
+    <div class="stats-row">
       <div class="stat" style="--c:#4CAF7D"><div class="stat-val">◈ 7</div><div class="stat-lbl">DAY STREAK</div></div>
       <div class="stat" style="--c:#C9A96E"><div class="stat-val">14/30</div><div class="stat-lbl">JUZ DONE</div></div>
       <div class="stat" style="--c:#5B8FD4"><div class="stat-val" style="color:#5B8FD4">22m</div><div class="stat-lbl">TODAY</div></div>
     </div>
     <!-- Quick Access -->
-    <div class="sec-lbl screen-block-4">Quick Access</div>
-    <div class="qa-grid screen-block-5">
+    <div class="sec-lbl">Quick Access</div>
+    <div class="qa-grid">
       <div class="qa" style="--ib:linear-gradient(135deg,#1A5C38,#2E8B57);--glow:rgba(76,175,125,.25)" onclick="go('reader')">
         <div class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
         <div><div class="qa-title">Read</div><div class="qa-sub">Al-Hujurat</div></div>
@@ -847,7 +487,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
     </div>
     <!-- Continue Reading -->
-    <div class="cont-card screen-block-6" onclick="go('reader')">
+    <div class="cont-card" onclick="go('reader')">
       <div class="cont-ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
       <div>
         <div class="cont-title">Al-Hujurat · Verse 3</div>
@@ -928,16 +568,25 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
     <div style="height:80px"></div>
   </div>
   <!-- Fullscreen overlay -->
-  <div class="rdr-fs-overlay" id="rdr-fs" style="display:none">
-    <div class="rdr-fs-close" onclick="toggleFS()">
-      <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-    </div>
-    <div class="rdr-fs-content" id="rdr-fs-content">
-      <!-- Populated dynamically by toggleFS() -->
+  <div class="rdr-fs-overlay" id="rdr-fs">
+    <div class="rdr-fs-close" onclick="toggleFS()"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></div>
+    <div class="rdr-fs-content">
+      <div class="mpage-hdr" style="background:#E8F0E0"><span>سُورَةُ الْحُجُرَات</span><span>٢٦ الجزء</span></div>
+      <div class="mpage-band" style="margin:8px"><div class="mpage-band-orn">❧</div><div><div class="mpage-band-name">سُورَةُ الْحُجُرَاتِ</div><div class="mpage-band-sub">مَدَنِيَّةٌ · ١٨ آيَة</div></div><div class="mpage-band-orn">❧</div></div>
+      <div class="mpage-bism" style="background:#E8F0E0">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+      <div class="mpage-body" style="background:#E8F0E0;font-size:20px;line-height:2.4;padding:10px 18px 40px">
+        <span class="mpage-line">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تُقَدِّمُوا۟ بَيْنَ يَدَىِ <span class="tj-g">ٱللَّهِ</span> وَرَسُولِهِۦ ۖ</span>
+        <span class="mpage-line">وَٱتَّقُوا۟ <span class="tj-g">ٱللَّهَ</span> ۚ إِنَّ <span class="tj-g">ٱللَّهَ</span> سَمِيعٌ عَلِيمٌ ﴿١﴾</span>
+        <span class="mpage-line">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تَرْفَعُوٓا۟ <span class="tj-r">أَصْوَٰتَكُمْ</span> فَوْقَ صَوْتِ <span class="tj-b">ٱلنَّبِىِّ</span></span>
+        <span class="mpage-line">وَلَا تَجْهَرُوا۟ لَهُۥ بِٱلْقَوْلِ كَجَهْرِ بَعْضِكُمْ لِبَعْضٍ أَن تَحْبَطَ أَعْمَٰلُكُمْ ﴿٢﴾</span>
+        <span class="mpage-line">إِنَّ ٱلَّذِينَ يَغُضُّونَ <span class="tj-r">أَصْوَٰتَهُمْ</span> عِندَ رَسُولِ <span class="tj-g">ٱللَّهِ</span> أُو۟لَٰٓئِكَ</span>
+        <span class="mpage-line">ٱلَّذِينَ ٱمْتَحَنَ <span class="tj-g">ٱللَّهُ</span> قُلُوبَهُمْ لِلتَّقْوَىٰ لَهُم مَّغْفِرَةٌ وَأَجْرٌ عَظِيمٌ ﴿٣﴾</span>
+        <span class="mpage-line">إِنَّ ٱلَّذِينَ يُنَادُونَكَ مِن وَرَآءِ <span class="tj-b">ٱلْحُجُرَٰتِ</span> أَكْثَرُهُمْ لَا يَعْقِلُونَ ﴿٤﴾</span>
+        <span class="mpage-line">وَلَوْ أَنَّهُمْ صَبَرُوا۟ حَتَّىٰ تَخْرُجَ إِلَيْهِمْ لَكَانَ خَيْرًۭا لَّهُمْ ۚ وَٱللَّهُ غَفُورٌۭ رَّحِيمٌۭ ﴿٥﴾</span>
+      </div>
     </div>
   </div>
-
-</div><!-- end s-reader -->
+</div>
 
 <!-- ══════════ LISTEN ══════════ -->
 <div class="screen" id="s-listen">
@@ -954,10 +603,10 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
     <div class="lp-topbar">
       <div class="lp-ibtn" onclick="showLV('surahs')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
       <div class="lp-now">NOW PLAYING</div>
-      <div class="lp-ibtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div>
+      <div class="lp-ibtn" id="lp-more-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div>
     </div>
     <div class="lp-art">
-      <svg width="100%" height="100%" viewBox="0 0 375 180" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="skyG" cx="50%" cy="20%" r="80%"><stop offset="0%" stop-color="#0d2e1a"/><stop offset="100%" stop-color="#030808"/></radialGradient></defs><rect width="375" height="180" fill="url(#skyG)"/><circle cx="290" cy="50" r="50" fill="#d4c875" opacity=".25"/><circle cx="299" cy="44" r="38" fill="#030808" opacity=".85"/><path d="M0,110 Q38,68 88,90 Q138,55 198,78 L375,65 L375,110Z" fill="#0d2418" opacity=".9"/></svg>
+      <svg width="100%" height="100%" viewBox="0 0 375 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="skyG" cx="50%" cy="20%" r="80%"><stop offset="0%" stop-color="#0d2e1a"/><stop offset="100%" stop-color="#030808"/></radialGradient></defs><rect width="375" height="180" fill="url(#skyG)"/><circle cx="290" cy="50" r="50" fill="#d4c875" opacity=".25"/><circle cx="299" cy="44" r="38" fill="#030808" opacity=".85"/><circle cx="25" cy="20" r="1.2" fill="#fff" opacity=".7"/><circle cx="70" cy="12" r=".9" fill="#fff" opacity=".55"/><circle cx="140" cy="30" r="1.1" fill="#fff" opacity=".65"/><circle cx="175" cy="15" r="1.4" fill="#fff" opacity=".8"/><path d="M0,110 Q38,68 88,90 Q138,55 198,78 Q253,42 335,64 L375,65 L375,110Z" fill="#0d2418" opacity=".9"/><path d="M0,140 Q58,100 128,122 Q190,85 260,112 L375,100 L375,140Z" fill="#0a1c10"/><rect x="0" y="140" width="375" height="40" fill="#030a05"/></svg>
       <div class="lp-art-overlay"></div>
     </div>
     <div class="lp-info">
@@ -968,17 +617,26 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
       </div>
     </div>
     <div class="lp-verses">
-      <div class="lp-verses-hdr"><span class="lp-vhdr-lbl">VERSES</span><span class="lp-vhdr-cnt" id="lp-vcnt">18 verses</span></div>
-      <div class="lp-vscroll" id="lp-vscroll"><div style="color:rgba(255,255,255,.3);text-align:center;padding:20px;font-size:12px">Select a surah to begin</div></div>
+      <div class="lp-verses-hdr"><span class="lp-vhdr-lbl">VERSES</span><span class="lp-vhdr-cnt" id="lp-vcnt">Al-Hujurat · 18 verses</span></div>
+      <div class="lp-vscroll" id="lp-vscroll">
+        <div class="lp-vline passed" data-v="1">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تُقَدِّمُوا۟ بَيْنَ يَدَىِ ٱللَّهِ ﴿١﴾</div>
+        <div class="lp-vline active" data-v="2">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تَرْفَعُوٓا۟ أَصْوَٰتَكُمْ فَوْقَ صَوْتِ ٱلنَّبِىِّ ﴿٢﴾</div>
+        <div class="lp-vline" data-v="3">إِنَّ ٱلَّذِينَ يَغُضُّونَ أَصْوَٰتَهُمْ عِندَ رَسُولِ ٱللَّهِ أُو۟لَٰٓئِكَ ﴿٣﴾</div>
+        <div class="lp-vline" data-v="4">إِنَّ ٱلَّذِينَ يُنَادُونَكَ مِن وَرَآءِ ٱلْحُجُرَٰتِ أَكْثَرُهُمْ لَا يَعْقِلُونَ ﴿٤﴾</div>
+        <div class="lp-vline" data-v="5">وَلَوْ أَنَّهُمْ صَبَرُوا۟ حَتَّىٰ تَخْرُجَ إِلَيْهِمْ لَكَانَ خَيْرًۭا لَّهُمْ ﴿٥﴾</div>
+        <div class="lp-vline" data-v="6">يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ إِن جَآءَكُمْ فَاسِقٌۢ بِنَبَإٍ فَتَبَيَّنُوٓا۟ ﴿٦﴾</div>
+        <div class="lp-vline" data-v="7">وَٱعْلَمُوٓا۟ أَنَّ فِيكُمْ رَسُولَ ٱللَّهِ ۚ لَوْ يُطِيعُكُمْ فِى كَثِيرٍۢ لَعَنِتُّمْ ﴿٧﴾</div>
+        <div class="lp-vline" data-v="8">فَضْلًا مِّنَ ٱللَّهِ وَنِعْمَةً وَٱللَّهُ عَلِيمٌ حَكِيمٌ ﴿٨﴾</div>
+      </div>
     </div>
     <div class="lp-bottom">
-      <div class="lp-prog"><div class="lp-prog-f" id="lp-prog-f"></div><div class="lp-prog-dot" id="lp-prog-dot"></div></div>
-      <div class="lp-times"><span id="lp-cur">0:00</span><span id="lp-dur">0:00</span></div>
+      <div class="lp-prog"><div class="lp-prog-f"></div><div class="lp-prog-dot"></div></div>
+      <div class="lp-times"><span>0:45</span><span>4:32</span></div>
       <div class="lp-ctrls">
         <div class="lp-ctrl-sm" id="lp-repeat" onclick="toggleRepeat()"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></div>
-        <div class="lp-ctrl-md" onclick="playVerse(Math.max(0,curVerseIdx-1))"><svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg></div>
-        <div class="lp-play" onclick="togglePlay()"><svg id="lp-ico" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/></svg></div>
-        <div class="lp-ctrl-md" onclick="playVerse(curVerseIdx+1)"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="lp-ctrl-md"><svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="lp-play" onclick="togglePlay()"><svg id="lp-ico" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></div>
+        <div class="lp-ctrl-md"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg></div>
         <div class="lp-speed" onclick="cycleSpeed(this)" id="lp-speed">1×</div>
       </div>
     </div>
@@ -988,16 +646,17 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <!-- ══════════ PRAYER ══════════ -->
 <div class="screen" id="s-prayer">
   <div class="body">
-    <div class="hdr screen-header"><div class="hdr-left"><div class="hdr-sm">Dubai, UAE</div><div class="hdr-big">Prayer Times</div></div><div class="av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div></div>
-    <div class="ph-card screen-block-1"><div class="ph-tag">NEXT PRAYER</div><div class="ph-name">Maghrib</div><div class="ph-cd">in 1 hour 24 minutes</div><div class="ph-bar"><div class="ph-fill"></div></div></div>
-    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#3A1A6E,#6B3FA0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg></div><div class="pr-info"><div class="pr-name">Fajr</div><div class="pr-sub">Imsak 03:58</div></div><div class="pr-time">04:13</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#7A4A00,#C8841A)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg></div><div class="pr-info"><div class="pr-name">Dhuhr</div></div><div class="pr-time">12:45</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#1A5C38,#2E8B57)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></svg></div><div class="pr-info"><div class="pr-name">Asr</div></div><div class="pr-time">15:50</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-    <div class="pr-row cur"><div class="pr-ic" style="background:linear-gradient(135deg,#8B2E00,#D44A1A)"><svg viewBox="0 0 24 24"><path d="M17 18a5 5 0 00-10 0"/><line x1="12" y1="9" x2="12" y2="2"/></svg></div><div class="pr-info"><div class="pr-name">Maghrib</div><div class="pr-sub">Next · in 1h 24m</div></div><div class="pr-time cur-t">18:36</div></div>
+    <div class="hdr"><div class="hdr-left"><div class="hdr-sm">Dubai, UAE</div><div class="hdr-big">Prayer Times</div></div><div class="av" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div></div>
+    <div class="ph-card"><div class="ph-tag">NEXT PRAYER</div><div class="ph-name">Maghrib</div><div class="ph-cd">in 1 hour 24 minutes</div><div class="ph-bar"><div class="ph-fill"></div></div></div>
+    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#3A1A6E,#6B3FA0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/></svg></div><div class="pr-info"><div class="pr-name">Fajr</div><div class="pr-sub">Imsak 03:58</div></div><div class="pr-time">04:13</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#7A4A00,#C8841A)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg></div><div class="pr-info"><div class="pr-name">Dhuhr</div></div><div class="pr-time">12:45</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#1A5C38,#2E8B57)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg></div><div class="pr-info"><div class="pr-name">Asr</div></div><div class="pr-time">15:50</div><div class="pr-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    <div class="pr-row cur"><div class="pr-ic" style="background:linear-gradient(135deg,#8B2E00,#D44A1A)"><svg viewBox="0 0 24 24"><path d="M17 18a5 5 0 00-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><polyline points="8 6 12 2 16 6"/></svg></div><div class="pr-info"><div class="pr-name">Maghrib</div><div class="pr-sub">Next · in 1h 24m</div></div><div class="pr-time cur-t">18:36</div></div>
     <div class="pr-row"><div class="pr-ic" style="background:linear-gradient(135deg,#0A2E6E,#1A5FB4)"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div><div class="pr-info"><div class="pr-name">Isha</div></div><div class="pr-time">20:12</div></div>
     <div class="qibla-card" onclick="openQibla()"><div class="qibla-ring"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="rgba(76,175,125,.3)" stroke="currentColor"/></svg></div><div><div class="qt">Qibla Direction</div><div class="qs">247° South-West · 3,500 km to Makkah</div></div></div>
   </div>
-  <div class="qibla-overlay" id="qibla-ov" style="display:none">
+  <!-- Qibla overlay -->
+  <div class="qibla-overlay" id="qibla-ov">
     <div class="qibla-topbar">
       <div class="qibla-close" onclick="closeQibla()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
       <div style="text-align:center"><div style="font-size:14px;color:#fff;font-weight:600">Qibla Direction</div><div style="font-size:10px;color:var(--text3);margin-top:2px">Dubai, UAE</div></div>
@@ -1020,7 +679,7 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <!-- ══════════ DHIKR ══════════ -->
 <div class="screen" id="s-dhikr">
   <div style="display:flex;flex-direction:column;height:100%">
-    <div class="hdr screen-header"><div class="hdr-left"><div class="hdr-sm">Daily Tasbih</div><div class="hdr-big">Dhikr Counter</div></div></div>
+    <div class="hdr"><div class="hdr-left"><div class="hdr-sm">Daily Tasbih</div><div class="hdr-big">Dhikr Counter</div></div><div class="av" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div></div>
     <div class="dk-presets"><div class="dk-pr active" onclick="selDk(this,'سُبْحَانَ اللَّهِ','GLORY BE TO ALLAH')">Subhanallah</div><div class="dk-pr" onclick="selDk(this,'اَلْحَمْدُ لِلَّهِ','PRAISE BE TO ALLAH')">Alhamdulillah</div><div class="dk-pr" onclick="selDk(this,'اللَّهُ أَكْبَرُ','ALLAH IS THE GREATEST')">Allahu Akbar</div><div class="dk-pr" onclick="selDk(this,'أَسْتَغْفِرُ اللَّهَ','I SEEK FORGIVENESS')">Astaghfirullah</div></div>
     <div class="dk-ring-wrap">
       <svg width="200" height="200" viewBox="0 0 220 220"><circle cx="110" cy="110" r="100" fill="none" stroke="rgba(76,175,125,.1)" stroke-width="4"/><circle id="dk-arc" cx="110" cy="110" r="100" fill="none" stroke="#4CAF7D" stroke-width="4" stroke-dasharray="628" stroke-dashoffset="419" stroke-linecap="round" transform="rotate(-90 110 110)"/></svg>
@@ -1036,16 +695,19 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 <!-- ══════════ PROFILE ══════════ -->
 <div class="screen" id="s-profile">
   <div class="body">
-    <div class="prf-hdr screen-header">
-      <div class="prf-av-wrap"><div class="prf-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></div><div><div class="prf-name">Dhanish</div><div class="prf-loc">Dubai, UAE</div></div></div>
+    <div class="prf-hdr">
+      <div class="prf-av-wrap">
+        <div class="prf-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></div>
+        <div><div class="prf-name">Dhanish</div><div class="prf-loc">Dubai, UAE · Sharjah</div></div>
+      </div>
       <div class="av" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
     </div>
-    <div class="prf-stats screen-block-1">
+    <div class="prf-stats">
       <div class="prf-stat" style="--c:#4CAF7D"><div class="prf-stat-val">7</div><div class="prf-stat-lbl">DAY STREAK</div></div>
       <div class="prf-stat" style="--c:#8B5CF6"><div class="prf-stat-val">14</div><div class="prf-stat-lbl">JUZ READ</div></div>
       <div class="prf-stat" style="--c:#C8841A"><div class="prf-stat-val">847</div><div class="prf-stat-lbl">TOTAL MINS</div></div>
     </div>
-    <div class="khatm-card screen-block-2"><div class="khatm-hd"><div class="khatm-lbl">Khatm Progress</div><div class="khatm-pct">47%</div></div><div class="khatm-bar"><div class="khatm-fill"></div></div></div>
+    <div class="khatm-card"><div class="khatm-hd"><div class="khatm-lbl">Khatm Progress</div><div class="khatm-pct">47%</div></div><div class="khatm-bar"><div class="khatm-fill"></div></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#1A2A4A,#2E4A8A)"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div><div class="s-lbl">Appearance<div class="s-sub" id="theme-lbl">Dark</div></div><div class="tog-wrap"><div class="tog" id="theme-tog" onclick="toggleTheme()"><div class="tog-knob"></div></div></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#1A5C38,#2E8B57)"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div><div class="s-lbl">Reciter<div class="s-sub">Mishary Al-Afasy</div></div><div class="s-arr"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
     <div class="srow"><div class="s-ic" style="background:linear-gradient(135deg,#0D4A5E,#1A7A8C)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="s-lbl">Language<div class="s-sub">English</div></div><div class="s-arr"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
@@ -1058,39 +720,97 @@ body{display:flex;align-items:center;justify-content:center;font-family:var(--ff
 
   <!-- ══ NAV ══ -->
   <div class="fnav">
-    <div class="ni active" id="n-home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><div class="ni-lbl">HOME</div></div>
-    <div class="ni" id="n-quran" onclick="go('quran')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="ni-lbl">QURAN</div></div>
-    <div class="ni" id="n-prayer" onclick="go('prayer')"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><div class="ni-lbl">PRAYER</div></div>
-    <div class="ni" id="n-dhikr" onclick="go('dhikr')"><svg viewBox="0 0 24 24"><circle cx="12" cy="18.5" r="1.5"/><circle cx="5" cy="15" r="1.5"/><circle cx="5" cy="9" r="1.5"/><circle cx="12" cy="5.5" r="1.5"/><circle cx="19" cy="9" r="1.5"/><circle cx="19" cy="15" r="1.5"/><circle cx="12" cy="12" r="2" fill="rgba(76,175,125,.3)"/></svg><div class="ni-lbl">DHIKR</div></div>
+    <div class="ni active" id="n-home" onclick="go('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="ni-lbl">HOME</div>
+    </div>
+    <div class="ni" id="n-quran" onclick="go('quran')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <div class="ni-lbl">QURAN</div>
+    </div>
+    <div class="ni" id="n-prayer" onclick="go('prayer')">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <div class="ni-lbl">PRAYER</div>
+    </div>
+    <div class="ni" id="n-dhikr" onclick="go('dhikr')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="18.5" r="1.5"/><circle cx="5" cy="15" r="1.5"/><circle cx="5" cy="9" r="1.5"/><circle cx="12" cy="5.5" r="1.5"/><circle cx="19" cy="9" r="1.5"/><circle cx="19" cy="15" r="1.5"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="17.7" y1="10.3" x2="15.5" y2="11.7"/><line x1="17.7" y1="14.7" x2="15.5" y2="13.3"/><line x1="12" y1="17" x2="12" y2="20"/><line x1="6.3" y1="14.7" x2="8.5" y2="13.3"/><line x1="6.3" y1="10.3" x2="8.5" y2="11.7"/><circle cx="12" cy="12" r="2" fill="rgba(76,175,125,.3)"/></svg>
+      <div class="ni-lbl">DHIKR</div>
+    </div>
   </div>
 </div><!-- /shell -->
 
 <script>
+// ═══════════════════════════════════════════════════════
+// EMBEDDED QURAN DATA (offline-first, 40 key surahs)
+// ═══════════════════════════════════════════════════════
 const QURAN_OFFLINE={"1":["بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ","ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ","ٱلرَّحْمَٰنِ ٱلرَّحِيمِ","مَٰلِكِ يَوْمِ ٱلدِّينِ","إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ","ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ","صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ"],"112":["قُلْ هُوَ ٱللَّهُ أَحَدٌ","ٱللَّهُ ٱلصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌ"],"113":["قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ","مِن شَرِّ مَا خَلَقَ","وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ","وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ"],"114":["قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ","مَلِكِ ٱلنَّاسِ","إِلَٰهِ ٱلنَّاسِ","مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ","ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ","مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ"],"109":["قُلْ يَٰٓأَيُّهَا ٱلْكَٰفِرُونَ","لَآ أَعْبُدُ مَا تَعْبُدُونَ","وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","وَلَآ أَنَا۠ عَابِدٌ مَّا عَبَدتُّمْ","وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","لَكُمْ دِينُكُمْ وَلِىَ دِينِ"],"110":["إِذَا جَآءَ نَصْرُ ٱللَّهِ وَٱلْفَتْحُ","وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًا","فَسَبِّحْ بِحَمْدِ رَبِّكَ وَٱسْتَغْفِرْهُ ۚ إِنَّهُۥ كَانَ تَوَّابًۢا"],"111":["تَبَّتْ يَدَآ أَبِى لَهَبٍ وَتَبَّ","مَآ أَغْنَىٰ عَنْهُ مَالُهُۥ وَمَا كَسَبَ","سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ","وَٱمْرَأَتُهُۥ حَمَّالَةَ ٱلْحَطَبِ","فِى جِيدِهَا حَبْلٌ مِّن مَّسَدٍ"],"108":["إِنَّآ أَعْطَيْنَٰكَ ٱلْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَٱنْحَرْ","إِنَّ شَانِئَكَ هُوَ ٱلْأَبْتَرُ"],"107":["أَرَءَيْتَ ٱلَّذِى يُكَذِّبُ بِٱلدِّينِ","فَذَٰلِكَ ٱلَّذِى يَدُعُّ ٱلْيَتِيمَ","وَلَا يَحُضُّ عَلَىٰ طَعَامِ ٱلْمِسْكِينِ","فَوَيْلٌ لِّلْمُصَلِّينَ","ٱلَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ","ٱلَّذِينَ هُمْ يُرَآءُونَ","وَيَمْنَعُونَ ٱلْمَاعُونَ"],"106":["لِإِيلَٰفِ قُرَيْشٍ","إِۦلَٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ","فَلْيَعْبُدُوا۟ رَبَّ هَٰذَا ٱلْبَيْتِ","ٱلَّذِىٓ أَطْعَمَهُم مِّن جُوعٍ وَءَامَنَهُم مِّنْ خَوْفٍ"],"105":["أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَٰبِ ٱلْفِيلِ","أَلَمْ يَجْعَلْ كَيْدَهُمْ فِى تَضْلِيلٍ","وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ","تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ","فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍۭ"],"104":["وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ","ٱلَّذِى جَمَعَ مَالًا وَعَدَّدَهُۥ","يَحْسَبُ أَنَّ مَالَهُۥٓ أَخْلَدَهُۥ","كَلَّا ۖ لَيُنۢبَذَنَّ فِى ٱلْحُطَمَةِ","وَمَآ أَدْرَىٰكَ مَا ٱلْحُطَمَةُ","نَارُ ٱللَّهِ ٱلْمُوقَدَةُ","ٱلَّتِى تَطَّلِعُ عَلَى ٱلْأَفْـِٔدَةِ","إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ","فِى عَمَدٍ مُّمَدَّدَةٍۭ"],"103":["وَٱلْعَصْرِ","إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ","إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ"],"102":["أَلْهَىٰكُمُ ٱلتَّكَاثُرُ","حَتَّىٰ زُرْتُمُ ٱلْمَقَابِرَ","كَلَّا سَوْفَ تَعْلَمُونَ","ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ","كَلَّا لَوْ تَعْلَمُونَ عِلْمَ ٱلْيَقِينِ","لَتَرَوُنَّ ٱلْجَحِيمَ","ثُمَّ لَتَرَوُنَّهَا عَيْنَ ٱلْيَقِينِ","ثُمَّ لَتُسْـَٔلُنَّ يَوْمَئِذٍ عَنِ ٱلنَّعِيمِ"],"101":["ٱلْقَارِعَةُ","مَا ٱلْقَارِعَةُ","وَمَآ أَدْرَىٰكَ مَا ٱلْقَارِعَةُ","يَوْمَ يَكُونُ ٱلنَّاسُ كَٱلْفَرَاشِ ٱلْمَبْثُوثِ","وَتَكُونُ ٱلْجِبَالُ كَٱلْعِهْنِ ٱلْمَنفُوشِ","فَأَمَّا مَن ثَقُلَتْ مَوَٰزِينُهُۥ","فَهُوَ فِى عِيشَةٍ رَّاضِيَةٍ","وَأَمَّا مَنْ خَفَّتْ مَوَٰزِينُهُۥ","فَأُمُّهُۥ هَاوِيَةٌ","وَمَآ أَدْرَىٰكَ مَا هِيَهْ","نَارٌ حَامِيَةٌۢ"],"100":["وَٱلْعَٰدِيَٰتِ ضَبْحًا","فَٱلْمُورِيَٰتِ قَدْحًا","فَٱلْمُغِيرَٰتِ صُبْحًا","فَأَثَرْنَ بِهِۦ نَقْعًا","فَوَسَطْنَ بِهِۦ جَمْعًا","إِنَّ ٱلْإِنسَٰنَ لِرَبِّهِۦ لَكَنُودٌ","وَإِنَّهُۥ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ","وَإِنَّهُۥ لِحُبِّ ٱلْخَيْرِ لَشَدِيدٌ","أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِى ٱلْقُبُورِ","وَحُصِّلَ مَا فِى ٱلصُّدُورِ","إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌۢ"],"99":["إِذَا زُلْزِلَتِ ٱلْأَرْضُ زِلْزَالَهَا","وَأَخْرَجَتِ ٱلْأَرْضُ أَثْقَالَهَا","وَقَالَ ٱلْإِنسَٰنُ مَا لَهَا","يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا","بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا","يَوْمَئِذٍ يَصْدُرُ ٱلنَّاسُ أَشْتَاتًا لِّيُرَوْا۟ أَعْمَٰلَهُمْ","فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُۥ","وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُۥ"],"98":["لَمْ يَكُنِ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ ٱلْبَيِّنَةُ","رَسُولٌ مِّنَ ٱللَّهِ يَتْلُوا۟ صُحُفًا مُّطَهَّرَةً","فِيهَا كُتُبٌ قَيِّمَةٌ","وَمَا تَفَرَّقَ ٱلَّذِينَ أُوتُوا۟ ٱلْكِتَٰبَ إِلَّا مِنۢ بَعْدِ مَا جَآءَتْهُمُ ٱلْبَيِّنَةُ","وَمَآ أُمِرُوٓا۟ إِلَّا لِيَعْبُدُوا۟ ٱللَّهَ مُخْلِصِينَ لَهُ ٱلدِّينَ حُنَفَآءَ وَيُقِيمُوا۟ ٱلصَّلَوٰةَ وَيُؤْتُوا۟ ٱلزَّكَوٰةَ ۚ وَذَٰلِكَ دِينُ ٱلْقَيِّمَةِ","إِنَّ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ فِى نَارِ جَهَنَّمَ خَٰلِدِينَ فِيهَآ ۚ أُو۟لَٰٓئِكَ هُمْ شَرُّ ٱلْبَرِيَّةِ","إِنَّ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ أُو۟لَٰٓئِكَ هُمْ خَيْرُ ٱلْبَرِيَّةِ","جَزَآؤُهُمْ عِندَ رَبِّهِمْ جَنَّٰتُ عَدْنٍ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ خَٰلِدِينَ فِيهَآ أَبَدًا ۖ رَّضِىَ ٱللَّهُ عَنْهُمْ وَرَضُوا۟ عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِىَ رَبَّهُۥ"],"97":["إِنَّآ أَنزَلْنَٰهُ فِى لَيْلَةِ ٱلْقَدْرِ","وَمَآ أَدْرَىٰكَ مَا لَيْلَةُ ٱلْقَدْرِ","لَيْلَةُ ٱلْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ","تَنَزَّلُ ٱلْمَلَٰٓئِكَةُ وَٱلرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ","سَلَٰمٌ هِىَ حَتَّىٰ مَطْلَعِ ٱلْفَجْرِ"],"96":["ٱقْرَأْ بِٱسْمِ رَبِّكَ ٱلَّذِى خَلَقَ","خَلَقَ ٱلْإِنسَٰنَ مِنْ عَلَقٍ","ٱقْرَأْ وَرَبُّكَ ٱلْأَكْرَمُ","ٱلَّذِى عَلَّمَ بِٱلْقَلَمِ","عَلَّمَ ٱلْإِنسَٰنَ مَا لَمْ يَعْلَمْ","كَلَّآ إِنَّ ٱلْإِنسَٰنَ لَيَطْغَىٰٓ","أَن رَّءَاهُ ٱسْتَغْنَىٰٓ","إِنَّ إِلَىٰ رَبِّكَ ٱلرُّجْعَىٰٓ","أَرَءَيْتَ ٱلَّذِى يَنْهَىٰ","عَبْدًا إِذَا صَلَّىٰٓ","أَرَءَيْتَ إِن كَانَ عَلَى ٱلْهُدَىٰٓ","أَوْ أَمَرَ بِٱلتَّقْوَىٰٓ","أَرَءَيْتَ إِن كَذَّبَ وَتَوَلَّىٰٓ","أَلَمْ يَعْلَم بِأَنَّ ٱللَّهَ يَرَىٰ","كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًۢا بِٱلنَّاصِيَةِ","نَاصِيَةٍ كَٰذِبَةٍ خَاطِئَةٍ","فَلْيَدْعُ نَادِيَهُۥ","سَنَدْعُ ٱلزَّبَانِيَةَ","كَلَّا لَا تُطِعْهُ وَٱسْجُدْ وَٱقْتَرِب ۩"],"95":["وَٱلتِّينِ وَٱلزَّيْتُونِ","وَطُورِ سِينِينَ","وَهَٰذَا ٱلْبَلَدِ ٱلْأَمِينِ","لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِىٓ أَحْسَنِ تَقْوِيمٍ","ثُمَّ رَدَدْنَٰهُ أَسْفَلَ سَٰفِلِينَ","إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ","فَمَا يُكَذِّبُكَ بَعْدُ بِٱلدِّينِ","أَلَيْسَ ٱللَّهُ بِأَحْكَمِ ٱلْحَٰكِمِينَ"],"94":["أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ","وَوَضَعْنَا عَنكَ وِزْرَكَ","ٱلَّذِىٓ أَنقَضَ ظَهْرَكَ","وَرَفَعْنَا لَكَ ذِكْرَكَ","فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا","إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا","فَإِذَا فَرَغْتَ فَٱنصَبْ","وَإِلَىٰ رَبِّكَ فَٱرْغَب"],"93":["وَٱلضُّحَىٰ","وَٱلَّيْلِ إِذَا سَجَىٰ","مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ","وَلَلْءَاخِرَةُ خَيْرٌ لَّكَ مِنَ ٱلْأُولَىٰ","وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰٓ","أَلَمْ يَجِدْكَ يَتِيمًا فَـَٔاوَىٰ","وَوَجَدَكَ ضَآلًّا فَهَدَىٰ","وَوَجَدَكَ عَآئِلًا فَأَغْنَىٰ","فَأَمَّا ٱلْيَتِيمَ فَلَا تَقْهَرْ","وَأَمَّا ٱلسَّآئِلَ فَلَا تَنْهَرْ","وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ"],"92":["وَٱلَّيْلِ إِذَا يَغْشَىٰ","وَٱلنَّهَارِ إِذَا تَجَلَّىٰ","وَمَا خَلَقَ ٱلذَّكَرَ وَٱلْأُنثَىٰٓ","إِنَّ سَعْيَكُمْ لَشَتَّىٰ","فَأَمَّا مَنْ أَعْطَىٰ وَٱتَّقَىٰ","وَصَدَّقَ بِٱلْحُسْنَىٰ","فَسَنُيَسِّرُهُۥ لِلْيُسْرَىٰ","وَأَمَّا مَنۢ بَخِلَ وَٱسْتَغْنَىٰ","وَكَذَّبَ بِٱلْحُسْنَىٰ","فَسَنُيَسِّرُهُۥ لِلْعُسْرَىٰ","وَمَا يُغْنِى عَنْهُ مَالُهُۥٓ إِذَا تَرَدَّىٰٓ","إِنَّ عَلَيْنَا لَلْهُدَىٰ","وَإِنَّ لَنَا لَلْءَاخِرَةَ وَٱلْأُولَىٰ","فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ","لَا يَصْلَىٰهَآ إِلَّا ٱلْأَشْقَى","ٱلَّذِى كَذَّبَ وَتَوَلَّىٰ","وَسَيُجَنَّبُهَا ٱلْأَتْقَى","ٱلَّذِى يُؤْتِى مَالَهُۥ يَتَزَكَّىٰ","وَمَا لِأَحَدٍ عِندَهُۥ مِن نِّعْمَةٍ تُجْزَىٰٓ","إِلَّا ٱبْتِغَآءَ وَجْهِ رَبِّهِ ٱلْأَعْلَىٰ","وَلَسَوْفَ يَرْضَىٰ"],"91":["وَٱلشَّمْسِ وَضُحَىٰهَا","وَٱلْقَمَرِ إِذَا تَلَىٰهَا","وَٱلنَّهَارِ إِذَا جَلَّىٰهَا","وَٱلَّيْلِ إِذَا يَغْشَىٰهَا","وَٱلسَّمَآءِ وَمَا بَنَىٰهَا","وَٱلْأَرْضِ وَمَا طَحَىٰهَا","وَنَفْسٍ وَمَا سَوَّىٰهَا","فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَىٰهَا","قَدْ أَفْلَحَ مَن زَكَّىٰهَا","وَقَدْ خَابَ مَن دَسَّىٰهَا","كَذَّبَتْ ثَمُودُ بِطَغْوَىٰهَآ","إِذِ ٱنۢبَعَثَ أَشْقَىٰهَا","فَقَالَ لَهُمْ رَسُولُ ٱللَّهِ نَاقَةَ ٱللَّهِ وَسُقْيَٰهَا","فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنۢبِهِمْ فَسَوَّىٰهَا","وَلَا يَخَافُ عُقْبَٰهَا"],"90":["لَآ أُقْسِمُ بِهَٰذَا ٱلْبَلَدِ","وَأَنتَ حِلٌّۢ بِهَٰذَا ٱلْبَلَدِ","وَوَالِدٍ وَمَا وَلَدَ","لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِى كَبَدٍ","أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌ","يَقُولُ أَهْلَكْتُ مَالًا لُّبَدًا","أَيَحْسَبُ أَن لَّمْ يَرَهُۥٓ أَحَدٌ","أَلَمْ نَجْعَل لَّهُۥ عَيْنَيْنِ","وَلِسَانًا وَشَفَتَيْنِ","وَهَدَيْنَٰهُ ٱلنَّجْدَيْنِ","فَلَا ٱقْتَحَمَ ٱلْعَقَبَةَ","وَمَآ أَدْرَىٰكَ مَا ٱلْعَقَبَةُ","فَكُّ رَقَبَةٍ","أَوْ إِطْعَٰمٌ فِى يَوْمٍ ذِى مَسْغَبَةٍ","يَتِيمًا ذَا مَقْرَبَةٍ","أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ","ثُمَّ كَانَ مِنَ ٱلَّذِينَ ءَامَنُوا۟ وَتَوَاصَوْا۟ بِٱلصَّبْرِ وَتَوَاصَوْا۟ بِٱلْمَرْحَمَةِ","أُو۟لَٰٓئِكَ أَصْحَٰبُ ٱلْمَيْمَنَةِ","وَٱلَّذِينَ كَفَرُوا۟ بِـَٔايَٰتِنَا هُمْ أَصْحَٰبُ ٱلْمَشْـَٔمَةِ","عَلَيْهِمْ نَارٌ مُّؤْصَدَةٌۢ"],"89":["وَٱلْفَجْرِ","وَلَيَالٍ عَشْرٍ","وَٱلشَّفْعِ وَٱلْوَتْرِ","وَٱلَّيْلِ إِذَا يَسْرِ","هَلْ فِى ذَٰلِكَ قَسَمٌ لِّذِى حِجْرٍ","أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِعَادٍ","إِرَمَ ذَاتِ ٱلْعِمَادِ","ٱلَّتِى لَمْ يُخْلَقْ مِثْلُهَا فِى ٱلْبِلَٰدِ","وَثَمُودَ ٱلَّذِينَ جَابُوا۟ ٱلصَّخْرَ بِٱلْوَادِ","وَفِرْعَوْنَ ذِى ٱلْأَوْتَادِ","ٱلَّذِينَ طَغَوْا۟ فِى ٱلْبِلَٰدِ","فَأَكْثَرُوا۟ فِيهَا ٱلْفَسَادَ","فَصَبَّ عَلَيْهِمْ رَبُّكَ سَوْطَ عَذَابٍ","إِنَّ رَبَّكَ لَبِٱلْمِرْصَادِ","فَأَمَّا ٱلْإِنسَٰنُ إِذَا مَا ٱبْتَلَىٰهُ رَبُّهُۥ فَأَكْرَمَهُۥ وَنَعَّمَهُۥ فَيَقُولُ رَبِّىٓ أَكْرَمَنِ","وَأَمَّآ إِذَا مَا ٱبْتَلَىٰهُ فَقَدَرَ عَلَيْهِ رِزْقَهُۥ فَيَقُولُ رَبِّىٓ أَهَٰنَنِ","كَلَّا ۖ بَل لَّا تُكْرِمُونَ ٱلْيَتِيمَ","وَلَا تَحَٰٓضُّونَ عَلَىٰ طَعَامِ ٱلْمِسْكِينِ","وَتَأْكُلُونَ ٱلتُّرَاثَ أَكْلًا لَّمًّا","وَتُحِبُّونَ ٱلْمَالَ حُبًّا جَمًّا","كَلَّآ إِذَا دُكَّتِ ٱلْأَرْضُ دَكًّا دَكًّا","وَجَآءَ رَبُّكَ وَٱلْمَلَكُ صَفًّا صَفًّا","وَجِاىٓءَ يَوْمَئِذٍۭ بِجَهَنَّمَ ۚ يَوْمَئِذٍ يَتَذَكَّرُ ٱلْإِنسَٰنُ وَأَنَّىٰ لَهُ ٱلذِّكْرَىٰ","يَقُولُ يَٰلَيْتَنِى قَدَّمْتُ لِحَيَاتِى","فَيَوْمَئِذٍ لَّا يُعَذِّبُ عَذَابَهُۥٓ أَحَدٌ","وَلَا يُوثِقُ وَثَاقَهُۥٓ أَحَدٌ","يَٰٓأَيَّتُهَا ٱلنَّفْسُ ٱلْمُطْمَئِنَّةُ","ٱرْجِعِىٓ إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً","فَٱدْخُلِى فِى عِبَٰدِى","وَٱدْخُلِى جَنَّتِى"],"88":["هَلْ أَتَىٰكَ حَدِيثُ ٱلْغَٰشِيَةِ","وُجُوهٌ يَوْمَئِذٍ خَٰشِعَةٌ","عَامِلَةٌ نَّاصِبَةٌ","تَصْلَىٰ نَارًا حَامِيَةً","تُسْقَىٰ مِنْ عَيْنٍ ءَانِيَةٍ","لَّيْسَ لَهُمْ طَعَامٌ إِلَّا مِن ضَرِيعٍ","لَّا يُسْمِنُ وَلَا يُغْنِى مِن جُوعٍ","وُجُوهٌ يَوْمَئِذٍ نَّاعِمَةٌ","لِّسَعْيِهَا رَاضِيَةٌ","فِى جَنَّةٍ عَالِيَةٍ","لَّا تَسْمَعُ فِيهَا لَٰغِيَةً","فِيهَا عَيْنٌ جَارِيَةٌ","فِيهَا سُرُرٌ مَّرْفُوعَةٌ","وَأَكْوَابٌ مَّوْضُوعَةٌ","وَنَمَارِقُ مَصْفُوفَةٌ","وَزَرَابِىُّ مَبْثُوثَةٌ","أَفَلَا يَنظُرُونَ إِلَى ٱلْإِبِلِ كَيْفَ خُلِقَتْ","وَإِلَى ٱلسَّمَآءِ كَيْفَ رُفِعَتْ","وَإِلَى ٱلْجِبَالِ كَيْفَ نُصِبَتْ","وَإِلَى ٱلْأَرْضِ كَيْفَ سُطِحَتْ","فَذَكِّرْ إِنَّمَآ أَنتَ مُذَكِّرٌ","لَّسْتَ عَلَيْهِم بِمُصَيْطِرٍ","إِلَّا مَن تَوَلَّىٰ وَكَفَرَ","فَيُعَذِّبُهُ ٱللَّهُ ٱلْعَذَابَ ٱلْأَكْبَرَ","إِنَّ إِلَيْنَآ إِيَابَهُمْ","ثُمَّ إِنَّ عَلَيْنَا حِسَابَهُم"],"87":["سَبِّحِ ٱسْمَ رَبِّكَ ٱلْأَعْلَى","ٱلَّذِى خَلَقَ فَسَوَّىٰ","وَٱلَّذِى قَدَّرَ فَهَدَىٰ","وَٱلَّذِىٓ أَخْرَجَ ٱلْمَرْعَىٰ","فَجَعَلَهُۥ غُثَآءً أَحْوَىٰ","سَنُقْرِئُكَ فَلَا تَنسَىٰٓ","إِلَّا مَا شَآءَ ٱللَّهُ ۚ إِنَّهُۥ يَعْلَمُ ٱلْجَهْرَ وَمَا يَخْفَىٰ","وَنُيَسِّرُكَ لِلْيُسْرَىٰ","فَذَكِّرْ إِن نَّفَعَتِ ٱلذِّكْرَىٰ","سَيَذَّكَّرُ مَن يَخْشَىٰ","وَيَتَجَنَّبُهَا ٱلْأَشْقَى","ٱلَّذِى يَصْلَى ٱلنَّارَ ٱلْكُبْرَىٰ","ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ","قَدْ أَفْلَحَ مَن تَزَكَّىٰ","وَذَكَرَ ٱسْمَ رَبِّهِۦ فَصَلَّىٰ","بَلْ تُؤْثِرُونَ ٱلْحَيَوٰةَ ٱلدُّنْيَا","وَٱلْءَاخِرَةُ خَيْرٌ وَأَبْقَىٰٓ","إِنَّ هَٰذَا لَفِى ٱلصُّحُفِ ٱلْأُولَىٰ","صُحُفِ إِبْرَٰهِيمَ وَمُوسَىٰ"],"86":["وَٱلسَّمَآءِ وَٱلطَّارِقِ","وَمَآ أَدْرَىٰكَ مَا ٱلطَّارِقُ","ٱلنَّجْمُ ٱلثَّاقِبُ","إِن كُلُّ نَفْسٍ لَّمَّا عَلَيْهَا حَافِظٌ","فَلْيَنظُرِ ٱلْإِنسَٰنُ مِمَّ خُلِقَ","خُلِقَ مِن مَّآءٍ دَافِقٍ","يَخْرُجُ مِنۢ بَيْنِ ٱلصُّلْبِ وَٱلتَّرَآئِبِ","إِنَّهُۥ عَلَىٰ رَجْعِهِۦ لَقَادِرٌ","يَوْمَ تُبْلَى ٱلسَّرَآئِرُ","فَمَا لَهُۥ مِن قُوَّةٍ وَلَا نَاصِرٍ","وَٱلسَّمَآءِ ذَاتِ ٱلرَّجْعِ","وَٱلْأَرْضِ ذَاتِ ٱلصَّدْعِ","إِنَّهُۥ لَقَوْلٌ فَصْلٌ","وَمَا هُوَ بِٱلْهَزْلِ","إِنَّهُمْ يَكِيدُونَ كَيْدًا","وَأَكِيدُ كَيْدًا","فَمَهِّلِ ٱلْكَٰفِرِينَ أَمْهِلْهُمْ رُوَيْدًۢا"],"85":["وَٱلسَّمَآءِ ذَاتِ ٱلْبُرُوجِ","وَٱلْيَوْمِ ٱلْمَوْعُودِ","وَشَاهِدٍ وَمَشْهُودٍ","قُتِلَ أَصْحَٰبُ ٱلْأُخْدُودِ","ٱلنَّارِ ذَاتِ ٱلْوَقُودِ","إِذْ هُمْ عَلَيْهَا قُعُودٌ","وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِٱلْمُؤْمِنِينَ شُهُودٌ","وَمَا نَقَمُوا۟ مِنْهُمْ إِلَّآ أَن يُؤْمِنُوا۟ بِٱللَّهِ ٱلْعَزِيزِ ٱلْحَمِيدِ","ٱلَّذِى لَهُۥ مُلْكُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضِ ۚ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍ شَهِيدٌ","إِنَّ ٱلَّذِينَ فَتَنُوا۟ ٱلْمُؤْمِنِينَ وَٱلْمُؤْمِنَٰتِ ثُمَّ لَمْ يَتُوبُوا۟ فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ ٱلْحَرِيقِ","إِنَّ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ لَهُمْ جَنَّٰتٌ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ ۚ ذَٰلِكَ ٱلْفَوْزُ ٱلْكَبِيرُ","إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ","إِنَّهُۥ هُوَ يُبْدِئُ وَيُعِيدُ","وَهُوَ ٱلْغَفُورُ ٱلْوَدُودُ","ذُو ٱلْعَرْشِ ٱلْمَجِيدُ","فَعَّالٌ لِّمَا يُرِيدُ","هَلْ أَتَىٰكَ حَدِيثُ ٱلْجُنُودِ","فِرْعَوْنَ وَثَمُودَ","بَلِ ٱلَّذِينَ كَفَرُوا۟ فِى تَكْذِيبٍ","وَٱللَّهُ مِن وَرَآئِهِم مُّحِيطٌ","بَلْ هُوَ قُرْءَانٌ مَّجِيدٌ","فِى لَوْحٍ مَّحْفُوظٍۭ"],"84":["إِذَا ٱلسَّمَآءُ ٱنشَقَّتْ","وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ","وَإِذَا ٱلْأَرْضُ مُدَّتْ","وَأَلْقَتْ مَا فِيهَا وَتَخَلَّتْ","وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ","يَٰٓأَيُّهَا ٱلْإِنسَٰنُ إِنَّكَ كَادِحٌ إِلَىٰ رَبِّكَ كَدْحًا فَمُلَٰقِيهِ","فَأَمَّا مَنْ أُوتِىَ كِتَٰبَهُۥ بِيَمِينِهِ","فَسَوْفَ يُحَاسَبُ حِسَابًا يَسِيرًا","وَيَنقَلِبُ إِلَىٰٓ أَهْلِهِۦ مَسْرُورًا","وَأَمَّا مَنْ أُوتِىَ كِتَٰبَهُۥ وَرَآءَ ظَهْرِهِۦ","فَسَوْفَ يَدْعُوا۟ ثُبُورًا","وَيَصْلَىٰ سَعِيرًا","إِنَّهُۥ كَانَ فِىٓ أَهْلِهِۦ مَسْرُورًا","إِنَّهُۥ ظَنَّ أَن لَّن يَحُورَ","بَلَىٰٓ إِنَّ رَبَّهُۥ كَانَ بِهِۦ بَصِيرًا","فَلَآ أُقْسِمُ بِٱلشَّفَقِ","وَٱلَّيْلِ وَمَا وَسَقَ","وَٱلْقَمَرِ إِذَا ٱتَّسَقَ","لَتَرْكَبُنَّ طَبَقًا عَن طَبَقٍ","فَمَا لَهُمْ لَا يُؤْمِنُونَ","وَإِذَا قُرِئَ عَلَيْهِمُ ٱلْقُرْءَانُ لَا يَسْجُدُونَ ۩","بَلِ ٱلَّذِينَ كَفَرُوا۟ يُكَذِّبُونَ","وَٱللَّهُ أَعْلَمُ بِمَا يُوعُونَ","فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ","إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ لَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ"],"83":["وَيْلٌ لِّلْمُطَفِّفِينَ","ٱلَّذِينَ إِذَا ٱكْتَالُوا۟ عَلَى ٱلنَّاسِ يَسْتَوْفُونَ","وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ","أَلَا يَظُنُّ أُو۟لَٰٓئِكَ أَنَّهُم مَّبْعُوثُونَ","لِيَوْمٍ عَظِيمٍ","يَوْمَ يَقُومُ ٱلنَّاسُ لِرَبِّ ٱلْعَٰلَمِينَ","كَلَّآ إِنَّ كِتَٰبَ ٱلْفُجَّارِ لَفِى سِجِّينٍ","وَمَآ أَدْرَىٰكَ مَا سِجِّينٌ","كِتَٰبٌ مَّرْقُومٌ","وَيْلٌ يَوْمَئِذٍ لِّلْمُكَذِّبِينَ","ٱلَّذِينَ يُكَذِّبُونَ بِيَوْمِ ٱلدِّينِ","وَمَا يُكَذِّبُ بِهِۦٓ إِلَّا كُلُّ مُعْتَدٍ أَثِيمٍ","إِذَا تُتْلَىٰ عَلَيْهِ ءَايَٰتُنَا قَالَ أَسَٰطِيرُ ٱلْأَوَّلِينَ","كَلَّا ۖ بَلْ ۜ رَانَ عَلَىٰ قُلُوبِهِم مَّا كَانُوا۟ يَكْسِبُونَ","كَلَّآ إِنَّهُمْ عَن رَّبِّهِمْ يَوْمَئِذٍ لَّمَحْجُوبُونَ","ثُمَّ إِنَّهُمْ لَصَالُوا۟ ٱلْجَحِيمِ","ثُمَّ يُقَالُ هَٰذَا ٱلَّذِى كُنتُم بِهِۦ تُكَذِّبُونَ","كَلَّآ إِنَّ كِتَٰبَ ٱلْأَبْرَارِ لَفِى عِلِّيِّينَ","وَمَآ أَدْرَىٰكَ مَا عِلِّيُّونَ","كِتَٰبٌ مَّرْقُومٌ","يَشْهَدُهُ ٱلْمُقَرَّبُونَ","إِنَّ ٱلْأَبْرَارَ لَفِى نَعِيمٍ","عَلَى ٱلْأَرَآئِكِ يَنظُرُونَ","تَعْرِفُ فِى وُجُوهِهِمْ نَضْرَةَ ٱلنَّعِيمِ","يُسْقَوْنَ مِن رَّحِيقٍ مَّخْتُومٍ","خِتَٰمُهُۥ مِسْكٌ ۚ وَفِى ذَٰلِكَ فَلْيَتَنَافَسِ ٱلْمُتَنَٰفِسُونَ","وَمِزَاجُهُۥ مِن تَسْنِيمٍ","عَيْنًا يَشْرَبُ بِهَا ٱلْمُقَرَّبُونَ","إِنَّ ٱلَّذِينَ أَجْرَمُوا۟ كَانُوا۟ مِنَ ٱلَّذِينَ ءَامَنُوا۟ يَضْحَكُونَ","وَإِذَا مَرُّوا۟ بِهِمْ يَتَغَامَزُونَ","وَإِذَا ٱنقَلَبُوٓا۟ إِلَىٰٓ أَهْلِهِمُ ٱنقَلَبُوا۟ فَكِهِينَ","وَإِذَا رَأَوْهُمْ قَالُوٓا۟ إِنَّ هَٰٓؤُلَآءِ لَضَآلُّونَ","وَمَآ أُرْسِلُوا۟ عَلَيْهِمْ حَٰفِظِينَ","فَٱلْيَوْمَ ٱلَّذِينَ ءَامَنُوا۟ مِنَ ٱلْكُفَّارِ يَضْحَكُونَ","عَلَى ٱلْأَرَآئِكِ يَنظُرُونَ","هَلْ ثُوِّبَ ٱلْكُفَّارُ مَا كَانُوا۟ يَفْعَلُونَ"],"82":["إِذَا ٱلسَّمَآءُ ٱنفَطَرَتْ","وَإِذَا ٱلْكَوَاكِبُ ٱنتَثَرَتْ","وَإِذَا ٱلْبِحَارُ فُجِّرَتْ","وَإِذَا ٱلْقُبُورُ بُعْثِرَتْ","عَلِمَتْ نَفْسٌ مَّا قَدَّمَتْ وَأَخَّرَتْ","يَٰٓأَيُّهَا ٱلْإِنسَٰنُ مَا غَرَّكَ بِرَبِّكَ ٱلْكَرِيمِ","ٱلَّذِى خَلَقَكَ فَسَوَّىٰكَ فَعَدَلَكَ","فِىٓ أَىِّ صُورَةٍ مَّا شَآءَ رَكَّبَكَ","كَلَّا بَلْ تُكَذِّبُونَ بِٱلدِّينِ","وَإِنَّ عَلَيْكُمْ لَحَٰفِظِينَ","كِرَامًا كَٰتِبِينَ","يَعْلَمُونَ مَا تَفْعَلُونَ","إِنَّ ٱلْأَبْرَارَ لَفِى نَعِيمٍ","وَإِنَّ ٱلْفُجَّارَ لَفِى جَحِيمٍ","يَصْلَوْنَهَا يَوْمَ ٱلدِّينِ","وَمَا هُمْ عَنْهَا بِغَآئِبِينَ","وَمَآ أَدْرَىٰكَ مَا يَوْمُ ٱلدِّينِ","ثُمَّ مَآ أَدْرَىٰكَ مَا يَوْمُ ٱلدِّينِ","يَوْمَ لَا تَمْلِكُ نَفْسٌ لِّنَفْسٍ شَيْـًٔا ۖ وَٱلْأَمْرُ يَوْمَئِذٍ لِّلَّهِ"],"81":["إِذَا ٱلشَّمْسُ كُوِّرَتْ","وَإِذَا ٱلنُّجُومُ ٱنكَدَرَتْ","وَإِذَا ٱلْجِبَالُ سُيِّرَتْ","وَإِذَا ٱلْعِشَارُ عُطِّلَتْ","وَإِذَا ٱلْوُحُوشُ حُشِرَتْ","وَإِذَا ٱلْبِحَارُ سُجِّرَتْ","وَإِذَا ٱلنُّفُوسُ زُوِّجَتْ","وَإِذَا ٱلْمَوْءُۥدَةُ سُئِلَتْ","بِأَىِّ ذَنۢبٍ قُتِلَتْ","وَإِذَا ٱلصُّحُفُ نُشِرَتْ","وَإِذَا ٱلسَّمَآءُ كُشِطَتْ","وَإِذَا ٱلْجَحِيمُ سُعِّرَتْ","وَإِذَا ٱلْجَنَّةُ أُزْلِفَتْ","عَلِمَتْ نَفْسٌ مَّآ أَحْضَرَتْ","فَلَآ أُقْسِمُ بِٱلْخُنَّسِ","ٱلْجَوَارِ ٱلْكُنَّسِ","وَٱلَّيْلِ إِذَا عَسْعَسَ","وَٱلصُّبْحِ إِذَآ تَنَفَّسَ","إِنَّهُۥ لَقَوْلُ رَسُولٍ كَرِيمٍ","ذِى قُوَّةٍ عِندَ ذِى ٱلْعَرْشِ مَكِينٍ","مُّطَاعٍ ثَمَّ أَمِينٍ","وَمَا صَاحِبُكُم بِمَجْنُونٍ","وَلَقَدْ رَءَاهُ بِٱلْأُفُقِ ٱلْمُبِينِ","وَمَا هُوَ عَلَى ٱلْغَيْبِ بِضَنِينٍ","وَمَا هُوَ بِقَوْلِ شَيْطَٰنٍ رَّجِيمٍ","فَأَيْنَ تَذْهَبُونَ","إِنْ هُوَ إِلَّا ذِكْرٌ لِّلْعَٰلَمِينَ","لِمَن شَآءَ مِنكُمْ أَن يَسْتَقِيمَ","وَمَا تَشَآءُونَ إِلَّآ أَن يَشَآءَ ٱللَّهُ رَبُّ ٱلْعَٰلَمِينَ"],"80":["عَبَسَ وَتَوَلَّىٰٓ","أَن جَآءَهُ ٱلْأَعْمَىٰ","وَمَا يُدْرِيكَ لَعَلَّهُۥ يَزَّكَّىٰٓ","أَوْ يَذَّكَّرُ فَتَنفَعَهُ ٱلذِّكْرَىٰٓ","أَمَّا مَنِ ٱسْتَغْنَىٰ","فَأَنتَ لَهُۥ تَصَدَّىٰ","وَمَا عَلَيْكَ أَلَّا يَزَّكَّىٰ","وَأَمَّا مَن جَآءَكَ يَسْعَىٰ","وَهُوَ يَخْشَىٰ","فَأَنتَ عَنْهُ تَلَهَّىٰ","كَلَّآ إِنَّهَا تَذْكِرَةٌ","فَمَن شَآءَ ذَكَرَهُۥ","فِى صُحُفٍ مُّكَرَّمَةٍ","مَّرْفُوعَةٍ مُّطَهَّرَةٍۭ","بِأَيْدِى سَفَرَةٍ","كِرَامٍۭ بَرَرَةٍ","قُتِلَ ٱلْإِنسَٰنُ مَآ أَكْفَرَهُۥ","مِنْ أَىِّ شَىْءٍ خَلَقَهُۥ","مِن نُّطْفَةٍ خَلَقَهُۥ فَقَدَّرَهُۥ","ثُمَّ ٱلسَّبِيلَ يَسَّرَهُۥ","ثُمَّ أَمَاتَهُۥ فَأَقْبَرَهُۥ","ثُمَّ إِذَا شَآءَ أَنشَرَهُۥ","كَلَّا لَمَّا يَقْضِ مَآ أَمَرَهُۥ","فَلْيَنظُرِ ٱلْإِنسَٰنُ إِلَىٰ طَعَامِهِۦٓ","أَنَّا صَبَبْنَا ٱلْمَآءَ صَبًّا","ثُمَّ شَقَقْنَا ٱلْأَرْضَ شَقًّا","فَأَنۢبَتْنَا فِيهَا حَبًّا","وَعِنَبًا وَقَضْبًا","وَزَيْتُونًا وَنَخْلًا","وَحَدَآئِقَ غُلْبًا","وَفَٰكِهَةً وَأَبًّا","مَّتَٰعًا لَّكُمْ وَلِأَنْعَٰمِكُمْ","فَإِذَا جَآءَتِ ٱلصَّآخَّةُ","يَوْمَ يَفِرُّ ٱلْمَرْءُ مِنْ أَخِيهِ","وَأُمِّهِۦ وَأَبِيهِ","وَصَٰحِبَتِهِۦ وَبَنِيهِ","لِكُلِّ ٱمْرِئٍ مِّنْهُمْ يَوْمَئِذٍ شَأْنٌ يُغْنِيهِ","وُجُوهٌ يَوْمَئِذٍ مُّسْفِرَةٌ","ضَاحِكَةٌ مُّسْتَبْشِرَةٌ","وَوُجُوهٌ يَوْمَئِذٍ عَلَيْهَا غَبَرَةٌ","تَرْهَقُهَا قَتَرَةٌ","أُو۟لَٰٓئِكَ هُمُ ٱلْكَفَرَةُ ٱلْفَجَرَةُ"],"79":["وَٱلنَّٰزِعَٰتِ غَرْقًا","وَٱلنَّٰشِطَٰتِ نَشْطًا","وَٱلسَّٰبِحَٰتِ سَبْحًا","فَٱلسَّٰبِقَٰتِ سَبْقًا","فَٱلْمُدَبِّرَٰتِ أَمْرًا","يَوْمَ تَرْجُفُ ٱلرَّاجِفَةُ","تَتْبَعُهَا ٱلرَّادِفَةُ","قُلُوبٌ يَوْمَئِذٍ وَاجِفَةٌ","أَبْصَٰرُهَا خَٰشِعَةٌ","يَقُولُونَ أَءِنَّا لَمَرْدُودُونَ فِى ٱلْحَافِرَةِ","أَءِذَا كُنَّا عِظَٰمًا نَّخِرَةً","قَالُوا۟ تِلْكَ إِذًا كَرَّةٌ خَاسِرَةٌ","فَإِنَّمَا هِىَ زَجْرَةٌ وَٰحِدَةٌ","فَإِذَا هُم بِٱلسَّاهِرَةِ","هَلْ أَتَىٰكَ حَدِيثُ مُوسَىٰٓ","إِذْ نَادَىٰهُ رَبُّهُۥ بِٱلْوَادِ ٱلْمُقَدَّسِ طُوًى","ٱذْهَبْ إِلَىٰ فِرْعَوْنَ إِنَّهُۥ طَغَىٰ","فَقُلْ هَل لَّكَ إِلَىٰٓ أَن تَزَكَّىٰ","وَأَهْدِيَكَ إِلَىٰ رَبِّكَ فَتَخْشَىٰ","فَأَرَىٰهُ ٱلْءَايَةَ ٱلْكُبْرَىٰ","فَكَذَّبَ وَعَصَىٰ","ثُمَّ أَدْبَرَ يَسْعَىٰ","فَحَشَرَ فَنَادَىٰ","فَقَالَ أَنَا۠ رَبُّكُمُ ٱلْأَعْلَىٰ","فَأَخَذَهُ ٱللَّهُ نَكَالَ ٱلْءَاخِرَةِ وَٱلْأُولَىٰٓ","إِنَّ فِى ذَٰلِكَ لَعِبْرَةً لِّمَن يَخْشَىٰٓ","ءَأَنتُمْ أَشَدُّ خَلْقًا أَمِ ٱلسَّمَآءُ ۚ بَنَىٰهَا","رَفَعَ سَمْكَهَا فَسَوَّىٰهَا","وَأَغْطَشَ لَيْلَهَا وَأَخْرَجَ ضُحَىٰهَا","وَٱلْأَرْضَ بَعْدَ ذَٰلِكَ دَحَىٰهَا","أَخْرَجَ مِنْهَا مَآءَهَا وَمَرْعَىٰهَا","وَٱلْجِبَالَ أَرْسَىٰهَا","مَتَٰعًا لَّكُمْ وَلِأَنْعَٰمِكُمْ","فَإِذَا جَآءَتِ ٱلطَّآمَّةُ ٱلْكُبْرَىٰ","يَوْمَ يَتَذَكَّرُ ٱلْإِنسَٰنُ مَا سَعَىٰ","وَبُرِّزَتِ ٱلْجَحِيمُ لِمَن يَرَىٰ","فَأَمَّا مَن طَغَىٰ","وَءَاثَرَ ٱلْحَيَوٰةَ ٱلدُّنْيَا","فَإِنَّ ٱلْجَحِيمَ هِىَ ٱلْمَأْوَىٰ","وَأَمَّا مَنْ خَافَ مَقَامَ رَبِّهِۦ وَنَهَى ٱلنَّفْسَ عَنِ ٱلْهَوَىٰ","فَإِنَّ ٱلْجَنَّةَ هِىَ ٱلْمَأْوَىٰ","يَسْـَٔلُونَكَ عَنِ ٱلسَّاعَةِ أَيَّانَ مُرْسَىٰهَا","فِيمَ أَنتَ مِن ذِكْرَىٰهَآ","إِلَىٰ رَبِّكَ مُنتَهَىٰهَآ","إِنَّمَآ أَنتَ مُنذِرُ مَن يَخْشَىٰهَا","كَأَنَّهُمْ يَوْمَ يَرَوْنَهَا لَمْ يَلْبَثُوٓا۟ إِلَّا عَشِيَّةً أَوْ ضُحَىٰهَا"],"78":["عَمَّ يَتَسَآءَلُونَ","عَنِ ٱلنَّبَإِ ٱلْعَظِيمِ","ٱلَّذِى هُمْ فِيهِ مُخْتَلِفُونَ","كَلَّا سَيَعْلَمُونَ","ثُمَّ كَلَّا سَيَعْلَمُونَ","أَلَمْ نَجْعَلِ ٱلْأَرْضَ مِهَٰدًا","وَٱلْجِبَالَ أَوْتَادًا","وَخَلَقْنَٰكُمْ أَزْوَٰجًا","وَجَعَلْنَا نَوْمَكُمْ سُبَاتًا","وَجَعَلْنَا ٱلَّيْلَ لِبَاسًا","وَجَعَلْنَا ٱلنَّهَارَ مَعَاشًا","وَبَنَيْنَا فَوْقَكُمْ سَبْعًا شِدَادًا","وَجَعَلْنَا سِرَاجًا وَهَّاجًا","وَأَنزَلْنَا مِنَ ٱلْمُعْصِرَٰتِ مَآءً ثَجَّاجًا","لِّنُخْرِجَ بِهِۦ حَبًّا وَنَبَاتًا","وَجَنَّٰتٍ أَلْفَافًا","إِنَّ يَوْمَ ٱلْفَصْلِ كَانَ مِيقَٰتًا","يَوْمَ يُنفَخُ فِى ٱلصُّورِ فَتَأْتُونَ أَفْوَاجًا","وَفُتِحَتِ ٱلسَّمَآءُ فَكَانَتْ أَبْوَٰبًا","وَسُيِّرَتِ ٱلْجِبَالُ فَكَانَتْ سَرَابًا","إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا","لِّلطَّٰغِينَ مَـَٔابًا","لَّٰبِثِينَ فِيهَآ أَحْقَابًا","لَّا يَذُوقُونَ فِيهَا بَرْدًا وَلَا شَرَابًا","إِلَّا حَمِيمًا وَغَسَّاقًا","جَزَآءً وِفَاقًا","إِنَّهُمْ كَانُوا۟ لَا يَرْجُونَ حِسَابًا","وَكَذَّبُوا۟ بِـَٔايَٰتِنَا كِذَّابًا","وَكُلَّ شَىْءٍ أَحْصَيْنَٰهُ كِتَٰبًا","فَذُوقُوا۟ فَلَن نَّزِيدَكُمْ إِلَّا عَذَابًا","إِنَّ لِلْمُتَّقِينَ مَفَازًا","حَدَآئِقَ وَأَعْنَٰبًا","وَكَوَاعِبَ أَتْرَابًا","وَكَأْسًا دِهَاقًا","لَّا يَسْمَعُونَ فِيهَا لَغْوًا وَلَا كِذَّٰبًا","جَزَآءً مِّن رَّبِّكَ عَطَآءً حِسَابًا","رَّبِّ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضِ وَمَا بَيْنَهُمَا ٱلرَّحْمَٰنِ ۖ لَا يَمْلِكُونَ مِنْهُ خِطَابًا","يَوْمَ يَقُومُ ٱلرُّوحُ وَٱلْمَلَٰٓئِكَةُ صَفًّا ۖ لَّا يَتَكَلَّمُونَ إِلَّا مَنْ أَذِنَ لَهُ ٱلرَّحْمَٰنُ وَقَالَ صَوَابًا","ذَٰلِكَ ٱلْيَوْمُ ٱلْحَقُّ ۖ فَمَن شَآءَ ٱتَّخَذَ إِلَىٰ رَبِّهِۦ مَـَٔابًا","إِنَّآ أَنذَرْنَٰكُمْ عَذَابًا قَرِيبًا يَوْمَ يَنظُرُ ٱلْمَرْءُ مَا قَدَّمَتْ يَدَاهُ وَيَقُولُ ٱلْكَافِرُ يَٰلَيْتَنِى كُنتُ تُرَٰبًا"],"67":["تَبَٰرَكَ ٱلَّذِى بِيَدِهِ ٱلْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَىْءٍ قَدِيرٌ","ٱلَّذِى خَلَقَ ٱلْمَوْتَ وَٱلْحَيَوٰةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ ٱلْعَزِيزُ ٱلْغَفُورُ","ٱلَّذِى خَلَقَ سَبْعَ سَمَٰوَٰتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِى خَلْقِ ٱلرَّحْمَٰنِ مِن تَفَٰوُتٍ ۖ فَٱرْجِعِ ٱلْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ","ثُمَّ ٱرْجِعِ ٱلْبَصَرَ كَرَّتَيْنِ يَنقَلِبْ إِلَيْكَ ٱلْبَصَرُ خَاسِئًا وَهُوَ حَسِيرٌ","وَلَقَدْ زَيَّنَّا ٱلسَّمَآءَ ٱلدُّنْيَا بِمَصَٰبِيحَ وَجَعَلْنَٰهَا رُجُومًا لِّلشَّيَٰطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ ٱلسَّعِيرِ","وَلِلَّذِينَ كَفَرُوا۟ بِرَبِّهِمْ عَذَابُ جَهَنَّمَ ۖ وَبِئْسَ ٱلْمَصِيرُ","إِذَآ أُلْقُوا۟ فِيهَا سَمِعُوا۟ لَهَا شَهِيقًا وَهِىَ تَفُورُ","تَكَادُ تَمَيَّزُ مِنَ ٱلْغَيْظِ ۖ كُلَّمَآ أُلْقِىَ فِيهَا فَوْجٌ سَأَلَهُمْ خَزَنَتُهَآ أَلَمْ يَأْتِكُمْ نَذِيرٌ","قَالُوا۟ بَلَىٰ قَدْ جَآءَنَا نَذِيرٌ فَكَذَّبْنَا وَقُلْنَا مَا نَزَّلَ ٱللَّهُ مِن شَىْءٍ إِنْ أَنتُمْ إِلَّا فِى ضَلَٰلٍ كَبِيرٍ","وَقَالُوا۟ لَوْ كُنَّا نَسْمَعُ أَوْ نَعْقِلُ مَا كُنَّا فِىٓ أَصْحَٰبِ ٱلسَّعِيرِ","فَٱعْتَرَفُوا۟ بِذَنۢبِهِمْ فَسُحْقًا لِّأَصْحَٰبِ ٱلسَّعِيرِ","إِنَّ ٱلَّذِينَ يَخْشَوْنَ رَبَّهُم بِٱلْغَيْبِ لَهُم مَّغْفِرَةٌ وَأَجْرٌ كَبِيرٌ","وَأَسِرُّوا۟ قَوْلَكُمْ أَوِ ٱجْهَرُوا۟ بِهِۦٓ ۖ إِنَّهُۥ عَلِيمٌۢ بِذَاتِ ٱلصُّدُورِ","أَلَا يَعْلَمُ مَنْ خَلَقَ وَهُوَ ٱللَّطِيفُ ٱلْخَبِيرُ","هُوَ ٱلَّذِى جَعَلَ لَكُمُ ٱلْأَرْضَ ذَلُولًا فَٱمْشُوا۟ فِى مَنَاكِبِهَا وَكُلُوا۟ مِن رِّزْقِهِۦ ۖ وَإِلَيْهِ ٱلنُّشُورُ","ءَأَمِنتُم مَّن فِى ٱلسَّمَآءِ أَن يَخْسِفَ بِكُمُ ٱلْأَرْضَ فَإِذَا هِىَ تَمُورُ","أَمْ أَمِنتُم مَّن فِى ٱلسَّمَآءِ أَن يُرْسِلَ عَلَيْكُمْ حَاصِبًا ۖ فَسَتَعْلَمُونَ كَيْفَ نَذِيرِ","وَلَقَدْ كَذَّبَ ٱلَّذِينَ مِن قَبْلِهِمْ فَكَيْفَ كَانَ نَكِيرِ","أَوَلَمْ يَرَوْا۟ إِلَى ٱلطَّيْرِ فَوْقَهُمْ صَٰٓفَّٰتٍ وَيَقْبِضْنَ ۚ مَا يُمْسِكُهُنَّ إِلَّا ٱلرَّحْمَٰنُ ۚ إِنَّهُۥ بِكُلِّ شَىْءٍۭ بَصِيرٌ","أَمَّنْ هَٰذَا ٱلَّذِى هُوَ جُندٌ لَّكُمْ يَنصُرُكُم مِّن دُونِ ٱلرَّحْمَٰنِ ۚ إِنِ ٱلْكَٰفِرُونَ إِلَّا فِى غُرُورٍ","أَمَّنْ هَٰذَا ٱلَّذِى يَرْزُقُكُمْ إِنْ أَمْسَكَ رِزْقَهُۥ ۚ بَل لَّجُّوا۟ فِى عُتُوٍّ وَنُفُورٍ","أَفَمَن يَمْشِى مُكِبًّا عَلَىٰ وَجْهِهِۦٓ أَهْدَىٰٓ أَمَّن يَمْشِى سَوِيًّا عَلَىٰ صِرَٰطٍ مُّسْتَقِيمٍ","قُلْ هُوَ ٱلَّذِىٓ أَنشَأَكُمْ وَجَعَلَ لَكُمُ ٱلسَّمْعَ وَٱلْأَبْصَٰرَ وَٱلْأَفْـِٔدَةَ ۖ قَلِيلًا مَّا تَشْكُرُونَ","قُلْ هُوَ ٱلَّذِى ذَرَأَكُمْ فِى ٱلْأَرْضِ وَإِلَيْهِ تُحْشَرُونَ","وَيَقُولُونَ مَتَىٰ هَٰذَا ٱلْوَعْدُ إِن كُنتُمْ صَٰدِقِينَ","قُلْ إِنَّمَا ٱلْعِلْمُ عِندَ ٱللَّهِ وَإِنَّمَآ أَنَا۠ نَذِيرٌ مُّبِينٌ","فَلَمَّا رَأَوْهُ زُلْفَةً سِيٓـَٔتْ وُجُوهُ ٱلَّذِينَ كَفَرُوا۟ وَقِيلَ هَٰذَا ٱلَّذِى كُنتُم بِهِۦ تَدَّعُونَ","قُلْ أَرَءَيْتُمْ إِنْ أَهْلَكَنِىَ ٱللَّهُ وَمَن مَّعِىَ أَوْ رَحِمَنَا فَمَن يُجِيرُ ٱلْكَٰفِرِينَ مِنْ عَذَابٍ أَلِيمٍ","قُلْ هُوَ ٱلرَّحْمَٰنُ ءَامَنَّا بِهِۦ وَعَلَيْهِ تَوَكَّلْنَا ۖ فَسَتَعْلَمُونَ مَنْ هُوَ فِى ضَلَٰلٍ مُّبِينٍ","قُلْ أَرَءَيْتُمْ إِنْ أَصْبَحَ مَآؤُكُمْ غَوْرًا فَمَن يَأْتِيكُم بِمَآءٍ مَّعِينٍۭ"],"49":["يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تُقَدِّمُوا۟ بَيْنَ يَدَىِ ٱللَّهِ وَرَسُولِهِۦ ۖ وَٱتَّقُوا۟ ٱللَّهَ ۚ إِنَّ ٱللَّهَ سَمِيعٌ عَلِيمٌ","يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تَرْفَعُوٓا۟ أَصْوَٰتَكُمْ فَوْقَ صَوْتِ ٱلنَّبِىِّ وَلَا تَجْهَرُوا۟ لَهُۥ بِٱلْقَوْلِ كَجَهْرِ بَعْضِكُمْ لِبَعْضٍ أَن تَحْبَطَ أَعْمَٰلُكُمْ وَأَنتُمْ لَا تَشْعُرُونَ","إِنَّ ٱلَّذِينَ يَغُضُّونَ أَصْوَٰتَهُمْ عِندَ رَسُولِ ٱللَّهِ أُو۟لَٰٓئِكَ ٱلَّذِينَ ٱمْتَحَنَ ٱللَّهُ قُلُوبَهُمْ لِلتَّقْوَىٰ ۚ لَهُم مَّغْفِرَةٌ وَأَجْرٌ عَظِيمٌ","إِنَّ ٱلَّذِينَ يُنَادُونَكَ مِن وَرَآءِ ٱلْحُجُرَٰتِ أَكْثَرُهُمْ لَا يَعْقِلُونَ","وَلَوْ أَنَّهُمْ صَبَرُوا۟ حَتَّىٰ تَخْرُجَ إِلَيْهِمْ لَكَانَ خَيْرًۭا لَّهُمْ ۚ وَٱللَّهُ غَفُورٌۭ رَّحِيمٌۭ","يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ إِن جَآءَكُمْ فَاسِقٌۢ بِنَبَإٍ فَتَبَيَّنُوٓا۟ أَن تُصِيبُوا۟ قَوْمًۢا بِجَهَٰلَةٍ فَتُصْبِحُوا۟ عَلَىٰ مَا فَعَلْتُمْ نَٰدِمِينَ","وَٱعْلَمُوٓا۟ أَنَّ فِيكُمْ رَسُولَ ٱللَّهِ ۚ لَوْ يُطِيعُكُمْ فِى كَثِيرٍۢ مِّنَ ٱلْأَمْرِ لَعَنِتُّمْ وَلَٰكِنَّ ٱللَّهَ حَبَّبَ إِلَيْكُمُ ٱلْإِيمَٰنَ وَزَيَّنَهُۥ فِى قُلُوبِكُمْ وَكَرَّهَ إِلَيْكُمُ ٱلْكُفْرَ وَٱلْفُسُوقَ وَٱلْعِصْيَانَ ۚ أُو۟لَٰٓئِكَ هُمُ ٱلرَّٰشِدُونَ","فَضْلًا مِّنَ ٱللَّهِ وَنِعْمَةً ۚ وَٱللَّهُ عَلِيمٌ حَكِيمٌ","وَإِن طَآئِفَتَانِ مِنَ ٱلْمُؤْمِنِينَ ٱقْتَتَلُوا۟ فَأَصْلِحُوا۟ بَيْنَهُمَا ۖ فَإِن بَغَتْ إِحْدَىٰهُمَا عَلَى ٱلْأُخْرَىٰ فَقَٰتِلُوا۟ ٱلَّتِى تَبْغِى حَتَّىٰ تَفِىٓءَ إِلَىٰٓ أَمْرِ ٱللَّهِ ۚ فَإِن فَآءَتْ فَأَصْلِحُوا۟ بَيْنَهُمَا بِٱلْعَدْلِ وَأَقْسِطُوٓا۟ ۖ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُقْسِطِينَ","إِنَّمَا ٱلْمُؤْمِنُونَ إِخْوَةٌ فَأَصْلِحُوا۟ بَيْنَ أَخَوَيْكُمْ ۚ وَٱتَّقُوا۟ ٱللَّهَ لَعَلَّكُمْ تُرْحَمُونَ","يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا يَسْخَرْ قَوْمٌ مِّن قَوْمٍ عَسَىٰٓ أَن يَكُونُوا۟ خَيْرًا مِّنْهُمْ وَلَا نِسَآءٌ مِّن نِّسَآءٍ عَسَىٰٓ أَن يَكُنَّ خَيْرًا مِّنْهُنَّ ۖ وَلَا تَلْمِزُوٓا۟ أَنفُسَكُمْ وَلَا تَنَابَزُوا۟ بِٱلْأَلْقَٰبِ ۚ بِئْسَ ٱلِٱسْمُ ٱلْفُسُوقُ بَعْدَ ٱلْإِيمَٰنِ ۚ وَمَن لَّمْ يَتُبْ فَأُو۟لَٰٓئِكَ هُمُ ٱلظَّٰلِمُونَ","يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱجْتَنِبُوا۟ كَثِيرًا مِّنَ ٱلظَّنِّ إِنَّ بَعْضَ ٱلظَّنِّ إِثْمٌ ۖ وَلَا تَجَسَّسُوا۟ وَلَا يَغْتَب بَّعْضُكُم بَعْضًا ۚ أَيُحِبُّ أَحَدُكُمْ أَن يَأْكُلَ لَحْمَ أَخِيهِ مَيْتًا فَكَرِهْتُمُوهُ ۚ وَٱتَّقُوا۟ ٱللَّهَ ۚ إِنَّ ٱللَّهَ تَوَّابٌ رَّحِيمٌ","يَٰٓأَيُّهَا ٱلنَّاسُ إِنَّا خَلَقْنَٰكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَٰكُمْ شُعُوبًا وَقَبَآئِلَ لِتَعَارَفُوٓا۟ ۚ إِنَّ أَكْرَمَكُمْ عِندَ ٱللَّهِ أَتْقَىٰكُمْ ۚ إِنَّ ٱللَّهَ عَلِيمٌ خَبِيرٌ","قَالَتِ ٱلْأَعْرَابُ ءَامَنَّا ۖ قُل لَّمْ تُؤْمِنُوا۟ وَلَٰكِن قُولُوٓا۟ أَسْلَمْنَا وَلَمَّا يَدْخُلِ ٱلْإِيمَٰنُ فِى قُلُوبِكُمْ ۖ وَإِن تُطِيعُوا۟ ٱللَّهَ وَرَسُولَهُۥ لَا يَلِتْكُم مِّنْ أَعْمَٰلِكُمْ شَيْـًٔا ۚ إِنَّ ٱللَّهَ غَفُورٌ رَّحِيمٌ","إِنَّمَا ٱلْمُؤْمِنُونَ ٱلَّذِينَ ءَامَنُوا۟ بِٱللَّهِ وَرَسُولِهِۦ ثُمَّ لَمْ يَرْتَابُوا۟ وَجَٰهَدُوا۟ بِأَمْوَٰلِهِمْ وَأَنفُسِهِمْ فِى سَبِيلِ ٱللَّهِ ۚ أُو۟لَٰٓئِكَ هُمُ ٱلصَّٰدِقُونَ","قُلْ أَتُعَلِّمُونَ ٱللَّهَ بِدِينِكُمْ وَٱللَّهُ يَعْلَمُ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۚ وَٱللَّهُ بِكُلِّ شَىْءٍ عَلِيمٌ","يَمُنُّونَ عَلَيْكَ أَنْ أَسْلَمُوا۟ ۖ قُل لَّا تَمُنُّوا۟ عَلَىَّ إِسْلَٰمَكُم ۖ بَلِ ٱللَّهُ يَمُنُّ عَلَيْكُمْ أَنْ هَدَىٰكُمْ لِلْإِيمَٰنِ إِن كُنتُمْ صَٰدِقِينَ","إِنَّ ٱللَّهَ يَعْلَمُ غَيْبَ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضِ ۚ وَٱللَّهُ بَصِيرٌۢ بِمَا تَعْمَلُونَ"]};
 const SURAH_OFFSETS={"1": 1, "2": 8, "3": 294, "4": 494, "5": 670, "6": 790, "7": 955, "8": 1161, "9": 1236, "10": 1365, "11": 1474, "12": 1597, "13": 1708, "14": 1751, "15": 1803, "16": 1902, "17": 2030, "18": 2141, "19": 2251, "20": 2349, "21": 2484, "22": 2596, "23": 2674, "24": 2792, "25": 2856, "26": 2933, "27": 3160, "28": 3253, "29": 3341, "30": 3410, "31": 3470, "32": 3504, "33": 3534, "34": 3607, "35": 3661, "36": 3706, "37": 3789, "38": 3971, "39": 4059, "40": 4134, "41": 4219, "42": 4273, "43": 4326, "44": 4415, "45": 4474, "46": 4511, "47": 4546, "48": 4584, "49": 4613, "50": 4631, "51": 4676, "52": 4736, "53": 4785, "54": 4847, "55": 4902, "56": 4980, "57": 5076, "58": 5105, "59": 5127, "60": 5151, "61": 5164, "62": 5178, "63": 5189, "64": 5200, "65": 5218, "66": 5230, "67": 5242, "68": 5272, "69": 5324, "70": 5376, "71": 5420, "72": 5448, "73": 5476, "74": 5496, "75": 5552, "76": 5592, "77": 5623, "78": 5673, "79": 5713, "80": 5759, "81": 5801, "82": 5830, "83": 5849, "84": 5885, "85": 5910, "86": 5932, "87": 5949, "88": 5968, "89": 5994, "90": 6024, "91": 6044, "92": 6059, "93": 6080, "94": 6091, "95": 6099, "96": 6107, "97": 6126, "98": 6131, "99": 6139, "100": 6147, "101": 6158, "102": 6169, "103": 6177, "104": 6180, "105": 6189, "106": 6194, "107": 6198, "108": 6205, "109": 6208, "110": 6214, "111": 6217, "112": 6222, "113": 6226, "114": 6231};
-// ═══ STATE ═══
-let cur='home',prev='home',dkN=33,isLight=false;
-let isPlaying=false,repeatOn=false,speedIdx=0;
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let cur='home', prev='home', dkN=33, isLight=false;
+let isPlaying=false, repeatOn=false, speedIdx=0;
 let curRec={name:'Mishary Rashid Al-Afasy',identifier:'ar.alafasy'};
-let curSurahNum=49,curSurahEn='Al-Hujurat',curVerseIdx=0;
-let audio=null,verseList=[],surahCache={},transCache={};
-let qiblaOpen=false,compassInterval=null,compassHead=0;
-let rdrMode='mushaf',rdrSurahNum=49;
+let curSurahNum=49, curSurahEn='Al-Hujurat', curVerseIdx=0;
+let audio=null, verseTimers=[], verseList=[], audioQueue=[];
+let qiblaOpen=false, compassInterval=null, compassHead=0;
+let rdrMode='mushaf', rdrSurahNum=49;
+let surahCache={}, transCache={};
 const speeds=['1×','1.25×','1.5×','2×'];
 const QIBLA=247;
-const API_BASE='https://api.alquran.cloud/v1';
-const CDN_AUDIO='https://cdn.islamic.network/quran/audio/128';
 
+// ═══════════════════════════════════════════════════════
+// RECITER MAP  (alquran.cloud identifier → display name)
+// ═══════════════════════════════════════════════════════
 const RECITERS=[
-  {name:'Mishary Rashid Al-Afasy',country:'Kuwait',id:'ar.alafasy',grad:'linear-gradient(135deg,#1A5C38,#2E8B57)'},
-  {name:'Abdul Rahman Al-Sudais',country:'Saudi Arabia',id:'ar.abdurrahmaansudais',grad:'linear-gradient(135deg,#0D4A5E,#1A7A8C)'},
-  {name:'Saud Al-Shuraim',country:'Saudi Arabia',id:'ar.saoodshuraym',grad:'linear-gradient(135deg,#3A1A6E,#6B3FA0)'},
-  {name:'Maher Al-Muaiqly',country:'Saudi Arabia',id:'ar.mahermuaiqly',grad:'linear-gradient(135deg,#7A4A00,#C8841A)'},
-  {name:'Yasser Al-Dosari',country:'Saudi Arabia',id:'ar.yassereladawy',grad:'linear-gradient(135deg,#0A2E6E,#1A5FB4)'},
-  {name:'Nasser Al-Qatami',country:'Kuwait',id:'ar.alqatami',grad:'linear-gradient(135deg,#6E1A2A,#B03050)'},
-  {name:'Muhammad Ayyub',country:'Saudi Arabia',id:'ar.muhammadayyoub',grad:'linear-gradient(135deg,#0D4A5E,#1A6E7A)'},
+  {name:'Mishary Rashid Al-Afasy', country:'Kuwait',       id:'ar.alafasy',        grad:'linear-gradient(135deg,#1A5C38,#2E8B57)'},
+  {name:'Abdul Rahman Al-Sudais',  country:'Saudi Arabia', id:'ar.abdurrahmaansudais', grad:'linear-gradient(135deg,#0D4A5E,#1A7A8C)'},
+  {name:'Saud Al-Shuraim',         country:'Saudi Arabia', id:'ar.saoodshuraym',    grad:'linear-gradient(135deg,#3A1A6E,#6B3FA0)'},
+  {name:'Maher Al-Muaiqly',        country:'Saudi Arabia', id:'ar.mahermuaiqly',    grad:'linear-gradient(135deg,#7A4A00,#C8841A)'},
+  {name:'Yasser Al-Dosari',        country:'Saudi Arabia', id:'ar.yassereladawy',   grad:'linear-gradient(135deg,#0A2E6E,#1A5FB4)'},
+  {name:'Nasser Al-Qatami',        country:'Kuwait',       id:'ar.alqatami',        grad:'linear-gradient(135deg,#6E1A2A,#B03050)'},
+  {name:'Muhammad Ayyub',          country:'Saudi Arabia', id:'ar.muhammadayyoub',  grad:'linear-gradient(135deg,#0D4A5E,#1A6E7A)'},
 ];
 
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function go(s){
+  if(s===cur)return;
+  const oldEl=document.getElementById('s-'+cur);
+  if(oldEl){
+    oldEl.style.cssText='opacity:0;transform:scale(.97) translateY(-6px);transition:opacity .18s ease,transform .18s ease';
+    setTimeout(()=>{oldEl.classList.remove('active');oldEl.style.cssText='';},160);
+  }
+  prev=cur; cur=s;
+  setTimeout(()=>{
+    const el=document.getElementById('s-'+s);
+    if(!el)return;
+    el.style.cssText='opacity:0;transform:translateY(12px) scale(.99)';
+    el.classList.add('active');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      el.style.cssText='opacity:1;transform:translateY(0) scale(1);transition:opacity .3s cubic-bezier(.2,0,0,1),transform .3s cubic-bezier(.2,0,0,1)';
+      setTimeout(()=>{el.style.cssText='';},320);
+    }));
+    updateNav(s);
+    if(s==='listen') showLV('reciters');
+  },80);
+}
+function back(){go(prev===cur?'home':prev);}
+function updateNav(s){
+  ['home','quran','prayer','dhikr'].forEach(x=>{
+    const n=document.getElementById('n-'+x);
+    if(n)n.classList.remove('active');
+  });
+  const tgt=['home','quran','prayer','dhikr'].includes(s)?s:(['reader','listen'].includes(s)?'quran':prev);
+  const a=document.getElementById('n-'+tgt);
+  if(a)a.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// SURAH DATA (114 surahs)
+// ═══════════════════════════════════════════════════════
 const SURAHS=[
   [1,'Al-Fatihah','الفَاتِحَة',7,'Makkah'],[2,'Al-Baqarah','البَقَرَة',286,'Madinah'],
   [3,"Ali 'Imran",'آل عِمرَان',200,'Madinah'],[4,'An-Nisa','النِّسَاء',176,'Madinah'],
@@ -1150,38 +870,12 @@ const SURAHS=[
   [111,'Al-Masad','المَسَد',5,'Makkah'],[112,'Al-Ikhlas','الإِخلاص',4,'Makkah'],
   [113,'Al-Falaq','الفَلَق',5,'Makkah'],[114,'An-Nas','النَّاس',6,'Makkah']
 ];
-function getSurahInfo(n){return SURAHS[n-1];}
-function toArabicNum(n){return String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);}
-function fmtTime(s){if(!s||isNaN(s))return'0:00';const m=Math.floor(s/60),sc=Math.floor(s%60);return m+':'+(sc<10?'0':'')+sc;}
 
-// ═══ NAVIGATION ═══
-function go(s){
-  if(s===cur)return;
-  const oldEl=document.getElementById('s-'+cur);
-  if(oldEl){oldEl.style.cssText='opacity:0;transform:scale(.97) translateY(-6px);transition:opacity .45s ease,transform .45s ease';setTimeout(()=>{oldEl.classList.remove('active');oldEl.style.cssText='';},160);}
-  prev=cur;cur=s;
-  setTimeout(()=>{
-    const el=document.getElementById('s-'+s);
-    if(!el)return;
-    el.style.cssText='opacity:0;transform:translateY(12px) scale(.99)';
-    el.classList.add('active');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      el.style.cssText='opacity:1;transform:translateY(0) scale(1);transition:opacity .70s cubic-bezier(.2,0,0,1),transform .70s cubic-bezier(.2,0,0,1)';
-      setTimeout(()=>{el.style.cssText='';},720);
-    }));
-    updateNav(s);
-    if(s==='listen') showLV('reciters');
-    setTimeout(()=>runScreenReveal('s-'+s),100);
-  },80);
-}
-function back(){go(prev===cur?'home':prev);}
-function updateNav(s){
-  ['home','quran','prayer','dhikr'].forEach(x=>{const n=document.getElementById('n-'+x);if(n)n.classList.remove('active');});
-  const tgt=['home','quran','prayer','dhikr'].includes(s)?s:(['reader','listen'].includes(s)?'quran':prev);
-  const a=document.getElementById('n-'+tgt);if(a)a.classList.add('active');
-}
+function getSurahInfo(num){ return SURAHS[num-1]; }
 
-// ═══ SURAH LIST ═══
+// ═══════════════════════════════════════════════════════
+// QURAN LIST UI
+// ═══════════════════════════════════════════════════════
 function buildSurahList(container,clickFn){
   container.innerHTML='';
   SURAHS.forEach(([num,en,ar,v,origin])=>{
@@ -1194,270 +888,652 @@ function buildSurahList(container,clickFn){
     container.appendChild(d);
   });
 }
-buildSurahList(document.getElementById('surah-list'),(num,en,ar,v)=>openReader(num,en,ar,v));
-buildSurahList(document.getElementById('sp-list'),(num,en,ar,v)=>playNow(num,en,ar,v));
-function filterSurahs(q){document.querySelectorAll('#surah-list .surah-row').forEach(r=>{r.style.display=!q||r.dataset.name.includes(q.toLowerCase())?'':'none';});}
-function filterSP(q){document.querySelectorAll('#sp-list .surah-row').forEach(r=>{r.style.display=!q||r.dataset.name.includes(q.toLowerCase())?'':'none';});}
-function switchTab(el){document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+buildSurahList(document.getElementById('surah-list'),(num,en,ar,v,o)=>openReader(num,en,ar,v));
+buildSurahList(document.getElementById('sp-list'),(num,en,ar,v,o)=>playNow(num,en,ar,v));
 
-// ═══ QURAN API ═══
+function filterSurahs(q){
+  document.querySelectorAll('#surah-list .surah-row').forEach(r=>{
+    r.style.display=!q||r.dataset.name.includes(q.toLowerCase())?'':'none';
+  });
+}
+function filterSP(q){
+  document.querySelectorAll('#sp-list .surah-row').forEach(r=>{
+    r.style.display=!q||r.dataset.name.includes(q.toLowerCase())?'':'none';
+  });
+}
+function switchTab(el){
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// API HELPERS
+// ═══════════════════════════════════════════════════════
+const API_BASE='https://api.alquran.cloud/v1';
+const CDN_AUDIO='https://cdn.islamic.network/quran/audio/128';
+
+function verseNumForSurah(surahNum, verseIdx){
+  // Get global verse number for audio CDN
+  let total=0;
+  for(let i=0;i<surahNum-1;i++) total+=SURAHS[i][3];
+  return total + verseIdx + 1;
+}
+
 async function fetchSurah(num){
-  if(surahCache[num])return surahCache[num];
+  if(surahCache[num]) return surahCache[num];
+
+  // ── OFFLINE FIRST: use embedded data if available ──
   if(QURAN_OFFLINE[num]){
     const offset=SURAH_OFFSETS[num]||1;
-    const verses=QURAN_OFFLINE[num].map((ar,i)=>({num:i+1,ar,en:'',globalNum:offset+i}));
-    surahCache[num]=verses;return verses;
+    const verses=QURAN_OFFLINE[num].map((ar,i)=>({
+      num:i+1, ar:ar, en:'', globalNum:offset+i
+    }));
+    surahCache[num]=verses;
+    return verses;
   }
+
+  // ── ONLINE FALLBACK: fetch from API ──
   try{
     const r=await fetch(`${API_BASE}/surah/${num}/quran-uthmani`);
-    if(!r.ok)throw new Error('HTTP '+r.status);
+    if(!r.ok) throw new Error('HTTP '+r.status);
     const j=await r.json();
     if(j.code===200){
       const offset=SURAH_OFFSETS[num]||1;
-      const verses=j.data.ayahs.map((a,i)=>({num:a.numberInSurah,ar:a.text,en:'',globalNum:offset+i}));
-      surahCache[num]=verses;return verses;
+      const verses=j.data.ayahs.map((a,i)=>({
+        num:a.numberInSurah, ar:a.text, en:'', globalNum:offset+i
+      }));
+      surahCache[num]=verses;
+      return verses;
     }
-  }catch(e){console.error('fetchSurah:',e.message);}
+  }catch(e){
+    console.error('fetchSurah error:',e.message);
+  }
   return null;
 }
+
 async function fetchMalayalam(num){
-  if(transCache['ml'+num])return transCache['ml'+num];
+  if(transCache['ml'+num]) return transCache['ml'+num];
+  // Use Malayalam translation: ml.abdulhameed
+  const url=`${API_BASE}/surah/${num}/ml.abdulhameed`;
   try{
-    const r=await fetch(`${API_BASE}/surah/${num}/ml.abdulhameed`);
+    const r=await fetch(url);
     const j=await r.json();
-    if(j.code===200){const v=j.data.ayahs.map(a=>({num:a.numberInSurah,ml:a.text}));transCache['ml'+num]=v;return v;}
+    if(j.code===200){
+      const verses=j.data.ayahs.map(a=>({num:a.numberInSurah, ml:a.text}));
+      transCache['ml'+num]=verses;
+      return verses;
+    }
   }catch(e){}
   return null;
 }
 
-// ═══ READER ═══
+// ═══════════════════════════════════════════════════════
+// READER — API-POWERED
+// ═══════════════════════════════════════════════════════
 async function openReader(num,en,ar,v){
   rdrSurahNum=num;
   const info=getSurahInfo(num);
+  // Update topbar
   document.querySelector('.rc-surah').textContent=en;
   document.querySelector('.rc-info').textContent=`${v} verses · ${info[4]}`;
-  setMode('mushaf',document.querySelector('.rdr-pill'));
+
+  // Set mode to mushaf first
+  setMode('mushaf', document.querySelector('.rdr-pill'));
   go('reader');
+
+  // Load mushaf content
   showMushafLoading();
   const verses=await fetchSurah(num);
-  if(verses)renderMushaf(verses,info);
-  else showMushafError();
+  if(verses){
+    renderMushaf(verses, info);
+  } else {
+    showMushafError();
+  }
 }
+
 function showMushafLoading(){
-  const w=document.getElementById('rdr-mushaf');
-  w.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
-  w.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px"><div class="spin"></div><div style="font-family:var(--ffa);font-size:16px;color:rgba(255,255,255,.6)">جار التحميل...</div></div>';
+  const wrap=document.getElementById('rdr-mushaf');
+  wrap.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
+  wrap.innerHTML=`<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+    <div class="spin"></div>
+    <div style="font-family:var(--ffa);font-size:16px;color:rgba(255,255,255,.6)">جار التحميل...</div>
+  </div>`;
 }
 function showMushafError(){
-  const w=document.getElementById('rdr-mushaf');
-  w.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
-  w.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:30px"><div style="font-size:32px">⚠️</div><div style="font-family:var(--ffa);font-size:16px;color:rgba(255,255,255,.8);text-align:center">تعذّر التحميل</div><div style="font-size:13px;color:rgba(255,255,255,.5);text-align:center;line-height:1.6">Check your internet connection</div><div onclick="openReader(rdrSurahNum,...getSurahInfo(rdrSurahNum).slice(1,4))" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:8px 20px;font-size:13px;color:#fff;cursor:pointer">↺ Retry</div></div>';
+  const wrap=document.getElementById('rdr-mushaf');
+  wrap.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
+  wrap.innerHTML=`<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:30px">
+    <div style="font-size:32px">⚠️</div>
+    <div style="font-family:var(--ffa);font-size:16px;color:rgba(255,255,255,.8);text-align:center">تعذّر التحميل</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);text-align:center;line-height:1.6">Check your internet connection<br>and try again</div>
+    <div onclick="openReader(rdrSurahNum,...getSurahInfo(rdrSurahNum).slice(1,4))" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:8px 20px;font-size:13px;color:#fff;cursor:pointer;margin-top:6px">↺ Retry</div>
+  </div>`;
 }
-function renderMushaf(verses,surahInfo){
-  const[num,en,ar,v,origin]=surahInfo;
+
+function renderMushaf(verses, surahInfo){
+  const [num,en,ar,v,origin]=surahInfo;
   const hasBism=(num!==1&&num!==9);
-  const w=document.getElementById('rdr-mushaf');
-  w.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
-  w.innerHTML='';
+
+  const wrap=document.getElementById('rdr-mushaf');
+  wrap.style.cssText='flex:1;overflow:hidden;background:#2C5F2E;display:flex;flex-direction:column';
+  wrap.innerHTML='';
+
+  // Outer green frame
   const frame=document.createElement('div');
   frame.style.cssText='flex:1;display:flex;flex-direction:column;overflow:hidden;padding:6px';
+
+  // Parchment page — scrollable
   const page=document.createElement('div');
-  page.id='mushaf-page';
-  page.style.cssText='flex:1;overflow-y:auto;overflow-x:hidden;background:#F5F0DC;border-radius:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;flex-direction:column';
+  page.style.cssText=[
+    'flex:1;overflow-y:auto;overflow-x:hidden',
+    'background:#F5F0DC',
+    'border-radius:4px',
+    '-webkit-overflow-scrolling:touch',
+    'scrollbar-width:none',
+    'display:flex;flex-direction:column',
+  ].join(';');
+
+  // Page header
   const phdr=document.createElement('div');
   phdr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 14px 6px;border-bottom:1.5px solid rgba(44,95,46,.35);flex-shrink:0';
-  phdr.innerHTML=`<span style="font-family:var(--ffa);font-size:11px;color:#2C5F2E">${ar}</span><span style="font-family:var(--ffa);font-size:11px;color:#2C5F2E">${num}</span>`;
+  phdr.innerHTML=`
+    <span style="font-family:var(--ffa);font-size:11px;color:#2C5F2E">${ar}</span>
+    <span style="font-family:var(--ffa);font-size:11px;color:#2C5F2E">${num}</span>
+  `;
   page.appendChild(phdr);
+
+  // Surah banner
   const band=document.createElement('div');
   band.style.cssText='background:linear-gradient(135deg,#1B5E38,#2E8B57);margin:8px;border-radius:6px;padding:9px 12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0';
-  band.innerHTML=`<span style="color:rgba(255,255,255,.5);font-family:var(--ffa);font-size:13px">❧</span><div style="text-align:center"><div style="font-family:var(--ffa);font-size:17px;color:#fff;font-weight:700">${ar}</div><div style="font-family:var(--ffa);font-size:10px;color:rgba(255,255,255,.65);direction:rtl;margin-top:2px">${origin==='Makkah'?'مَكِّيَّةٌ':'مَدَنِيَّةٌ'} · ${v} آيَة</div></div><span style="color:rgba(255,255,255,.5);font-family:var(--ffa);font-size:13px">❧</span>`;
+  band.innerHTML=`
+    <span style="color:rgba(255,255,255,.5);font-family:var(--ffa);font-size:13px">❧</span>
+    <div style="text-align:center">
+      <div style="font-family:var(--ffa);font-size:17px;color:#fff;font-weight:700">${ar}</div>
+      <div style="font-family:var(--ffa);font-size:10px;color:rgba(255,255,255,.65);direction:rtl;margin-top:2px">${origin==='Makkah'?'مَكِّيَّةٌ':'مَدَنِيَّةٌ'} · ${v} آيَة</div>
+    </div>
+    <span style="color:rgba(255,255,255,.5);font-family:var(--ffa);font-size:13px">❧</span>
+  `;
   page.appendChild(band);
-  if(hasBism){const b=document.createElement('div');b.style.cssText='font-family:var(--ffa);font-size:18px;color:#7A5000;text-align:center;direction:rtl;padding:8px 14px 6px;border-bottom:1px solid rgba(122,80,0,.18);margin:0 10px;flex-shrink:0';b.textContent='بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';page.appendChild(b);}
+
+  // Bismillah
+  if(hasBism){
+    const bism=document.createElement('div');
+    bism.style.cssText='font-family:var(--ffa);font-size:18px;color:#7A5000;text-align:center;direction:rtl;padding:8px 14px 6px;border-bottom:1px solid rgba(122,80,0,.18);margin:0 10px;flex-shrink:0';
+    bism.textContent='بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
+    page.appendChild(bism);
+  }
+
+  // Verse body — all verses flow as continuous text (authentic Mushaf style)
   const body=document.createElement('div');
-  body.style.cssText='font-family:var(--ffa);font-size:20px;color:#1A1208;direction:rtl;text-align:justify;line-height:2.5;padding:10px 14px 60px;flex:1;word-break:break-word';
-  verses.forEach(vr=>{body.appendChild(document.createTextNode(vr.ar+' \u06dd'+toArabicNum(vr.num)+'\u06dd '));});
+  body.style.cssText=[
+    'font-family:var(--ffa)',
+    'font-size:20px',
+    'color:#1A1208',
+    'direction:rtl',
+    'text-align:justify',
+    'line-height:2.5',
+    'padding:10px 14px 60px',
+    'flex:1',
+    'word-break:break-word',
+  ].join(';');
+
+  verses.forEach((vr,i)=>{
+    const t=document.createTextNode(vr.ar+' ۝'+toArabicNum(vr.num)+'۝ ');
+    body.appendChild(t);
+  });
+
   page.appendChild(body);
+
+  // Page footer
   const pfoot=document.createElement('div');
   pfoot.style.cssText='text-align:center;font-family:var(--ffa);font-size:11px;color:#2C5F2E;padding:5px 0 7px;border-top:1.5px solid rgba(44,95,46,.35);margin:0 14px;flex-shrink:0';
   pfoot.textContent=toArabicNum(num);
   page.appendChild(pfoot);
-  frame.appendChild(page);w.appendChild(frame);
-  const pgEl=document.getElementById('rdr-pgnum');if(pgEl)pgEl.textContent=num;
+
+  frame.appendChild(page);
+  wrap.appendChild(frame);
+
+  // Update page number display
+  const pgEl=document.getElementById('rdr-pgnum');
+  if(pgEl) pgEl.textContent=num;
 }
 
-// ═══ FULLSCREEN (CLEAN FIX) ═══
-function toggleFS(){
-  const fs=document.getElementById('rdr-fs');
-  const isOpen=fs.style.display==='flex';
-  const fsBtn=document.querySelector('.rdr-fs svg');
+function toArabicNum(n){
+  return String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+}
 
-  if(!isOpen){
-    // ── Open fullscreen ──
-    const page=document.getElementById('mushaf-page');
-    const fsContent=document.getElementById('rdr-fs-content');
-    if(fsContent){
-      fsContent.innerHTML='';
-      if(page){
-        // Clone the live mushaf page into fullscreen
-        const clone=page.cloneNode(true);
-        clone.removeAttribute('id');
-        // Larger text in fullscreen
-        clone.style.cssText=[
-          'flex:1',
-          'overflow-y:auto',
-          'overflow-x:hidden',
-          'background:#F5F0DC',
-          '-webkit-overflow-scrolling:touch',
-          'scrollbar-width:none',
-        ].join(';');
-        // Make the verse text bigger in fullscreen
-        const body=clone.querySelector('[style*="font-size:20px"]');
-        if(body) body.style.fontSize='22px';
-        fsContent.appendChild(clone);
-      } else {
-        // Fallback: no mushaf loaded yet
-        fsContent.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-family:var(--ffa);font-size:16px">اختر سورة أولاً</div>';
-      }
-    }
-    fs.style.display='flex';
-    fs.style.flexDirection='column';
-    // Change icon to compress/exit
-    if(fsBtn) fsBtn.innerHTML='<path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3"/>';
+// Translation rendering
+async function renderTranslation(num){
+  const transWrap=document.getElementById('rdr-trans');
+  // Show loading
+  transWrap.innerHTML=`<div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div class="spin"></div>
+  </div>`;
+  transWrap.style.display='flex';
+  transWrap.style.flexDirection='column';
+
+  const verses=await fetchSurah(num);
+  const mlVerses=await fetchMalayalam(num);
+  if(!verses){transWrap.innerHTML='<div style="padding:20px;color:#888;text-align:center">Failed to load. Check connection.</div>';return;}
+
+  const info=getSurahInfo(num);
+  const hasBism=num!==1&&num!==9;
+
+  let html=`<div class="lang-bar">
+    <div class="lang-btn active" onclick="switchLang('en',this)">English</div>
+    <div class="lang-btn" onclick="switchLang('ml',this)">മലയാളം</div>
+  </div>
+  ${hasBism?`<div class="bism">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`:''}
+  <div id="trans-en">`;
+
+  verses.forEach((v,i)=>{
+    html+=`<div class="vblock${i===0?' hl':''}">
+      <div class="vnum">${v.num}</div>
+      <div class="var">${v.ar}</div>
+      <div class="vtr">${v.en}</div>
+    </div>`;
+  });
+  html+=`</div><div id="trans-ml" style="display:none">`;
+
+  if(mlVerses){
+    verses.forEach((v,i)=>{
+      html+=`<div class="vblock${i===0?' hl':''}">
+        <div class="vnum">${v.num}</div>
+        <div class="var">${v.ar}</div>
+        <div class="vtr" style="font-size:13px;line-height:1.8">${mlVerses[i]?mlVerses[i].ml:''}</div>
+      </div>`;
+    });
   } else {
-    // ── Close fullscreen ──
-    fs.style.display='none';
-    // Restore expand icon
-    if(fsBtn) fsBtn.innerHTML='<path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>';
+    html+=`<div style="padding:20px;color:#888;text-align:center;font-size:13px">Malayalam translation not available for this surah</div>`;
   }
+  html+=`</div><div style="height:80px"></div>`;
+  transWrap.innerHTML=html;
 }
 
 function setMode(m,el){
   rdrMode=m;
   document.querySelectorAll('.rdr-pill').forEach(p=>p.classList.remove('active'));
   if(el)el.classList.add('active');
+
   const mushaf=document.getElementById('rdr-mushaf');
   const tw=document.getElementById('rdr-trans');
   const tafw=document.getElementById('rdr-tafsir');
-  if(mushaf)mushaf.style.display=m==='mushaf'?'flex':'none';
-  if(tw){tw.style.display=m==='trans'?'flex':'none';if(m==='trans'){tw.style.flexDirection='column';renderTranslation(rdrSurahNum);}}
-  if(tafw){tafw.style.display=m==='tafsir'?'flex':'none';if(m==='tafsir')tafw.style.flexDirection='column';}
+
+  mushaf.style.display=m==='mushaf'?'flex':'none';
+  tw.style.display=m==='trans'?'flex':'none';
+  if(m==='trans'){tw.style.flexDirection='column';renderTranslation(rdrSurahNum);}
+  tafw.style.display=m==='tafsir'?'flex':'none';
+  if(m==='tafsir'){tafw.style.flexDirection='column';}
 }
 
-async function renderTranslation(num){
-  const tw=document.getElementById('rdr-trans');
-  tw.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center"><div class="spin"></div></div>';
-  tw.style.display='flex';tw.style.flexDirection='column';
-  const verses=await fetchSurah(num);
-  const mlVerses=await fetchMalayalam(num);
-  if(!verses){tw.innerHTML='<div style="padding:20px;color:#888;text-align:center">Failed to load.</div>';return;}
-  const info=getSurahInfo(num);const hasBism=num!==1&&num!==9;
-  let h=`<div class="lang-bar"><div class="lang-btn active" onclick="switchLang('en',this)">English</div><div class="lang-btn" onclick="switchLang('ml',this)">മലയാളം</div></div>${hasBism?'<div class="bism">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>':''}<div id="trans-en">`;
-  verses.forEach((v,i)=>{h+=`<div class="vblock${i===0?' hl':''}"><div class="vnum">${v.num}</div><div class="var">${v.ar}</div><div class="vtr">${v.en}</div></div>`;});
-  h+=`</div><div id="trans-ml" style="display:none">`;
-  if(mlVerses){verses.forEach((v,i)=>{h+=`<div class="vblock${i===0?' hl':''}"><div class="vnum">${v.num}</div><div class="var">${v.ar}</div><div class="vtr" style="font-size:13px;line-height:1.8">${mlVerses[i]?mlVerses[i].ml:''}</div></div>`;});}
-  else{h+=`<div style="padding:20px;color:#888;text-align:center;font-size:13px">Malayalam not available</div>`;}
-  h+=`</div><div style="height:80px"></div>`;
-  tw.innerHTML=h;
+function goToVerse(){
+  openReader(49,'Al-Hujurat','الحُجُرَات',18);
+  setTimeout(()=>{const t=document.querySelectorAll('.rdr-pill')[1];if(t)setMode('trans',t);},600);
 }
 
-function goToVerse(){openReader(49,'Al-Hujurat','الحُجُرَات',18);setTimeout(()=>{const t=document.querySelectorAll('.rdr-pill')[1];if(t)setMode('trans',t);},600);}
-function switchLang(l,btn){document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const en=document.getElementById('trans-en');const ml=document.getElementById('trans-ml');if(en)en.style.display=l==='en'?'block':'none';if(ml)ml.style.display=l==='ml'?'block':'none';}
+function toggleFS(){
+  const fs=document.getElementById('rdr-fs');
+  const open=fs.style.display==='flex';
+  fs.style.display=open?'none':'flex';
+  const topbar=document.getElementById('rdr-topbar');
+  const modebar=document.getElementById('rdr-modebar');
+  const mushaf=document.getElementById('rdr-mushaf');
+  if(!open){
+    if(topbar)topbar.style.display='none';
+    if(modebar)modebar.style.display='none';
+    if(mushaf)mushaf.style.display='none';
+  } else {
+    if(topbar)topbar.style.display='';
+    if(modebar)modebar.style.display='';
+    if(rdrMode==='mushaf'&&mushaf)mushaf.style.display='flex';
+  }
+}
+function switchLang(l,btn){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const en=document.getElementById('trans-en');
+  const ml=document.getElementById('trans-ml');
+  if(en)en.style.display=l==='en'?'block':'none';
+  if(ml)ml.style.display=l==='ml'?'block':'none';
+}
 
-// ═══ LISTEN ═══
+// ═══════════════════════════════════════════════════════
+// LISTEN — RECITERS BUILD
+// ═══════════════════════════════════════════════════════
 function buildRecList(){
-  const c=document.querySelector('#lv-reciters .body');if(!c)return;c.innerHTML='';
-  RECITERS.forEach(rec=>{const d=document.createElement('div');d.className='rec-row';d.onclick=()=>pickRec(rec);d.innerHTML=`<div class="rec-av" style="background:${rec.grad}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div><div style="flex:1"><div class="rec-name">${rec.name}</div><div class="rec-meta">${rec.country} · Hafs</div></div><div class="rec-arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>`;c.appendChild(d);});
+  const c=document.querySelector('#lv-reciters .body');
+  if(!c)return;
+  c.innerHTML='';
+  RECITERS.forEach(rec=>{
+    const d=document.createElement('div');
+    d.className='rec-row';
+    d.onclick=()=>pickRec(rec);
+    d.innerHTML=`<div class="rec-av" style="background:${rec.grad}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div>
+    <div style="flex:1"><div class="rec-name">${rec.name}</div><div class="rec-meta">${rec.country} · Hafs · 114 Surahs</div></div>
+    <div class="rec-arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>`;
+    c.appendChild(d);
+  });
 }
+
 function showLV(v){
   document.getElementById('lv-reciters').style.display=v==='reciters'?'block':'none';
-  const sd=document.getElementById('lv-surahs');sd.style.display=v==='surahs'?'flex':'none';
-  const pd=document.getElementById('lv-player');pd.style.display=v==='player'?'flex':'none';
+  const sd=document.getElementById('lv-surahs');
+  sd.style.display=v==='surahs'?'flex':'none';
+  const pd=document.getElementById('lv-player');
+  pd.style.display=v==='player'?'flex':'none';
 }
-function pickRec(rec){curRec=rec;document.getElementById('sp-rec-lbl').textContent=rec.name;showLV('surahs');}
+function pickRec(rec){
+  curRec=rec;
+  document.getElementById('sp-rec-lbl').textContent=rec.name;
+  showLV('surahs');
+}
 
+// ═══════════════════════════════════════════════════════
+// AUDIO PLAYER — REAL STREAMING
+// ═══════════════════════════════════════════════════════
 async function playNow(num,en,ar,v){
-  curSurahNum=num;curSurahEn=en;curVerseIdx=0;
+  // Show player immediately with loading state
+  curSurahNum=num;
+  curSurahEn=en;
+  curVerseIdx=0;
+
   document.getElementById('lp-en').textContent=en;
   document.getElementById('lp-ar').textContent='سُورَةُ '+ar;
   document.getElementById('lp-rec').textContent=curRec.name;
   document.getElementById('lp-vcnt').textContent=en+' · '+v+' verses';
-  setPlayIcon(false);showLV('player');
+  setPlayIcon(false);
+  showLV('player');
+
+  // Show loading in verse panel
   const vscroll=document.getElementById('lp-vscroll');
-  vscroll.innerHTML='<div style="display:flex;align-items:center;justify-content:center;padding:30px 0;gap:10px"><div class="spin"></div><span style="color:rgba(255,255,255,.4);font-size:12px">Loading...</span></div>';
+  vscroll.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;padding:30px 0;gap:10px"><div class="spin"></div><span style="color:rgba(255,255,255,.4);font-size:12px">Loading verses...</span></div>`;
+
+  // Fetch verses
   const verses=await fetchSurah(num);
-  if(!verses){vscroll.innerHTML='<div style="color:rgba(255,255,255,.3);text-align:center;padding:20px;font-size:12px">Could not load verses.</div>';return;}
-  verseList=verses;buildVersePanel(verses);stopAudio();isPlaying=true;setPlayIcon(true);playVerse(0);
+  if(!verses){
+    vscroll.innerHTML=`<div style="color:rgba(255,255,255,.3);text-align:center;padding:20px;font-size:12px">Could not load verses.<br>Check your internet connection.</div>`;
+    return;
+  }
+  verseList=verses;
+
+  // Build verse panel
+  buildVersePanel(verses);
+
+  // Start audio
+  stopAudio();
+  isPlaying=true;
+  setPlayIcon(true);
+  playVerse(0);
 }
+
 function buildVersePanel(verses){
-  const vs=document.getElementById('lp-vscroll');vs.innerHTML='';
-  verses.forEach((v,i)=>{const d=document.createElement('div');d.className='lp-vline'+(i===0?' active':'');d.dataset.vi=i;d.textContent=v.ar+' ﴿'+toArabicNum(v.num)+'﴾';d.onclick=()=>jumpToVerse(i);vs.appendChild(d);});
+  const vscroll=document.getElementById('lp-vscroll');
+  vscroll.innerHTML='';
+  verses.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='lp-vline'+(i===0?' active':'');
+    d.dataset.vi=i;
+    d.textContent=v.ar+' ﴿'+toArabicNum(v.num)+'﴾';
+    d.onclick=()=>jumpToVerse(i);
+    vscroll.appendChild(d);
+  });
 }
+
 function playVerse(idx){
-  if(!verseList.length||idx<0||idx>=verseList.length)return;
-  curVerseIdx=idx;setActiveVerse(idx);
-  const url=`${CDN_AUDIO}/${curRec.id}/${verseList[idx].globalNum}.mp3`;
-  stopAudio();audio=new Audio(url);audio.playbackRate=parseFloat(speeds[speedIdx])||1;
-  audio.play().catch(e=>console.log('Audio:',e));setPlayIcon(true);isPlaying=true;
-  audio.onended=()=>{if(repeatOn)playVerse(idx);else if(idx+1<verseList.length)playVerse(idx+1);else{isPlaying=false;setPlayIcon(false);}};
-  audio.onerror=()=>{setTimeout(()=>{if(idx+1<verseList.length)playVerse(idx+1);},500);};
-  audio.ontimeupdate=()=>updateProgress();audio.onloadedmetadata=()=>updateDuration();
+  if(!verseList.length||idx>=verseList.length)return;
+  curVerseIdx=idx;
+  setActiveVerse(idx);
+
+  // Build audio URL — global verse number
+  const globalNum=verseList[idx].globalNum;
+  const url=`${CDN_AUDIO}/${curRec.id}/${globalNum}.mp3`;
+
+  stopAudio();
+  audio=new Audio(url);
+  audio.playbackRate=parseFloat(speeds[speedIdx])||1;
+  audio.play().catch(e=>console.log('Audio play error:',e));
+  setPlayIcon(true);
+
+  audio.onended=()=>{
+    const next=idx+1;
+    if(next<verseList.length){
+      if(repeatOn){playVerse(idx);}
+      else{playVerse(next);}
+    } else {
+      // End of surah
+      isPlaying=false;
+      setPlayIcon(false);
+      setActiveVerse(0);
+    }
+  };
+
+  audio.onerror=()=>{
+    // Try next verse on error
+    setTimeout(()=>{if(idx+1<verseList.length)playVerse(idx+1);},500);
+  };
+
+  // Update progress bar continuously
+  audio.ontimeupdate=()=>updateProgress();
+  audio.onloadedmetadata=()=>updateDuration();
 }
-function jumpToVerse(idx){stopAudio();isPlaying=true;playVerse(idx);}
+
+function jumpToVerse(idx){
+  stopAudio();
+  isPlaying=true;
+  playVerse(idx);
+}
+
 function setActiveVerse(idx){
-  document.querySelectorAll('#lp-vscroll .lp-vline').forEach((l,i)=>{l.classList.remove('active','passed');if(i<idx)l.classList.add('passed');if(i===idx)l.classList.add('active');});
-  const a=document.querySelector('#lp-vscroll .lp-vline.active');if(a)a.scrollIntoView({behavior:'smooth',block:'center'});
+  const lines=document.querySelectorAll('#lp-vscroll .lp-vline');
+  lines.forEach((l,i)=>{
+    l.classList.remove('active','passed');
+    if(i<idx)l.classList.add('passed');
+    if(i===idx)l.classList.add('active');
+  });
+  // Scroll active into view
+  const active=document.querySelector('#lp-vscroll .lp-vline.active');
+  if(active)active.scrollIntoView({behavior:'smooth',block:'center'});
 }
-function stopAudio(){if(audio){audio.pause();audio.src='';audio=null;}}
+
+function stopAudio(){
+  if(audio){audio.pause();audio.src='';audio=null;}
+}
+
 function togglePlay(){
-  if(!audio&&verseList.length){isPlaying=true;playVerse(curVerseIdx);return;}
+  if(!audio&&verseList.length){
+    isPlaying=true;
+    playVerse(curVerseIdx);
+    return;
+  }
   if(!audio)return;
-  if(isPlaying){audio.pause();isPlaying=false;setPlayIcon(false);}else{audio.play();isPlaying=true;setPlayIcon(true);}
+  if(isPlaying){audio.pause();isPlaying=false;setPlayIcon(false);}
+  else{audio.play();isPlaying=true;setPlayIcon(true);}
 }
-function setPlayIcon(p){const ico=document.getElementById('lp-ico');if(!ico)return;ico.innerHTML=p?'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>':'<polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/>';}
-function updateProgress(){if(!audio||!audio.duration)return;const pct=(audio.currentTime/audio.duration)*100;const f=document.getElementById('lp-prog-f');const d=document.getElementById('lp-prog-dot');if(f)f.style.width=pct+'%';if(d)d.style.left=pct+'%';const c=document.getElementById('lp-cur');if(c)c.textContent=fmtTime(audio.currentTime);}
-function updateDuration(){if(!audio)return;const d=document.getElementById('lp-dur');if(d)d.textContent=fmtTime(audio.duration);}
-function toggleHeart(){document.getElementById('lp-heart').classList.toggle('hearted');}
-function toggleRepeat(){repeatOn=!repeatOn;document.getElementById('lp-repeat').classList.toggle('on',repeatOn);}
-function cycleSpeed(el){speedIdx=(speedIdx+1)%speeds.length;el.textContent=speeds[speedIdx];if(audio)audio.playbackRate=parseFloat(speeds[speedIdx])||1;}
-document.querySelector('.lp-prog').addEventListener('click',e=>{if(!audio||!audio.duration)return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*audio.duration;});
-document.getElementById('lp-vscroll').addEventListener('click',e=>{const vl=e.target.closest('.lp-vline');if(!vl)return;const idx=parseInt(vl.dataset.vi);if(!isNaN(idx))jumpToVerse(idx);});
 
-// ═══ DHIKR ═══
-function tapDk(){if(dkN>=99)dkN=0;dkN++;const n=document.getElementById('dk-n');n.style.transform='scale(1.25)';n.style.transition='transform .1s';setTimeout(()=>{n.style.transform='scale(1)';n.style.transition='transform .35s cubic-bezier(.34,1.56,.64,1)';},100);updDk();}
+function setPlayIcon(playing){
+  const ico=document.getElementById('lp-ico');
+  if(!ico)return;
+  ico.innerHTML=playing
+    ?'<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>'
+    :'<polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/>';
+}
+
+function updateProgress(){
+  if(!audio||!audio.duration)return;
+  const pct=(audio.currentTime/audio.duration)*100;
+  const fill=document.querySelector('.lp-prog-f');
+  const dot=document.querySelector('.lp-prog-dot');
+  if(fill)fill.style.width=pct+'%';
+  if(dot)dot.style.left=pct+'%';
+  const cur=document.querySelector('.lp-times span:first-child');
+  if(cur)cur.textContent=fmtTime(audio.currentTime);
+}
+function updateDuration(){
+  if(!audio)return;
+  const dur=document.querySelector('.lp-times span:last-child');
+  if(dur)dur.textContent=fmtTime(audio.duration);
+}
+function fmtTime(s){
+  if(!s||isNaN(s))return'0:00';
+  const m=Math.floor(s/60),sec=Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+// Progress bar seek
+document.querySelector('.lp-prog').addEventListener('click',e=>{
+  if(!audio||!audio.duration)return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  audio.currentTime=pct*audio.duration;
+});
+
+function toggleHeart(){
+  document.getElementById('lp-heart').classList.toggle('hearted');
+}
+function toggleRepeat(){
+  repeatOn=!repeatOn;
+  document.getElementById('lp-repeat').classList.toggle('on',repeatOn);
+}
+function cycleSpeed(el){
+  speedIdx=(speedIdx+1)%speeds.length;
+  el.textContent=speeds[speedIdx];
+  if(audio)audio.playbackRate=parseFloat(speeds[speedIdx])||1;
+}
+
+// ═══════════════════════════════════════════════════════
+// DHIKR
+// ═══════════════════════════════════════════════════════
+function tapDk(){
+  if(dkN>=99)dkN=0;
+  dkN++;
+  const n=document.getElementById('dk-n');
+  n.style.transform='scale(1.25)';
+  n.style.transition='transform .1s cubic-bezier(.2,0,0,1)';
+  setTimeout(()=>{n.style.transform='scale(1)';n.style.transition='transform .2s cubic-bezier(.34,1.56,.64,1)';},100);
+  updDk();
+}
 function resetDk(){dkN=0;updDk();}
-function updDk(){document.getElementById('dk-n').textContent=dkN;const a=document.getElementById('dk-arc');a.style.transition='stroke-dashoffset .45s cubic-bezier(.4,0,.6,1)';a.style.strokeDashoffset=628-(dkN/99)*628;}
-function selDk(el,ar,tr){document.querySelectorAll('.dk-pr').forEach(p=>p.classList.remove('active'));el.classList.add('active');const arEl=document.getElementById('dk-ar');arEl.style.opacity='0';setTimeout(()=>{arEl.textContent=ar;document.getElementById('dk-tr').textContent=tr;arEl.style.opacity='1';arEl.style.transition='opacity .2s';dkN=0;updDk();},150);}
-
-// ═══ QIBLA ═══
-function openQibla(){qiblaOpen=true;document.getElementById('qibla-ov').style.display='flex';startCompass();}
-function closeQibla(){qiblaOpen=false;document.getElementById('qibla-ov').style.display='none';stopCompass();}
-function startCompass(){if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(s=>{if(s==='granted'){window.addEventListener('deviceorientationabsolute',onOri,true);window.addEventListener('deviceorientation',onOri,true);}else simCompass();}).catch(()=>simCompass());}else if(window.DeviceOrientationEvent){window.addEventListener('deviceorientationabsolute',onOri,true);window.addEventListener('deviceorientation',onOri,true);}else simCompass();}
-function stopCompass(){window.removeEventListener('deviceorientationabsolute',onOri,true);window.removeEventListener('deviceorientation',onOri,true);if(compassInterval){clearInterval(compassInterval);compassInterval=null;}}
-function onOri(e){const h=e.webkitCompassHeading!==undefined?e.webkitCompassHeading:(e.alpha!==null?360-e.alpha:0);updateCompass(h);}
-function simCompass(){document.getElementById('qib-status').textContent='Demo mode · Rotate to test';compassInterval=setInterval(()=>{if(!qiblaOpen){clearInterval(compassInterval);return;}compassHead=(compassHead+0.5)%360;updateCompass(compassHead);},16);}
-function updateCompass(h){compassHead=h;const dial=document.getElementById('compass-dial');const ptr=document.getElementById('qibla-ptr');if(dial)dial.style.transform=`rotate(${-h}deg)`;if(ptr)ptr.style.transform=`rotate(${QIBLA-h}deg)`;const degEl=document.getElementById('qibla-deg');if(degEl)degEl.textContent=Math.round(h)+'°';const diff=Math.abs(((QIBLA-h)+360)%360);const aligned=diff<8||diff>352;const st=document.getElementById('qib-status');if(st){st.textContent=aligned?'✓ You are facing Qibla':'Hold phone flat · Point green arrow towards Qibla';st.style.color=aligned?'#4CAF7D':'';}}
-
-// ═══ THEME ═══
-function toggleTheme(){isLight=!isLight;document.getElementById('shell').classList.toggle('light',isLight);document.getElementById('theme-tog').classList.toggle('on',isLight);document.getElementById('theme-lbl').textContent=isLight?'Light':'Dark';}
-
-// ═══ APPLE ANIMATIONS ═══
-const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});},{threshold:0.08,rootMargin:'0px 0px -20px 0px'});
-function applyReveal(container,selector,baseDelay=0){if(!container)return;const els=container.querySelectorAll(selector);els.forEach((el,i)=>{el.classList.add('reveal');el.style.transitionDelay=Math.min(baseDelay+i*0.09,0.7)+'s';revealObserver.observe(el);});}
-function applyScaleReveal(container,selector,baseDelay=0){if(!container)return;const els=container.querySelectorAll(selector);els.forEach((el,i)=>{el.classList.add('reveal-scale');el.style.transitionDelay=Math.min(baseDelay+i*0.10,0.7)+'s';revealObserver.observe(el);});}
-function runScreenReveal(screenId){const screen=document.getElementById(screenId);if(!screen)return;screen.querySelectorAll('.reveal,.reveal-scale').forEach(el=>{el.classList.remove('visible');void el.offsetHeight;revealObserver.observe(el);});}
-function initAnimations(){
-  applyReveal(document.getElementById('surah-list'),'.surah-row',0.02);
-  applyReveal(document.getElementById('s-prayer'),'.pr-row',0.06);
-  applyReveal(document.getElementById('s-profile'),'.srow',0.08);
-  setTimeout(()=>applyReveal(document.querySelector('#lv-reciters .body'),'.rec-row',0.03),100);
-  applyScaleReveal(document.getElementById('s-home'),'.stat',0.08);
-  applyScaleReveal(document.getElementById('s-home'),'.qa',0.12);
-  applyScaleReveal(document.getElementById('s-profile'),'.prf-stat',0.04);
+function updDk(){
+  document.getElementById('dk-n').textContent=dkN;
+  const arc=document.getElementById('dk-arc');
+  arc.style.transition='stroke-dashoffset .45s cubic-bezier(.4,0,.2,1)';
+  arc.style.strokeDashoffset=628-(dkN/99)*628;
+}
+function selDk(el,ar,tr){
+  document.querySelectorAll('.dk-pr').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const arEl=document.getElementById('dk-ar');
+  arEl.style.opacity='0';
+  setTimeout(()=>{
+    arEl.textContent=ar;
+    document.getElementById('dk-tr').textContent=tr;
+    arEl.style.opacity='1';arEl.style.transition='opacity .2s';
+    dkN=0;updDk();
+  },150);
 }
 
-// ═══ INIT ═══
+// ═══════════════════════════════════════════════════════
+// QIBLA
+// ═══════════════════════════════════════════════════════
+function openQibla(){
+  qiblaOpen=true;
+  document.getElementById('qibla-ov').style.display='flex';
+  startCompass();
+}
+function closeQibla(){
+  qiblaOpen=false;
+  document.getElementById('qibla-ov').style.display='none';
+  stopCompass();
+}
+function startCompass(){
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(s=>{
+      if(s==='granted'){window.addEventListener('deviceorientationabsolute',onOri,true);window.addEventListener('deviceorientation',onOri,true);}
+      else simCompass();
+    }).catch(()=>simCompass());
+  }else if(window.DeviceOrientationEvent){
+    window.addEventListener('deviceorientationabsolute',onOri,true);
+    window.addEventListener('deviceorientation',onOri,true);
+  }else simCompass();
+}
+function stopCompass(){
+  window.removeEventListener('deviceorientationabsolute',onOri,true);
+  window.removeEventListener('deviceorientation',onOri,true);
+  if(compassInterval){clearInterval(compassInterval);compassInterval=null;}
+}
+function onOri(e){
+  const h=e.webkitCompassHeading!==undefined?e.webkitCompassHeading:(e.alpha!==null?360-e.alpha:0);
+  updateCompass(h);
+}
+function simCompass(){
+  document.getElementById('qib-status').textContent='Demo mode · Rotate to test';
+  compassInterval=setInterval(()=>{
+    if(!qiblaOpen){clearInterval(compassInterval);return;}
+    compassHead=(compassHead+0.5)%360;
+    updateCompass(compassHead);
+  },16);
+}
+function updateCompass(h){
+  compassHead=h;
+  const dial=document.getElementById('compass-dial');
+  const ptr=document.getElementById('qibla-ptr');
+  if(dial)dial.style.transform=`rotate(${-h}deg)`;
+  if(ptr)ptr.style.transform=`rotate(${QIBLA-h}deg)`;
+  const degEl=document.getElementById('qibla-deg');
+  if(degEl)degEl.textContent=Math.round(h)+'°';
+  const diff=Math.abs(((QIBLA-h)+360)%360);
+  const aligned=diff<8||diff>352;
+  const st=document.getElementById('qib-status');
+  if(st){st.textContent=aligned?'✓ You are facing Qibla':'Hold phone flat · Point green arrow towards Qibla';st.style.color=aligned?'#4CAF7D':'';}
+}
+
+// ═══════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════
+function toggleTheme(){
+  isLight=!isLight;
+  document.getElementById('shell').classList.toggle('light',isLight);
+  document.getElementById('theme-tog').classList.toggle('on',isLight);
+  document.getElementById('theme-lbl').textContent=isLight?'Light':'Dark';
+}
+
+// ═══════════════════════════════════════════════════════
+// RESPONSIVE VIEWPORT + DEVICE MODE
+// ═══════════════════════════════════════════════════════
+function setViewportHeightVar(){
+  const vv=window.visualViewport;
+  const vh=Math.round((vv&&vv.height)?vv.height:window.innerHeight);
+  document.documentElement.style.setProperty('--app-vh',vh+'px');
+}
+function shouldUseDeviceFit(){
+  const coarse=window.matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>1;
+  const narrow=window.matchMedia('(max-width: 768px)').matches;
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  return coarse&&(narrow||standalone);
+}
+function syncResponsiveShell(){
+  setViewportHeightVar();
+  const shell=document.getElementById('shell');
+  if(shell)shell.classList.toggle('device-fit',shouldUseDeviceFit());
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
+  syncResponsiveShell();
+  window.addEventListener('resize',syncResponsiveShell,{passive:true});
+  window.addEventListener('orientationchange',syncResponsiveShell,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',syncResponsiveShell,{passive:true});
+    window.visualViewport.addEventListener('scroll',syncResponsiveShell,{passive:true});
+  }
+  const displayModeMq=window.matchMedia('(display-mode: standalone)');
+  if(displayModeMq&&displayModeMq.addEventListener) displayModeMq.addEventListener('change',syncResponsiveShell);
+  else if(displayModeMq&&displayModeMq.addListener) displayModeMq.addListener(syncResponsiveShell);
+
   buildRecList();
+  // Initial reader state
   const mushaf=document.getElementById('rdr-mushaf');
   const trans=document.getElementById('rdr-trans');
   const tafsir=document.getElementById('rdr-tafsir');
@@ -1469,7 +1545,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   showLV('reciters');
   document.getElementById('qibla-ov').style.display='none';
   updDk();
-  setTimeout(initAnimations,50);
+  // Home is the default screen — reader loads when user taps a surah
 });
 </script>
 </body>
