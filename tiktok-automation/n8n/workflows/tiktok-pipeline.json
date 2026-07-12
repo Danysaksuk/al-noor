@@ -1,0 +1,218 @@
+{
+  "name": "TikTok Daily Content Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Daily Trigger (9am)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://YOUR-TREND-SOURCE-OR-MCP-ENDPOINT",
+        "options": {}
+      },
+      "name": "Pull Trend Signals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "notes": "Replace with TikTok Creative Center scrape or tiktok-trends-mcp call"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "prompt": "={{ $node[\"Set Niche\"].json[\"topicResearchPrompt\"] }}",
+        "options": {}
+      },
+      "name": "LLM: Topic Research",
+      "type": "n8n-nodes-base.anthropic",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "notes": "See prompts/topic-research.md for the full prompt template"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "prompt": "={{ $node[\"LLM: Topic Research\"].json[\"chosenTopic\"] }}",
+        "options": {}
+      },
+      "name": "LLM: Write Script",
+      "type": "n8n-nodes-base.anthropic",
+      "typeVersion": 1,
+      "position": [660, 0],
+      "notes": "See prompts/script-writing.md for the full prompt template"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/YOUR_VOICE_ID",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $node[\"LLM: Write Script\"].json[\"script\"] }}"
+            }
+          ]
+        }
+      },
+      "name": "Generate Voiceover (ElevenLabs)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://moneyprinter:8080/api/v1/videos",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "script",
+              "value": "={{ $node[\"LLM: Write Script\"].json[\"script\"] }}"
+            },
+            {
+              "name": "audio_url",
+              "value": "={{ $node[\"Generate Voiceover (ElevenLabs)\"].json[\"audio_url\"] }}"
+            }
+          ]
+        }
+      },
+      "name": "Render Video (MoneyPrinterTurbo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendVideo",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "additionalFields": {
+          "caption": "=New video ready for review:\\n\\n{{ $node[\"LLM: Write Script\"].json[\"script\"] }}\\n\\nReply APPROVE or REJECT."
+        }
+      },
+      "name": "Send For Human Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, 0]
+    },
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "name": "Wait For Telegram Reply",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [1540, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1760, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://postiz:5000/api/posts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "integration",
+              "value": "tiktok"
+            },
+            {
+              "name": "videoUrl",
+              "value": "={{ $node[\"Render Video (MoneyPrinterTurbo)\"].json[\"video_url\"] }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $node[\"LLM: Write Script\"].json[\"caption\"] }}"
+            }
+          ]
+        }
+      },
+      "name": "Publish via Postiz",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, -80]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "Rejected — no post published. Adjust the prompt templates or try again tomorrow."
+      },
+      "name": "Log Rejection",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1980, 80]
+    }
+  ],
+  "connections": {
+    "Daily Trigger (9am)": {
+      "main": [[{ "node": "Pull Trend Signals", "type": "main", "index": 0 }]]
+    },
+    "Pull Trend Signals": {
+      "main": [[{ "node": "LLM: Topic Research", "type": "main", "index": 0 }]]
+    },
+    "LLM: Topic Research": {
+      "main": [[{ "node": "LLM: Write Script", "type": "main", "index": 0 }]]
+    },
+    "LLM: Write Script": {
+      "main": [[{ "node": "Generate Voiceover (ElevenLabs)", "type": "main", "index": 0 }]]
+    },
+    "Generate Voiceover (ElevenLabs)": {
+      "main": [[{ "node": "Render Video (MoneyPrinterTurbo)", "type": "main", "index": 0 }]]
+    },
+    "Render Video (MoneyPrinterTurbo)": {
+      "main": [[{ "node": "Send For Human Approval", "type": "main", "index": 0 }]]
+    },
+    "Send For Human Approval": {
+      "main": [[{ "node": "Wait For Telegram Reply", "type": "main", "index": 0 }]]
+    },
+    "Wait For Telegram Reply": {
+      "main": [[{ "node": "IF Approved", "type": "main", "index": 0 }]]
+    },
+    "IF Approved": {
+      "main": [
+        [{ "node": "Publish via Postiz", "type": "main", "index": 0 }],
+        [{ "node": "Log Rejection", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}
