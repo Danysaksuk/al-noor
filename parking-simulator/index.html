@@ -27,9 +27,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 #vig{position:fixed;inset:0;pointer-events:none;z-index:2;
   background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(20,6,7,.55) 100%)}
 
-/* ── UI · SPLASH ───────────────────────────────────────── */
+/* ── UI · DIALOG MOTION (transitions.dev modal pattern) ── */
+:root{
+  --modal-open-dur:250ms;
+  --modal-close-dur:150ms;
+  --modal-scale:.96;
+  --modal-ease:cubic-bezier(0.22,1,0.36,1);
+  --modal-close-ease:cubic-bezier(0.4,0,0.2,1);
+}
 .overlay{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;padding:24px}
+  align-items:center;justify-content:center;text-align:center;padding:24px;
+  opacity:0;transition:opacity var(--modal-open-dur) var(--modal-ease)}
+.overlay.open{opacity:1}
+.overlay.closing{transition-duration:var(--modal-close-dur)}
+@keyframes modalIn{from{transform:translateY(6px) scale(var(--modal-scale));opacity:0}
+  to{transform:none;opacity:1}}
+@keyframes modalOut{from{transform:none;opacity:1}
+  to{transform:translateY(4px) scale(var(--modal-scale));opacity:0}}
+.overlay.open .dlg{animation:modalIn var(--modal-open-dur) var(--modal-ease) both}
+.overlay.closing .dlg{animation:modalOut var(--modal-close-dur) var(--modal-close-ease) both}
+#selCards .dlg:nth-child(2){animation-delay:40ms}
+@media (prefers-reduced-motion: reduce){
+  .overlay{transition:none}
+  .overlay .dlg,#gradeBadge.pop{animation:none!important}
+}
 #splash{background:var(--brown)}
 #splash .logo{font-size:clamp(56px,17vw,110px);font-weight:800;letter-spacing:-.04em;
   color:var(--orange);line-height:1}
@@ -51,7 +72,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
   .scard{width:300px}}
 .scard{background:var(--brown);border:1px solid rgba(255,89,0,.45);border-radius:18px;
   padding:16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;
-  box-shadow:0 14px 40px rgba(0,0,0,.45);animation:slideup .45s cubic-bezier(.2,.9,.25,1.15)}
+  box-shadow:0 14px 40px rgba(0,0,0,.45)}
 .scard:active{transform:scale(.97)}
 .swatch{width:56px;height:56px;border-radius:14px;flex:none;
   box-shadow:inset 0 0 0 1px rgba(244,237,227,.2)}
@@ -68,9 +89,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 /* ── UI · READY (order card) ───────────────────────────── */
 #ready{background:rgba(30,9,10,.55);backdrop-filter:blur(3px)}
 .card{width:min(86vw,340px);background:var(--off);color:var(--brown);border-radius:20px;
-  padding:22px 20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.5);
-  animation:slideup .45s cubic-bezier(.2,.9,.25,1.2)}
-@keyframes slideup{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+  padding:22px 20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .card .tag{display:inline-block;background:var(--orange);color:var(--off);font-size:11px;
   font-weight:800;letter-spacing:.12em;padding:4px 10px;border-radius:99px}
 .card h2{margin-top:12px;font-size:22px;font-weight:800;letter-spacing:-.01em}
@@ -139,7 +158,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 #result{background:rgba(30,9,10,.6);backdrop-filter:blur(2px)}
 #resCard{width:min(88vw,350px);background:var(--brown);border:1px solid rgba(255,89,0,.45);
   border-radius:22px;padding:24px 22px calc(18px + var(--safe-b));text-align:center;
-  box-shadow:0 24px 70px rgba(0,0,0,.6);animation:slideup .5s cubic-bezier(.2,.9,.25,1.15)}
+  box-shadow:0 24px 70px rgba(0,0,0,.6)}
 #resTitle{font-size:13px;font-weight:800;letter-spacing:.26em;color:var(--off);opacity:.7}
 #newBest{display:inline-block;margin-top:10px;padding:4px 12px;border:1px solid var(--lime);
   border-radius:99px;color:var(--lime);font-size:10px;font-weight:800;letter-spacing:.2em}
@@ -181,7 +200,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
   <div id="thr"><div id="thrLabelT">GO</div><div id="thrZero"></div><div id="thrPuck"></div><div id="thrLabelB">BRAKE</div></div>
 </div>
 
-<div id="splash" class="overlay">
+<div id="splash" class="overlay open">
   <div class="logo">talabat</div>
   <div class="sub">Rider Training · Parking Simulator</div>
   <div class="phase">RIDER ACADEMY · PARKING PROGRAM</div>
@@ -193,7 +212,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 <div id="select" class="overlay hidden">
   <div class="selTitle">CHOOSE SCENARIO</div>
   <div id="selCards">
-    <div class="scard" id="cardBasement">
+    <div class="scard dlg" id="cardBasement">
       <div class="swatch" style="background:linear-gradient(135deg,#2a1710 20%,#FF5900)"></div>
       <div class="mid">
         <div class="sname">Mall Basement B-03</div>
@@ -201,7 +220,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
       </div>
       <div class="sbest">BEST<b id="bestBasement" class="num none">—</b></div>
     </div>
-    <div class="scard" id="cardTower">
+    <div class="scard dlg" id="cardTower">
       <div class="swatch" style="background:linear-gradient(135deg,#f7c98c,#FF9648 60%,#FF5900)"></div>
       <div class="mid">
         <div class="sname">Tower Porte-Cochère</div>
@@ -213,7 +232,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 </div>
 
 <div id="ready" class="overlay hidden">
-  <div class="card">
+  <div class="card dlg">
     <span class="tag">NEW ORDER</span>
     <h2 id="ordName">Zaatar w Zeit</h2>
     <div class="row"><span>Order</span><span class="num" id="ordNum">#A47291</span></div>
@@ -224,7 +243,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 </div>
 
 <div id="result" class="overlay hidden">
-  <div id="resCard">
+  <div id="resCard" class="dlg">
     <div id="resTitle">PARKED</div>
     <div><span id="newBest" class="hidden">NEW BEST</span></div>
     <div id="gradeBadge">S</div>
@@ -1357,12 +1376,28 @@ const AC={
 /* ── UI (overlays, HUD, score) ────────────────────────── */
 let state='SPLASH', driveT=0, toastTimer=null;
 
+// dialog open/close lifecycle: backdrop fades, cards scale in/out,
+// display:none only after the close animation finishes
+function showOv(el){
+  clearTimeout(el._hideT);
+  el.classList.remove('closing');
+  if(el.classList.contains('hidden')){
+    el.classList.remove('hidden','open');
+    void el.offsetWidth;                 // restart transition from hidden state
+  }
+  el.classList.add('open');
+}
+function hideOv(el){
+  if(el.classList.contains('hidden')) return;
+  el.classList.remove('open');
+  el.classList.add('closing');
+  clearTimeout(el._hideT);
+  el._hideT=setTimeout(()=>{ el.classList.add('hidden'); el.classList.remove('closing'); },160);
+}
 function setState(s){
   state=s;
-  $('splash').classList.toggle('hidden', s!=='SPLASH');
-  $('select').classList.toggle('hidden', s!=='SELECT');
-  $('ready').classList.toggle('hidden', s!=='READY');
-  $('result').classList.toggle('hidden', s!=='RESULT');
+  for(const [st,id] of [['SPLASH','splash'],['SELECT','select'],['READY','ready'],['RESULT','result']])
+    (st===s?showOv:hideOv)($(id));
   $('hud').classList.toggle('hidden', !(s==='DRIVING'||s==='PARK'||s==='SCORING'));
   $('parkBanner').classList.toggle('hidden', s!=='PARK');
   beacon.visible=beaconRing.visible = (s==='DRIVING'||s==='PARK'||s==='READY'||s==='SPLASH'||s==='SELECT');
