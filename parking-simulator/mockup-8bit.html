@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>talabat · Rider Arcade — Design Direction (8-bit)</title>
+<style>
+:root{
+  /* NES-restricted talabat palette */
+  --orange:#FF5900;
+  --orange-dim:#B84100;
+  --lime:#CFFF00;
+  --lime-dim:#96C400;
+  --brown:#411517;
+  --brown-deep:#1A0708;
+  --brown-mid:#5A2320;
+  --off:#F4EDE3;
+  --off-dim:#A89B87;
+  --sky:#3A6DB8;
+  --ff:'PPress',ui-monospace,'Courier New',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
+  image-rendering:pixelated;image-rendering:crisp-edges}
+html{background:var(--brown-deep);color:var(--off);font-family:var(--ff);
+  font-size:14px;letter-spacing:.06em;line-height:1.6;
+  -webkit-font-smoothing:none;font-smooth:never;
+  text-shadow:2px 2px 0 #000}
+body{min-height:100dvh;overflow-x:hidden;background:
+  linear-gradient(180deg,#150506,#2b0e0d 40%,#150506)}
+canvas{display:block;image-rendering:pixelated}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;letter-spacing:inherit}
+
+/* pixel font — 8×8 bitmap, drawn from a base64 PNG atlas (public-domain style).
+   Chose to render text via canvas glyph atlas below so the mockup is 100% offline;
+   the CSS class uses a fallback for the body, but headings are canvas. */
+@font-face {
+  font-family:'PPress';
+  src:local('Menlo'),local('Consolas'),local('Courier New');
+  font-display:swap;
+}
+
+/* CRT overlay — user-togglable */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px);
+  mix-blend-mode:multiply;transition:opacity .2s}
+body.no-crt::before{opacity:0}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+.crt-toggle{position:fixed;top:14px;right:14px;z-index:200;
+  padding:6px 10px;background:var(--brown);color:var(--lime);
+  border:3px solid var(--off);box-shadow:4px 4px 0 #000;
+  font-family:var(--ff);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.crt-toggle:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+
+/* shell */
+.wrap{max-width:1280px;margin:0 auto;padding:48px 24px 100px;position:relative;z-index:2}
+@media (max-width:700px){.wrap{padding:32px 16px 60px}}
+.masthead{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  padding-bottom:20px;margin-bottom:34px;
+  border-bottom:4px dashed var(--brown-mid)}
+.brand{color:var(--orange);font-size:20px;letter-spacing:.14em;text-transform:uppercase}
+.brand b{color:var(--off);margin-left:8px}
+.crumb{color:var(--off-dim);font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+.crumb b{color:var(--lime)}
+
+/* pixel frame utility — draws a chunky 4px stepped border */
+.pxb{position:relative;
+  box-shadow:
+    -4px 0 0 var(--off), 4px 0 0 var(--off),
+    0 -4px 0 var(--off), 0 4px 0 var(--off),
+    inset 0 0 0 4px var(--brown-deep);
+  background:var(--brown)}
+.pxb.thick{
+  box-shadow:
+    -6px 0 0 var(--off), 6px 0 0 var(--off),
+    0 -6px 0 var(--off), 0 6px 0 var(--off),
+    -6px -6px 0 var(--off), 6px -6px 0 var(--off),
+    -6px 6px 0 var(--off), 6px 6px 0 var(--off),
+    inset 0 0 0 6px var(--brown-deep)}
+.pxb.orange{
+  box-shadow:
+    -4px 0 0 var(--orange), 4px 0 0 var(--orange),
+    0 -4px 0 var(--orange), 0 4px 0 var(--orange),
+    inset 0 0 0 4px var(--brown-deep)}
+.pxb.lime{
+  box-shadow:
+    -4px 0 0 var(--lime), 4px 0 0 var(--lime),
+    0 -4px 0 var(--lime), 0 4px 0 var(--lime),
+    inset 0 0 0 4px var(--brown-deep)}
+
+/* ── hero ─────────────────────────────────────────────── */
+.hero{padding:56px 32px;text-align:center;background:
+  linear-gradient(180deg,#3a1210,#1a0708);
+  margin-bottom:56px}
+.hero .logo{margin:0 auto 24px;display:flex;justify-content:center}
+.hero .press{margin-top:28px;color:var(--lime);font-size:14px;letter-spacing:.32em;
+  animation:blink 1s steps(2) infinite}
+.hero .tag{margin-top:16px;color:var(--off-dim);font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+@keyframes blink{50%{opacity:0}}
+
+/* ── section ──────────────────────────────────────────── */
+.sec{margin-top:64px}
+.sec-title{color:var(--lime);font-size:14px;letter-spacing:.24em;
+  text-transform:uppercase;margin-bottom:8px}
+.sec-title::before{content:'>';color:var(--orange);margin-right:8px}
+.sec-lede{color:var(--off);font-size:13px;max-width:640px;margin-bottom:26px;line-height:1.7}
+.sec-lede b{color:var(--lime)}
+
+/* ── stat strip ───────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:16px 0 12px}
+.stat{padding:14px 12px;text-align:center;background:var(--brown-deep)}
+.stat .k{font-size:10px;letter-spacing:.18em;color:var(--off-dim);text-transform:uppercase}
+.stat .v{color:var(--lime);font-size:22px;margin-top:4px;letter-spacing:.06em}
+
+/* ── phone frame ──────────────────────────────────────── */
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px 24px}
+.phone{position:relative;justify-self:center;
+  width:min(300px,90vw);aspect-ratio:390/844;
+  background:var(--brown-deep);padding:16px;
+  box-shadow:0 0 0 8px var(--brown),
+    16px 16px 0 var(--brown-deep),
+    0 30px 60px rgba(0,0,0,.4)}
+.phone-screen{position:relative;width:100%;height:100%;overflow:hidden;background:#0a0303}
+.phone-label{margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--off-dim)}
+.phone-label b{color:var(--lime);margin-right:4px}
+
+/* ── screen: splash ───────────────────────────────────── */
+.scr{position:absolute;inset:0;padding:20px 14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden}
+.scr.splash{background:
+  linear-gradient(180deg,var(--brown-deep) 0 20%,var(--brown) 20% 80%,var(--brown-deep) 80% 100%);
+  gap:12px}
+.scr.splash .logo{display:block}
+.scr.splash .press{margin-top:16px;color:var(--lime);font-size:11px;letter-spacing:.28em;
+  animation:blink 1s steps(2) infinite}
+.scr.splash .footer{position:absolute;bottom:16px;left:0;right:0;
+  color:var(--off-dim);font-size:8px;letter-spacing:.24em;text-transform:uppercase}
+
+/* ── screen: select ───────────────────────────────────── */
+.scr.select{background:var(--brown-deep);padding-top:36px;display:flex;flex-direction:column;
+  align-items:stretch;justify-content:flex-start;gap:12px}
+.scr.select .hd{color:var(--orange);font-size:10px;letter-spacing:.28em;text-align:center;text-transform:uppercase}
+.scen{position:relative;padding:12px;background:var(--brown);display:flex;gap:10px;align-items:center}
+.scen.on{background:var(--orange);color:var(--brown-deep)}
+.scen.on .best,.scen.on .diff{color:var(--brown-deep)}
+.scen .cur{position:absolute;left:-14px;color:var(--lime);animation:blink 1s steps(2) infinite;font-size:10px}
+.scen.on .cur{color:var(--brown-deep)}
+.scen .thumb{width:44px;height:44px;flex:none;image-rendering:pixelated}
+.scen .mid{flex:1}
+.scen .nm{font-size:10px;text-transform:uppercase;letter-spacing:.14em}
+.scen .diff{color:var(--off-dim);font-size:8px;letter-spacing:.18em;margin-top:4px;text-transform:uppercase}
+.scen .diff .fill{color:var(--lime)}
+.scen.on .diff .fill{color:var(--brown-deep)}
+.scen .best{text-align:right;font-size:8px;letter-spacing:.14em;color:var(--off-dim);text-transform:uppercase}
+.scen .best b{display:block;color:var(--lime);font-size:14px}
+
+/* ── screen: dispatch dialog ──────────────────────────── */
+.scr.dialog{background:
+  radial-gradient(circle at 50% 50%,#3a1210,#0e0405 80%);align-items:stretch;
+  justify-content:flex-end;padding:0 12px 14px}
+.dbox{padding:14px 12px 12px;background:var(--brown);position:relative}
+.dbox .tag{display:inline-block;background:var(--orange);color:var(--brown-deep);
+  font-size:8px;padding:2px 6px;letter-spacing:.14em;text-transform:uppercase}
+.dbox h4{font-size:12px;color:var(--off);margin-top:8px;letter-spacing:.1em;text-transform:uppercase}
+.dbox p{font-size:10px;color:var(--off);margin-top:8px;line-height:1.5;text-transform:none;letter-spacing:.04em}
+.dbox .row{display:flex;justify-content:space-between;font-size:9px;padding:4px 0;color:var(--off);
+  border-top:2px dotted var(--brown-mid);margin-top:6px}
+.dbox .row span:first-child{color:var(--off-dim)}
+.dbox .row span:last-child{color:var(--lime)}
+.dbox .adv{position:absolute;right:10px;bottom:8px;color:var(--lime);font-size:12px;
+  animation:blink 1s steps(2) infinite}
+
+/* ── screen: HUD ──────────────────────────────────────── */
+.scr.hud{padding:0;background:#0a0303}
+.hud-scene{position:absolute;inset:0;overflow:hidden;background:#180608}
+.hud-scene canvas{position:absolute;inset:0;width:100%;height:100%}
+.hud-timer{position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  padding:5px 12px;background:var(--orange);color:var(--brown-deep);
+  font-size:14px;letter-spacing:.06em}
+.hud-order{position:absolute;top:8px;left:8px;padding:4px 6px;
+  background:var(--brown);color:var(--off);font-size:8px;letter-spacing:.06em;
+  line-height:1.4;max-width:120px}
+.hud-order b{color:var(--orange)}
+.hud-pen{position:absolute;top:8px;right:8px;padding:4px 6px;
+  background:var(--brown);color:var(--lime);font-size:8px;letter-spacing:.06em}
+.hud-speed{position:absolute;right:8px;bottom:100px;color:var(--off);font-size:8px;letter-spacing:.06em;text-align:right}
+.hud-speed b{display:block;color:var(--lime);font-size:22px;line-height:1}
+.hud-joy{position:absolute;left:12px;bottom:14px;width:60px;height:60px;
+  background:var(--brown);position:relative}
+.hud-joy::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:22px;height:22px;background:var(--orange)}
+.hud-thr{position:absolute;right:12px;bottom:14px;width:34px;height:80px;
+  background:linear-gradient(to bottom,var(--orange) 0 48%,var(--brown) 52% 100%)}
+.hud-thr::before{content:'';position:absolute;left:2px;right:2px;top:48%;height:4px;background:var(--lime)}
+.hud-coach{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);
+  padding:4px 8px;background:var(--lime);color:var(--brown-deep);
+  font-size:8px;letter-spacing:.1em;white-space:nowrap;text-transform:uppercase}
+
+/* ── screen: result ───────────────────────────────────── */
+.scr.result{background:
+  radial-gradient(circle at 50% 30%,#5a2320,#0e0405 75%);gap:8px}
+.result .top{color:var(--off-dim);font-size:9px;letter-spacing:.24em;text-transform:uppercase}
+.result .grade{width:90px;height:90px;margin:8px 0 4px;background:var(--brown-deep);
+  border:6px solid var(--lime);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--lime);font-size:44px;letter-spacing:0;
+  animation:pop .3s steps(1) both;box-shadow:6px 6px 0 #000}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.result .score{color:var(--off);font-size:34px;letter-spacing:.04em}
+.result .score small{font-size:12px;color:var(--off-dim)}
+.result .row{display:flex;justify-content:space-between;width:200px;font-size:9px;
+  padding:3px 0;color:var(--off);border-bottom:2px dotted var(--brown-mid);letter-spacing:.08em}
+.result .row b{color:var(--lime)}
+.result .msg{margin-top:8px;color:var(--lime);font-size:9px;letter-spacing:.14em;text-transform:uppercase;text-align:center;max-width:220px;line-height:1.6}
+.result .again{margin-top:10px;padding:8px 16px;background:var(--orange);color:var(--brown-deep);
+  font-size:10px;letter-spacing:.2em}
+
+/* notes musical bounce */
+.notes{position:absolute;top:12%;left:0;right:0;display:flex;justify-content:center;gap:12px;pointer-events:none}
+.notes span{color:var(--lime);font-size:14px;animation:notebob 1s ease-in-out infinite}
+.notes span:nth-child(2){animation-delay:.2s;color:var(--orange)}
+.notes span:nth-child(3){animation-delay:.4s;color:var(--lime)}
+@keyframes notebob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ── principles ───────────────────────────────────────── */
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.principle{padding:16px 14px;background:var(--brown-deep);border-left:6px solid var(--orange);
+  border-top:2px solid var(--brown-mid);border-bottom:2px solid var(--brown-mid)}
+.principle h4{color:var(--lime);font-size:11px;letter-spacing:.16em;margin-bottom:8px;text-transform:uppercase}
+.principle p{color:var(--off);font-size:11px;line-height:1.7}
+.principle .n{color:var(--orange);font-size:14px;margin-right:8px}
+
+/* ── tokens ───────────────────────────────────────────── */
+.tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.tok{padding:18px 14px;background:var(--brown-deep);border:4px double var(--brown-mid)}
+.tok h4{color:var(--lime);font-size:10px;letter-spacing:.24em;margin-bottom:12px;text-transform:uppercase}
+.tok h4::before{content:'▸';color:var(--orange);margin-right:6px}
+.swatches{display:flex;gap:8px;margin-bottom:10px}
+.sw{width:32px;height:32px;position:relative;border:2px solid var(--brown-mid);
+  box-shadow:2px 2px 0 var(--brown-deep)}
+.sw::after{content:attr(data-hex);position:absolute;top:100%;left:0;margin-top:4px;
+  font-size:7px;letter-spacing:.04em;color:var(--off-dim);white-space:nowrap}
+.tokrow{display:flex;justify-content:space-between;padding:4px 0;font-size:10px;
+  border-top:1px dotted var(--brown-mid);color:var(--off)}
+.tokrow:first-child{border-top:0}
+.tokrow b{color:var(--orange);letter-spacing:.04em}
+
+/* footer */
+.foot{margin-top:80px;padding-top:20px;border-top:4px dashed var(--brown-mid);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-size:10px;letter-spacing:.14em;color:var(--off-dim);text-transform:uppercase}
+.foot b{color:var(--lime)}
+</style>
+</head>
+<body>
+<button class="crt-toggle" id="crtToggle">CRT · ON</button>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="brand">talabat<b>· RIDER ARCADE</b></div>
+    <div class="crumb">Design direction · <b>8-bit</b> · 21 Jul 2026</div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero pxb thick">
+    <canvas id="logo" width="360" height="72" style="width:360px;max-width:100%;height:auto"></canvas>
+    <div class="tag">RIDER TRAINING · PARKING SIMULATOR</div>
+    <canvas id="bike" width="128" height="96" style="width:256px;height:192px;margin-top:22px"></canvas>
+    <div class="press">▶ PRESS START ◀</div>
+  </section>
+
+  <div class="stats">
+    <div class="stat pxb"><div class="k">Palette</div><div class="v">4 colours</div></div>
+    <div class="stat pxb"><div class="k">Resolution</div><div class="v">64 × 96</div></div>
+    <div class="stat pxb"><div class="k">Motion</div><div class="v">INSTANT</div></div>
+    <div class="stat pxb"><div class="k">Audio</div><div class="v">CHIPTUNE</div></div>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <section class="sec">
+    <div class="sec-title">Design principles</div>
+    <div class="sec-lede">
+      Same brand, reinterpreted as a <b>Game Boy-era arcade</b>. Chunky sprites,
+      instant response, four-colour discipline. This is <b>faster to build</b>,
+      easier to iterate on, and it hits a wildly different emotional register — a
+      surprise for a CEO expecting yet another polished 3D demo.
+    </div>
+    <div class="principles">
+      <div class="principle"><h4><span class="n">01</span>Four colours, no cheats</h4><p>Orange, Lime, Brown, Off-white. Dithering only where a mid-tone is unavoidable. Restraint reads as intention.</p></div>
+      <div class="principle"><h4><span class="n">02</span>Instant everything</h4><p>No eased curves. Modals appear and disappear. Cursors blink at 60 BPM. Every interaction is one frame.</p></div>
+      <div class="principle"><h4><span class="n">03</span>Bitmap type only</h4><p>All headings drawn as canvas pixel glyphs. Body text falls back to a monospaced face — no anti-aliasing.</p></div>
+      <div class="principle"><h4><span class="n">04</span>Sound is chiptune</h4><p>Square-wave engine, arpeggio win jingle, one-note failure buzz. WebAudio synthesis, zero samples.</p></div>
+    </div>
+  </section>
+
+  <!-- SCREENS -->
+  <section class="sec">
+    <div class="sec-title">Screen flow</div>
+    <div class="sec-lede">Every screen from the modern direction, reimagined in 8-bit. Same information, same operational story — different vibe.</div>
+
+    <div class="phones">
+      <!-- splash -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr splash">
+            <canvas id="p-logo" width="120" height="24"></canvas>
+            <div style="color:var(--off-dim);font-size:8px;letter-spacing:.18em;text-transform:uppercase">Rider Training · Sim.</div>
+            <canvas id="p-bike" width="64" height="48" style="width:128px;height:96px;margin-top:16px"></canvas>
+            <div class="press">▶ TAP TO START ◀</div>
+            <div class="footer">© TALABAT UAE · RIDER ACADEMY</div>
+          </div>
+        </div></div>
+        <div class="phone-label"><b>01</b>Title</div>
+      </div>
+
+      <!-- select -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr select">
+            <div class="hd">▸ CHOOSE STAGE ◂</div>
+            <div class="scen on">
+              <span class="cur">►</span>
+              <canvas class="thumb" width="16" height="16" data-thumb="basement"></canvas>
+              <div class="mid">
+                <div class="nm">MALL BASEMENT</div>
+                <div class="diff"><span class="fill">■■</span>□ DIFFICULTY</div>
+              </div>
+              <div class="best">BEST<b>—</b></div>
+            </div>
+            <div class="scen">
+              <canvas class="thumb" width="16" height="16" data-thumb="tower"></canvas>
+              <div class="mid">
+                <div class="nm">PORTE-COCHÈRE</div>
+                <div class="diff"><span class="fill">■■■</span> DIFFICULTY</div>
+              </div>
+              <div class="best">BEST<b>92</b></div>
+            </div>
+          </div>
+        </div></div>
+        <div class="phone-label"><b>02</b>Select</div>
+      </div>
+
+      <!-- dialog -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr dialog">
+            <div class="dbox">
+              <span class="tag">▸ NEW ORDER</span>
+              <h4>ZAATAR W ZEIT</h4>
+              <p>Pickup ready at Mall B-03. Park in the ORANGE rider bay near the service lift. Wall of shame if you block the fire exit.</p>
+              <div class="row"><span>ORDER</span><span>#A47291</span></div>
+              <div class="row"><span>FOR</span><span>T. PEREZ</span></div>
+              <div class="row"><span>ETA</span><span>4 MIN</span></div>
+              <span class="adv">▼</span>
+            </div>
+          </div>
+        </div></div>
+        <div class="phone-label"><b>03</b>Dispatch</div>
+      </div>
+
+      <!-- HUD -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr hud">
+            <div class="hud-scene"><canvas id="huddrive" width="98" height="211"></canvas></div>
+            <div class="hud-order"><b>#A47291</b><br>ZAATAR W ZEIT</div>
+            <div class="hud-timer">0:42</div>
+            <div class="hud-pen">P·0s</div>
+            <div class="hud-coach">▲ ALIGN &amp; EASE</div>
+            <div class="hud-speed">KM/H<b>08</b></div>
+            <div class="hud-joy"></div>
+            <div class="hud-thr"></div>
+          </div>
+        </div></div>
+        <div class="phone-label"><b>04</b>Live HUD</div>
+      </div>
+
+      <!-- result -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr result">
+            <div class="notes"><span>♪</span><span>♫</span><span>♪</span></div>
+            <div class="top">▸ ORDER DELIVERED ◂</div>
+            <div class="grade">S</div>
+            <div class="score">100<small>/100</small></div>
+            <div class="row"><span>BAY</span><b>+60</b></div>
+            <div class="row"><span>ALIGN</span><b>+20</b></div>
+            <div class="row"><span>CENTER</span><b>+10</b></div>
+            <div class="row"><span>CLEAN</span><b>+10</b></div>
+            <div class="msg">▸ NEW HIGH SCORE ◂</div>
+            <div class="again">▶ RESTART ◀</div>
+          </div>
+        </div></div>
+        <div class="phone-label"><b>05</b>Result</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKENS -->
+  <section class="sec">
+    <div class="sec-title">Retro tokens</div>
+    <div class="sec-lede">The 4-hue talabat palette + one accent blue (used only for signage). No gradients, no anti-aliasing, no transparency other than solid overlays.</div>
+    <div class="tokens">
+      <div class="tok">
+        <h4>Palette</h4>
+        <div class="swatches">
+          <div class="sw" data-hex="#FF5900" style="background:#FF5900"></div>
+          <div class="sw" data-hex="#CFFF00" style="background:#CFFF00"></div>
+          <div class="sw" data-hex="#411517" style="background:#411517"></div>
+          <div class="sw" data-hex="#F4EDE3" style="background:#F4EDE3"></div>
+          <div class="sw" data-hex="#3A6DB8" style="background:#3A6DB8"></div>
+        </div>
+        <div style="margin-top:22px">
+          <div class="tokrow"><span>Orange · brand</span><b>#FF5900</b></div>
+          <div class="tokrow"><span>Lime · POS</span><b>#CFFF00</b></div>
+          <div class="tokrow"><span>Brown · surface</span><b>#411517</b></div>
+          <div class="tokrow"><span>Off-white · type</span><b>#F4EDE3</b></div>
+          <div class="tokrow"><span>Sign blue · P sign</span><b>#3A6DB8</b></div>
+        </div>
+      </div>
+      <div class="tok">
+        <h4>Grid &amp; type</h4>
+        <div class="tokrow"><span>Base cell</span><b>8 × 8 px</b></div>
+        <div class="tokrow"><span>Sprite</span><b>16 × 16 px</b></div>
+        <div class="tokrow"><span>Render scale</span><b>×4 · ×6</b></div>
+        <div class="tokrow"><span>Font</span><b>Canvas bitmap</b></div>
+        <div class="tokrow"><span>Line-height</span><b>1.6 · fixed</b></div>
+        <div class="tokrow"><span>Text shadow</span><b>2 · 2 · #000</b></div>
+      </div>
+      <div class="tok">
+        <h4>Motion &amp; audio</h4>
+        <div class="tokrow"><span>Modal open</span><b>1 frame</b></div>
+        <div class="tokrow"><span>Cursor blink</span><b>1000ms · steps</b></div>
+        <div class="tokrow"><span>Score count</span><b>25ms · tick</b></div>
+        <div class="tokrow"><span>Engine wave</span><b>square · 60→180Hz</b></div>
+        <div class="tokrow"><span>Win jingle</span><b>C-E-G · 3-note</b></div>
+        <div class="tokrow"><span>CRT overlay</span><b>toggleable</b></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div>talabat · Rider Arcade · <b>Design direction — 8-bit</b></div>
+    <div>Mockup for CEO review · <b>press ▶ to explore</b></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ── CRT toggle ─────────────────────────────────────── */
+const btn = document.getElementById('crtToggle');
+btn.addEventListener('click', () => {
+  document.body.classList.toggle('no-crt');
+  btn.textContent = document.body.classList.contains('no-crt') ? 'CRT · OFF' : 'CRT · ON';
+});
+
+/* ── pixel-font atlas ───────────────────────────────
+   Hand-drawn 5×7 glyphs (uppercase, numbers, a few symbols).
+   Encoded as bitmask strings — 1 pixel per character in the string. */
+const GLYPHS = {
+  ' ':'00000/00000/00000/00000/00000/00000/00000',
+  'A':'01110/10001/10001/11111/10001/10001/10001',
+  'B':'11110/10001/10001/11110/10001/10001/11110',
+  'C':'01111/10000/10000/10000/10000/10000/01111',
+  'D':'11110/10001/10001/10001/10001/10001/11110',
+  'E':'11111/10000/10000/11110/10000/10000/11111',
+  'F':'11111/10000/10000/11110/10000/10000/10000',
+  'G':'01111/10000/10000/10111/10001/10001/01110',
+  'H':'10001/10001/10001/11111/10001/10001/10001',
+  'I':'11111/00100/00100/00100/00100/00100/11111',
+  'J':'11111/00010/00010/00010/00010/10010/01100',
+  'K':'10001/10010/10100/11000/10100/10010/10001',
+  'L':'10000/10000/10000/10000/10000/10000/11111',
+  'M':'10001/11011/10101/10001/10001/10001/10001',
+  'N':'10001/11001/10101/10011/10001/10001/10001',
+  'O':'01110/10001/10001/10001/10001/10001/01110',
+  'P':'11110/10001/10001/11110/10000/10000/10000',
+  'Q':'01110/10001/10001/10001/10101/10010/01101',
+  'R':'11110/10001/10001/11110/10100/10010/10001',
+  'S':'01111/10000/10000/01110/00001/00001/11110',
+  'T':'11111/00100/00100/00100/00100/00100/00100',
+  'U':'10001/10001/10001/10001/10001/10001/01110',
+  'V':'10001/10001/10001/10001/10001/01010/00100',
+  'W':'10001/10001/10001/10001/10101/11011/10001',
+  'X':'10001/10001/01010/00100/01010/10001/10001',
+  'Y':'10001/10001/10001/01010/00100/00100/00100',
+  'Z':'11111/00001/00010/00100/01000/10000/11111',
+  '0':'01110/10011/10101/11001/10001/10001/01110',
+  '1':'00100/01100/00100/00100/00100/00100/01110',
+  '2':'01110/10001/00001/00110/01000/10000/11111',
+  '3':'11110/00001/00001/01110/00001/00001/11110',
+  '4':'00010/00110/01010/10010/11111/00010/00010',
+  '5':'11111/10000/11110/00001/00001/10001/01110',
+  '6':'01110/10000/10000/11110/10001/10001/01110',
+  '7':'11111/00001/00010/00100/01000/01000/01000',
+  '8':'01110/10001/10001/01110/10001/10001/01110',
+  '9':'01110/10001/10001/01111/00001/00001/01110',
+  '.':'00000/00000/00000/00000/00000/00110/00110',
+  '·':'00000/00000/00000/01100/01100/00000/00000',
+  '!':'00100/00100/00100/00100/00100/00000/00100',
+  '?':'01110/10001/00001/00010/00100/00000/00100'
+};
+function drawText(ctx, txt, x, y, color, cell) {
+  cell = cell || 2;
+  ctx.fillStyle = color;
+  txt = String(txt).toUpperCase();
+  let cx = x;
+  for (const ch of txt) {
+    const g = GLYPHS[ch] || GLYPHS['?'];
+    const rows = g.split('/');
+    for (let r=0;r<rows.length;r++) for (let c=0;c<5;c++)
+      if (rows[r][c] === '1') ctx.fillRect(cx + c*cell, y + r*cell, cell, cell);
+    cx += 6 * cell;
+  }
+}
+
+/* ── talabat wordmark (hero, 6px cell) ──────────────── */
+{
+  const c = document.getElementById('logo');
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  // shadow
+  drawText(g, 'TALABAT', 8, 8, '#1A0708', 8);
+  drawText(g, 'TALABAT', 4, 4, '#FF5900', 8);
+}
+{
+  const c = document.getElementById('p-logo');
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  drawText(g, 'TALABAT', 3, 3, '#1A0708', 3);
+  drawText(g, 'TALABAT', 0, 0, '#FF5900', 3);
+}
+
+/* ── pixel scooter sprite (32×24 → scaled up) ───────
+   Encoded as a colour-index map. 0 = transparent, others = palette. */
+const BIKE = [
+  '................................',
+  '................................',
+  '................................',
+  '..........55555.................',
+  '.........5222225................',
+  '.........5233325................',
+  '.........5233325.......8........',
+  '.........5233325.......88.......',
+  '..........55555.......888.......',
+  '.....................8888.......',
+  '..........22........888888......',
+  '.........2222......888..888.....',
+  '........2211......88......88....',
+  '........2222.....88...44...88...',
+  '.........22.....88...4444...88..',
+  '.........44....88...44..44...88.',
+  '........4444...88...44..44...88.',
+  '.......44..44...88...44..44..88.',
+  '......44....44...888.4444...888.',
+  '......44....44....888888.88888..',
+  '.......44..44......888888888....',
+  '.......88888........................',
+  '.......88888........................',
+  '.................................'
+].map(r => r.padEnd(32,'.'));
+const PALETTE = { '.':null, '1':'#F4EDE3', '2':'#FF5900', '3':'#B84100', '4':'#411517', '5':'#CFFF00', '8':'#1A0708' };
+function drawBike(canvas, cell) {
+  const g = canvas.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  g.clearRect(0,0,canvas.width,canvas.height);
+  cell = cell || 4;
+  const w = 32, h = BIKE.length;
+  const ox = (canvas.width  - w * cell) / 2;
+  const oy = (canvas.height - h * cell) / 2;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    const col = PALETTE[BIKE[y][x]];
+    if (col) { g.fillStyle = col; g.fillRect(ox + x*cell, oy + y*cell, cell, cell); }
+  }
+}
+drawBike(document.getElementById('bike'), 4);
+drawBike(document.getElementById('p-bike'), 2);
+
+/* idle bob on hero bike */
+{
+  const c = document.getElementById('bike');
+  let t = 0;
+  setInterval(() => {
+    t = (t + 1) % 4;
+    c.style.transform = 'translateY(' + (t < 2 ? 0 : -2) + 'px)';
+  }, 220);
+}
+
+/* ── scenario thumbs (16×16 tiles) ─────────────────── */
+function drawThumb(canvas, kind) {
+  const g = canvas.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const cell = 2;
+  if (kind === 'basement') {
+    // dark floor with orange bay + pillars
+    g.fillStyle = '#411517'; g.fillRect(0,0,32,32);
+    g.fillStyle = '#A89B87';
+    g.fillRect(4,4,2,4); g.fillRect(14,4,2,4); g.fillRect(24,4,2,4);
+    g.fillRect(4,14,2,4); g.fillRect(24,14,2,4);
+    g.fillStyle = '#FF5900';
+    g.fillRect(10,20,12,8);
+    g.fillStyle = '#F4EDE3';
+    g.fillRect(11,21,10,1); g.fillRect(11,27,10,1);
+  } else {
+    // apron with palm silhouettes
+    g.fillStyle = '#F0B769'; g.fillRect(0,0,32,20);
+    g.fillStyle = '#B84100'; g.fillRect(0,20,32,12);
+    g.fillStyle = '#411517'; g.fillRect(2,10,3,10); g.fillRect(27,8,3,12);
+    g.fillStyle = '#3A5F33';
+    g.fillRect(0,7,6,3); g.fillRect(26,4,6,4);
+    g.fillStyle = '#FF5900'; g.fillRect(22,24,6,4);
+  }
+}
+document.querySelectorAll('[data-thumb]').forEach(el => drawThumb(el, el.dataset.thumb));
+
+/* ── mini HUD scene: pillars + bay + bike (looping) ── */
+{
+  const c = document.getElementById('huddrive');
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  function scene(t) {
+    const W = c.width, H = c.height;
+    g.fillStyle = '#180608'; g.fillRect(0,0,W,H);
+    // floor arrow lane
+    g.fillStyle = '#2A0D0F';
+    for (let y = (t % 12); y < H; y += 12) g.fillRect(W/2 - 1, y, 2, 6);
+    // pillars
+    g.fillStyle = '#A89B87';
+    g.fillRect(10, 40, 10, 60);
+    g.fillRect(W-20, 50, 10, 60);
+    g.fillStyle = '#3A6DB8';
+    g.fillRect(10, 68, 10, 6); g.fillRect(W-20, 78, 10, 6);
+    // bay
+    g.fillStyle = '#FF5900';
+    g.fillRect(W/2 - 16, H - 90, 32, 44);
+    g.fillStyle = '#F4EDE3';
+    g.fillRect(W/2 - 15, H - 89, 30, 1);
+    g.fillRect(W/2 - 15, H - 46, 30, 1);
+    // bike (chunky)
+    const bx = W/2 - 8, by = H - 78;
+    g.fillStyle = '#FF5900'; g.fillRect(bx, by, 16, 20);
+    g.fillStyle = '#B84100'; g.fillRect(bx+2, by+2, 12, 8);
+    g.fillStyle = '#F4EDE3'; g.fillRect(bx+4, by+4, 8, 4);
+    g.fillStyle = '#1A0708'; g.fillRect(bx, by+18, 4, 4); g.fillRect(bx+12, by+18, 4, 4);
+  }
+  let t = 0;
+  setInterval(() => { t++; scene(t); }, 120);
+  scene(0);
+}
+</script>
+</body>
+</html>
