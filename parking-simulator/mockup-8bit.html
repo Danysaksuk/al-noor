@@ -3,652 +3,746 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>talabat · Rider Arcade — Design Direction (8-bit)</title>
+<title>talabat · Rider Arcade — 8-bit Design Direction</title>
 <style>
 :root{
-  /* NES-restricted talabat palette */
-  --orange:#FF5900;
-  --orange-dim:#B84100;
-  --lime:#CFFF00;
-  --lime-dim:#96C400;
-  --brown:#411517;
-  --brown-deep:#1A0708;
-  --brown-mid:#5A2320;
-  --off:#F4EDE3;
-  --off-dim:#A89B87;
-  --sky:#3A6DB8;
-  --ff:'PPress',ui-monospace,'Courier New',monospace;
+  --orange:#FF5900; --orange-hi:#FF8A3D; --orange-lo:#B83E00;
+  --lime:#CFFF00; --brown:#411517; --off:#F4EDE3;
+  --night:#140a10; --night2:#1e0f16;
+  --plum:#3a1f34;
+  --ff:ui-monospace,'SFMono-Regular','Courier New',monospace;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
-  image-rendering:pixelated;image-rendering:crisp-edges}
-html{background:var(--brown-deep);color:var(--off);font-family:var(--ff);
-  font-size:14px;letter-spacing:.06em;line-height:1.6;
-  -webkit-font-smoothing:none;font-smooth:never;
-  text-shadow:2px 2px 0 #000}
-body{min-height:100dvh;overflow-x:hidden;background:
-  linear-gradient(180deg,#150506,#2b0e0d 40%,#150506)}
-canvas{display:block;image-rendering:pixelated}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#0c060a;color:var(--off);font-family:var(--ff);font-size:14px;
+  letter-spacing:.04em;line-height:1.6;-webkit-font-smoothing:none}
+body{min-height:100dvh;overflow-x:hidden;
+  background:
+    radial-gradient(1200px 700px at 50% -10%,rgba(255,89,0,.10),transparent 60%),
+    linear-gradient(180deg,#0c060a,#160a10 45%,#0c060a)}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;letter-spacing:inherit}
+img{max-width:100%}
 
-/* pixel font — 8×8 bitmap, drawn from a base64 PNG atlas (public-domain style).
-   Chose to render text via canvas glyph atlas below so the mockup is 100% offline;
-   the CSS class uses a fallback for the body, but headings are canvas. */
-@font-face {
-  font-family:'PPress';
-  src:local('Menlo'),local('Consolas'),local('Courier New');
-  font-display:swap;
-}
+/* CRT overlay (toggleable) */
+#crt{position:fixed;inset:0;pointer-events:none;z-index:120;transition:opacity .2s}
+#crt::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px);
+  mix-blend-mode:multiply}
+#crt::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.6) 100%)}
+body.no-crt #crt{opacity:0}
+.crt-btn{position:fixed;top:14px;right:14px;z-index:200;padding:8px 12px;
+  background:var(--night2);color:var(--lime);
+  box-shadow:0 -3px 0 var(--off),0 3px 0 var(--off),-3px 0 0 var(--off),3px 0 0 var(--off),
+    inset 0 0 0 3px #000;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.crt-btn:active{transform:translateY(2px)}
 
-/* CRT overlay — user-togglable */
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:100;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px);
-  mix-blend-mode:multiply;transition:opacity .2s}
-body.no-crt::before{opacity:0}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:99;
-  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
-.crt-toggle{position:fixed;top:14px;right:14px;z-index:200;
-  padding:6px 10px;background:var(--brown);color:var(--lime);
-  border:3px solid var(--off);box-shadow:4px 4px 0 #000;
-  font-family:var(--ff);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-.crt-toggle:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 22px 120px;position:relative;z-index:2}
+@media (max-width:640px){.wrap{padding:28px 14px 70px}}
 
-/* shell */
-.wrap{max-width:1280px;margin:0 auto;padding:48px 24px 100px;position:relative;z-index:2}
-@media (max-width:700px){.wrap{padding:32px 16px 60px}}
-.masthead{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
-  padding-bottom:20px;margin-bottom:34px;
-  border-bottom:4px dashed var(--brown-mid)}
-.brand{color:var(--orange);font-size:20px;letter-spacing:.14em;text-transform:uppercase}
+.masthead{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  padding-bottom:18px;margin-bottom:30px;
+  background:repeating-linear-gradient(90deg,var(--orange) 0 10px,transparent 10px 20px) bottom/100% 4px no-repeat}
+.brand{color:var(--orange);font-size:19px;letter-spacing:.16em;text-transform:uppercase;
+  text-shadow:2px 2px 0 #000}
 .brand b{color:var(--off);margin-left:8px}
-.crumb{color:var(--off-dim);font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+.crumb{color:#8a7d70;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
 .crumb b{color:var(--lime)}
 
-/* pixel frame utility — draws a chunky 4px stepped border */
-.pxb{position:relative;
-  box-shadow:
-    -4px 0 0 var(--off), 4px 0 0 var(--off),
-    0 -4px 0 var(--off), 0 4px 0 var(--off),
-    inset 0 0 0 4px var(--brown-deep);
-  background:var(--brown)}
-.pxb.thick{
-  box-shadow:
-    -6px 0 0 var(--off), 6px 0 0 var(--off),
-    0 -6px 0 var(--off), 0 6px 0 var(--off),
-    -6px -6px 0 var(--off), 6px -6px 0 var(--off),
-    -6px 6px 0 var(--off), 6px 6px 0 var(--off),
-    inset 0 0 0 6px var(--brown-deep)}
-.pxb.orange{
-  box-shadow:
-    -4px 0 0 var(--orange), 4px 0 0 var(--orange),
-    0 -4px 0 var(--orange), 0 4px 0 var(--orange),
-    inset 0 0 0 4px var(--brown-deep)}
-.pxb.lime{
-  box-shadow:
-    -4px 0 0 var(--lime), 4px 0 0 var(--lime),
-    0 -4px 0 var(--lime), 0 4px 0 var(--lime),
-    inset 0 0 0 4px var(--brown-deep)}
+/* hero — the arcade poster */
+.hero{display:flex;justify-content:center;margin-bottom:16px}
+.poster{position:relative;width:min(480px,94vw);
+  box-shadow:0 -6px 0 var(--orange),0 6px 0 var(--orange),-6px 0 0 var(--orange),6px 0 0 var(--orange),
+    0 0 0 6px var(--orange),0 0 0 12px #000,
+    0 30px 70px rgba(0,0,0,.6);
+  background:#0a0508;image-rendering:pixelated}
+.poster canvas{width:100%;height:auto}
+.hero-note{text-align:center;color:#8a7d70;font-size:10px;letter-spacing:.24em;
+  text-transform:uppercase;margin:20px 0 8px}
 
-/* ── hero ─────────────────────────────────────────────── */
-.hero{padding:56px 32px;text-align:center;background:
-  linear-gradient(180deg,#3a1210,#1a0708);
-  margin-bottom:56px}
-.hero .logo{margin:0 auto 24px;display:flex;justify-content:center}
-.hero .press{margin-top:28px;color:var(--lime);font-size:14px;letter-spacing:.32em;
-  animation:blink 1s steps(2) infinite}
-.hero .tag{margin-top:16px;color:var(--off-dim);font-size:11px;letter-spacing:.22em;text-transform:uppercase}
-@keyframes blink{50%{opacity:0}}
-
-/* ── section ──────────────────────────────────────────── */
-.sec{margin-top:64px}
-.sec-title{color:var(--lime);font-size:14px;letter-spacing:.24em;
-  text-transform:uppercase;margin-bottom:8px}
-.sec-title::before{content:'>';color:var(--orange);margin-right:8px}
-.sec-lede{color:var(--off);font-size:13px;max-width:640px;margin-bottom:26px;line-height:1.7}
+/* section */
+.sec{margin-top:66px}
+.sec-title{color:var(--lime);font-size:14px;letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:10px;text-shadow:2px 2px 0 #000}
+.sec-title::before{content:'▸ ';color:var(--orange)}
+.sec-lede{color:var(--off);font-size:13px;max-width:660px;margin-bottom:26px;line-height:1.75}
 .sec-lede b{color:var(--lime)}
 
-/* ── stat strip ───────────────────────────────────────── */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:16px 0 12px}
-.stat{padding:14px 12px;text-align:center;background:var(--brown-deep)}
-.stat .k{font-size:10px;letter-spacing:.18em;color:var(--off-dim);text-transform:uppercase}
-.stat .v{color:var(--lime);font-size:22px;margin-top:4px;letter-spacing:.06em}
+/* stat row */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:8px}
+.stat{padding:14px 12px;text-align:center;background:var(--night2);
+  box-shadow:inset 0 0 0 3px #000,0 0 0 3px var(--brown)}
+.stat .k{font-size:10px;letter-spacing:.16em;color:#8a7d70;text-transform:uppercase}
+.stat .v{color:var(--lime);font-size:20px;margin-top:6px;text-shadow:2px 2px 0 #000}
 
-/* ── phone frame ──────────────────────────────────────── */
-.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px 24px}
-.phone{position:relative;justify-self:center;
-  width:min(300px,90vw);aspect-ratio:390/844;
-  background:var(--brown-deep);padding:16px;
-  box-shadow:0 0 0 8px var(--brown),
-    16px 16px 0 var(--brown-deep),
-    0 30px 60px rgba(0,0,0,.4)}
-.phone-screen{position:relative;width:100%;height:100%;overflow:hidden;background:#0a0303}
-.phone-label{margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--off-dim)}
-.phone-label b{color:var(--lime);margin-right:4px}
+/* principles */
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.principle{padding:18px 16px;background:var(--night2);position:relative;
+  box-shadow:inset 0 0 0 3px #000,-6px 0 0 var(--orange),0 0 0 3px var(--brown)}
+.principle h4{color:var(--lime);font-size:11px;letter-spacing:.14em;margin-bottom:8px;text-transform:uppercase}
+.principle p{color:var(--off);font-size:11px;line-height:1.75}
+.principle .n{color:var(--orange);margin-right:6px}
 
-/* ── screen: splash ───────────────────────────────────── */
-.scr{position:absolute;inset:0;padding:20px 14px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;overflow:hidden}
-.scr.splash{background:
-  linear-gradient(180deg,var(--brown-deep) 0 20%,var(--brown) 20% 80%,var(--brown-deep) 80% 100%);
-  gap:12px}
-.scr.splash .logo{display:block}
-.scr.splash .press{margin-top:16px;color:var(--lime);font-size:11px;letter-spacing:.28em;
-  animation:blink 1s steps(2) infinite}
-.scr.splash .footer{position:absolute;bottom:16px;left:0;right:0;
-  color:var(--off-dim);font-size:8px;letter-spacing:.24em;text-transform:uppercase}
+/* screen flow — phone frames */
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:34px 22px;margin-top:8px}
+.phone{justify-self:center;width:min(232px,88vw)}
+.phone .frame{position:relative;padding:12px;background:#0a0508;
+  box-shadow:0 -5px 0 var(--brown),0 5px 0 var(--brown),-5px 0 0 var(--brown),5px 0 0 var(--brown),
+    0 0 0 5px var(--brown),0 0 0 10px #000,0 20px 44px rgba(0,0,0,.5)}
+.phone canvas{width:100%;height:auto;background:#0a0508}
+.phone .cap{margin-top:16px;text-align:center;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:#8a7d70}
+.phone .cap b{color:var(--lime);margin-right:4px}
 
-/* ── screen: select ───────────────────────────────────── */
-.scr.select{background:var(--brown-deep);padding-top:36px;display:flex;flex-direction:column;
-  align-items:stretch;justify-content:flex-start;gap:12px}
-.scr.select .hd{color:var(--orange);font-size:10px;letter-spacing:.28em;text-align:center;text-transform:uppercase}
-.scen{position:relative;padding:12px;background:var(--brown);display:flex;gap:10px;align-items:center}
-.scen.on{background:var(--orange);color:var(--brown-deep)}
-.scen.on .best,.scen.on .diff{color:var(--brown-deep)}
-.scen .cur{position:absolute;left:-14px;color:var(--lime);animation:blink 1s steps(2) infinite;font-size:10px}
-.scen.on .cur{color:var(--brown-deep)}
-.scen .thumb{width:44px;height:44px;flex:none;image-rendering:pixelated}
-.scen .mid{flex:1}
-.scen .nm{font-size:10px;text-transform:uppercase;letter-spacing:.14em}
-.scen .diff{color:var(--off-dim);font-size:8px;letter-spacing:.18em;margin-top:4px;text-transform:uppercase}
-.scen .diff .fill{color:var(--lime)}
-.scen.on .diff .fill{color:var(--brown-deep)}
-.scen .best{text-align:right;font-size:8px;letter-spacing:.14em;color:var(--off-dim);text-transform:uppercase}
-.scen .best b{display:block;color:var(--lime);font-size:14px}
-
-/* ── screen: dispatch dialog ──────────────────────────── */
-.scr.dialog{background:
-  radial-gradient(circle at 50% 50%,#3a1210,#0e0405 80%);align-items:stretch;
-  justify-content:flex-end;padding:0 12px 14px}
-.dbox{padding:14px 12px 12px;background:var(--brown);position:relative}
-.dbox .tag{display:inline-block;background:var(--orange);color:var(--brown-deep);
-  font-size:8px;padding:2px 6px;letter-spacing:.14em;text-transform:uppercase}
-.dbox h4{font-size:12px;color:var(--off);margin-top:8px;letter-spacing:.1em;text-transform:uppercase}
-.dbox p{font-size:10px;color:var(--off);margin-top:8px;line-height:1.5;text-transform:none;letter-spacing:.04em}
-.dbox .row{display:flex;justify-content:space-between;font-size:9px;padding:4px 0;color:var(--off);
-  border-top:2px dotted var(--brown-mid);margin-top:6px}
-.dbox .row span:first-child{color:var(--off-dim)}
-.dbox .row span:last-child{color:var(--lime)}
-.dbox .adv{position:absolute;right:10px;bottom:8px;color:var(--lime);font-size:12px;
-  animation:blink 1s steps(2) infinite}
-
-/* ── screen: HUD ──────────────────────────────────────── */
-.scr.hud{padding:0;background:#0a0303}
-.hud-scene{position:absolute;inset:0;overflow:hidden;background:#180608}
-.hud-scene canvas{position:absolute;inset:0;width:100%;height:100%}
-.hud-timer{position:absolute;top:8px;left:50%;transform:translateX(-50%);
-  padding:5px 12px;background:var(--orange);color:var(--brown-deep);
-  font-size:14px;letter-spacing:.06em}
-.hud-order{position:absolute;top:8px;left:8px;padding:4px 6px;
-  background:var(--brown);color:var(--off);font-size:8px;letter-spacing:.06em;
-  line-height:1.4;max-width:120px}
-.hud-order b{color:var(--orange)}
-.hud-pen{position:absolute;top:8px;right:8px;padding:4px 6px;
-  background:var(--brown);color:var(--lime);font-size:8px;letter-spacing:.06em}
-.hud-speed{position:absolute;right:8px;bottom:100px;color:var(--off);font-size:8px;letter-spacing:.06em;text-align:right}
-.hud-speed b{display:block;color:var(--lime);font-size:22px;line-height:1}
-.hud-joy{position:absolute;left:12px;bottom:14px;width:60px;height:60px;
-  background:var(--brown);position:relative}
-.hud-joy::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:22px;height:22px;background:var(--orange)}
-.hud-thr{position:absolute;right:12px;bottom:14px;width:34px;height:80px;
-  background:linear-gradient(to bottom,var(--orange) 0 48%,var(--brown) 52% 100%)}
-.hud-thr::before{content:'';position:absolute;left:2px;right:2px;top:48%;height:4px;background:var(--lime)}
-.hud-coach{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);
-  padding:4px 8px;background:var(--lime);color:var(--brown-deep);
-  font-size:8px;letter-spacing:.1em;white-space:nowrap;text-transform:uppercase}
-
-/* ── screen: result ───────────────────────────────────── */
-.scr.result{background:
-  radial-gradient(circle at 50% 30%,#5a2320,#0e0405 75%);gap:8px}
-.result .top{color:var(--off-dim);font-size:9px;letter-spacing:.24em;text-transform:uppercase}
-.result .grade{width:90px;height:90px;margin:8px 0 4px;background:var(--brown-deep);
-  border:6px solid var(--lime);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--lime);font-size:44px;letter-spacing:0;
-  animation:pop .3s steps(1) both;box-shadow:6px 6px 0 #000}
-@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
-.result .score{color:var(--off);font-size:34px;letter-spacing:.04em}
-.result .score small{font-size:12px;color:var(--off-dim)}
-.result .row{display:flex;justify-content:space-between;width:200px;font-size:9px;
-  padding:3px 0;color:var(--off);border-bottom:2px dotted var(--brown-mid);letter-spacing:.08em}
-.result .row b{color:var(--lime)}
-.result .msg{margin-top:8px;color:var(--lime);font-size:9px;letter-spacing:.14em;text-transform:uppercase;text-align:center;max-width:220px;line-height:1.6}
-.result .again{margin-top:10px;padding:8px 16px;background:var(--orange);color:var(--brown-deep);
-  font-size:10px;letter-spacing:.2em}
-
-/* notes musical bounce */
-.notes{position:absolute;top:12%;left:0;right:0;display:flex;justify-content:center;gap:12px;pointer-events:none}
-.notes span{color:var(--lime);font-size:14px;animation:notebob 1s ease-in-out infinite}
-.notes span:nth-child(2){animation-delay:.2s;color:var(--orange)}
-.notes span:nth-child(3){animation-delay:.4s;color:var(--lime)}
-@keyframes notebob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-
-/* ── principles ───────────────────────────────────────── */
-.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.principle{padding:16px 14px;background:var(--brown-deep);border-left:6px solid var(--orange);
-  border-top:2px solid var(--brown-mid);border-bottom:2px solid var(--brown-mid)}
-.principle h4{color:var(--lime);font-size:11px;letter-spacing:.16em;margin-bottom:8px;text-transform:uppercase}
-.principle p{color:var(--off);font-size:11px;line-height:1.7}
-.principle .n{color:var(--orange);font-size:14px;margin-right:8px}
-
-/* ── tokens ───────────────────────────────────────────── */
+/* tokens */
 .tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.tok{padding:18px 14px;background:var(--brown-deep);border:4px double var(--brown-mid)}
-.tok h4{color:var(--lime);font-size:10px;letter-spacing:.24em;margin-bottom:12px;text-transform:uppercase}
-.tok h4::before{content:'▸';color:var(--orange);margin-right:6px}
-.swatches{display:flex;gap:8px;margin-bottom:10px}
-.sw{width:32px;height:32px;position:relative;border:2px solid var(--brown-mid);
-  box-shadow:2px 2px 0 var(--brown-deep)}
-.sw::after{content:attr(data-hex);position:absolute;top:100%;left:0;margin-top:4px;
-  font-size:7px;letter-spacing:.04em;color:var(--off-dim);white-space:nowrap}
-.tokrow{display:flex;justify-content:space-between;padding:4px 0;font-size:10px;
-  border-top:1px dotted var(--brown-mid);color:var(--off)}
+.tok{padding:18px 14px;background:var(--night2);box-shadow:inset 0 0 0 3px #000,0 0 0 3px var(--brown)}
+.tok h4{color:var(--lime);font-size:10px;letter-spacing:.2em;margin-bottom:14px;text-transform:uppercase}
+.tok h4::before{content:'▸ ';color:var(--orange)}
+.swatches{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.sw{width:30px;height:30px;position:relative;
+  box-shadow:0 -3px 0 rgba(255,255,255,.25) inset,0 0 0 2px #000}
+.sw::after{content:attr(data-hex);position:absolute;top:100%;left:0;margin-top:5px;
+  font-size:7px;color:#8a7d70;white-space:nowrap}
+.tokrow{display:flex;justify-content:space-between;padding:5px 0;font-size:10px;
+  border-top:1px dotted var(--brown);color:var(--off)}
 .tokrow:first-child{border-top:0}
-.tokrow b{color:var(--orange);letter-spacing:.04em}
+.tokrow b{color:var(--orange)}
 
-/* footer */
-.foot{margin-top:80px;padding-top:20px;border-top:4px dashed var(--brown-mid);
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
-  font-size:10px;letter-spacing:.14em;color:var(--off-dim);text-transform:uppercase}
+.foot{margin-top:80px;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-size:10px;letter-spacing:.14em;color:#8a7d70;text-transform:uppercase;
+  background:repeating-linear-gradient(90deg,var(--brown) 0 10px,transparent 10px 20px) top/100% 3px no-repeat}
 .foot b{color:var(--lime)}
 </style>
 </head>
 <body>
-<button class="crt-toggle" id="crtToggle">CRT · ON</button>
+<div id="crt"></div>
+<button class="crt-btn" id="crtBtn">CRT · ON</button>
 
 <div class="wrap">
   <div class="masthead">
     <div class="brand">talabat<b>· RIDER ARCADE</b></div>
-    <div class="crumb">Design direction · <b>8-bit</b> · 21 Jul 2026</div>
+    <div class="crumb">Design direction · <b>8-bit</b> · rev.2 · 21 Jul 2026</div>
   </div>
 
-  <!-- HERO -->
-  <section class="hero pxb thick">
-    <canvas id="logo" width="360" height="72" style="width:360px;max-width:100%;height:auto"></canvas>
-    <div class="tag">RIDER TRAINING · PARKING SIMULATOR</div>
-    <canvas id="bike" width="128" height="96" style="width:256px;height:192px;margin-top:22px"></canvas>
-    <div class="press">▶ PRESS START ◀</div>
-  </section>
-
-  <div class="stats">
-    <div class="stat pxb"><div class="k">Palette</div><div class="v">4 colours</div></div>
-    <div class="stat pxb"><div class="k">Resolution</div><div class="v">64 × 96</div></div>
-    <div class="stat pxb"><div class="k">Motion</div><div class="v">INSTANT</div></div>
-    <div class="stat pxb"><div class="k">Audio</div><div class="v">CHIPTUNE</div></div>
+  <!-- HERO POSTER -->
+  <div class="hero">
+    <div class="poster"><canvas id="hero" width="416" height="576"></canvas></div>
   </div>
+  <div class="hero-note">↑ animated arcade title · rendered live on &lt;canvas&gt; · every pixel beveled</div>
 
   <!-- PRINCIPLES -->
   <section class="sec">
-    <div class="sec-title">Design principles</div>
+    <div class="sec-title">Design language</div>
     <div class="sec-lede">
-      Same brand, reinterpreted as a <b>Game Boy-era arcade</b>. Chunky sprites,
-      instant response, four-colour discipline. This is <b>faster to build</b>,
-      easier to iterate on, and it hits a wildly different emotional register — a
-      surprise for a CEO expecting yet another polished 3D demo.
+      A true 8-bit arcade world, not a flat wireframe. Every pixel is a <b>beveled tile</b>
+      with its own highlight and shadow — the same technique that gives the reference art its
+      tactile, chunky depth. A <b>pixel Dubai skyline</b> anchors it to home, the talabat scooter
+      is the hero sprite, and the palette stays disciplined to the brand.
     </div>
-    <div class="principles">
-      <div class="principle"><h4><span class="n">01</span>Four colours, no cheats</h4><p>Orange, Lime, Brown, Off-white. Dithering only where a mid-tone is unavoidable. Restraint reads as intention.</p></div>
-      <div class="principle"><h4><span class="n">02</span>Instant everything</h4><p>No eased curves. Modals appear and disappear. Cursors blink at 60 BPM. Every interaction is one frame.</p></div>
-      <div class="principle"><h4><span class="n">03</span>Bitmap type only</h4><p>All headings drawn as canvas pixel glyphs. Body text falls back to a monospaced face — no anti-aliasing.</p></div>
-      <div class="principle"><h4><span class="n">04</span>Sound is chiptune</h4><p>Square-wave engine, arpeggio win jingle, one-note failure buzz. WebAudio synthesis, zero samples.</p></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Palette</div><div class="v">5 hues</div></div>
+      <div class="stat"><div class="k">Pixel unit</div><div class="v">Beveled</div></div>
+      <div class="stat"><div class="k">Skyline</div><div class="v">Dubai</div></div>
+      <div class="stat"><div class="k">Audio</div><div class="v">Chiptune</div></div>
+    </div>
+    <div class="principles" style="margin-top:22px">
+      <div class="principle"><h4><span class="n">01</span>Beveled pixels, real depth</h4><p>Each pixel is a tile with a light top-left and dark bottom-right edge. Flat art becomes tactile, exactly like the reference gamepad and lettering.</p></div>
+      <div class="principle"><h4><span class="n">02</span>A world, not a screen</h4><p>Parallax Dubai skyline, brick platforms, floating coins, a ? block and a mischief ghost. The frame is alive, not empty.</p></div>
+      <div class="principle"><h4><span class="n">03</span>Chunky 3D typography</h4><p>Titles built from beveled blocks with two-tone fills — silver + orange — for that arcade cabinet weight.</p></div>
+      <div class="principle"><h4><span class="n">04</span>Brand-locked colour</h4><p>Orange, lime, brown, off-white + one night-plum for atmosphere. No stray hues, no anti-aliasing, ever.</p></div>
     </div>
   </section>
 
-  <!-- SCREENS -->
+  <!-- SCREEN FLOW -->
   <section class="sec">
     <div class="sec-title">Screen flow</div>
-    <div class="sec-lede">Every screen from the modern direction, reimagined in 8-bit. Same information, same operational story — different vibe.</div>
-
+    <div class="sec-lede">The full journey — title, stage select, dispatch, live HUD, and a
+      <b>Game Over</b> screen that echoes your reference beat-for-beat. Each is rendered live in the pixel engine.</div>
     <div class="phones">
-      <!-- splash -->
-      <div>
-        <div class="phone"><div class="phone-screen">
-          <div class="scr splash">
-            <canvas id="p-logo" width="120" height="24"></canvas>
-            <div style="color:var(--off-dim);font-size:8px;letter-spacing:.18em;text-transform:uppercase">Rider Training · Sim.</div>
-            <canvas id="p-bike" width="64" height="48" style="width:128px;height:96px;margin-top:16px"></canvas>
-            <div class="press">▶ TAP TO START ◀</div>
-            <div class="footer">© TALABAT UAE · RIDER ACADEMY</div>
-          </div>
-        </div></div>
-        <div class="phone-label"><b>01</b>Title</div>
-      </div>
-
-      <!-- select -->
-      <div>
-        <div class="phone"><div class="phone-screen">
-          <div class="scr select">
-            <div class="hd">▸ CHOOSE STAGE ◂</div>
-            <div class="scen on">
-              <span class="cur">►</span>
-              <canvas class="thumb" width="16" height="16" data-thumb="basement"></canvas>
-              <div class="mid">
-                <div class="nm">MALL BASEMENT</div>
-                <div class="diff"><span class="fill">■■</span>□ DIFFICULTY</div>
-              </div>
-              <div class="best">BEST<b>—</b></div>
-            </div>
-            <div class="scen">
-              <canvas class="thumb" width="16" height="16" data-thumb="tower"></canvas>
-              <div class="mid">
-                <div class="nm">PORTE-COCHÈRE</div>
-                <div class="diff"><span class="fill">■■■</span> DIFFICULTY</div>
-              </div>
-              <div class="best">BEST<b>92</b></div>
-            </div>
-          </div>
-        </div></div>
-        <div class="phone-label"><b>02</b>Select</div>
-      </div>
-
-      <!-- dialog -->
-      <div>
-        <div class="phone"><div class="phone-screen">
-          <div class="scr dialog">
-            <div class="dbox">
-              <span class="tag">▸ NEW ORDER</span>
-              <h4>ZAATAR W ZEIT</h4>
-              <p>Pickup ready at Mall B-03. Park in the ORANGE rider bay near the service lift. Wall of shame if you block the fire exit.</p>
-              <div class="row"><span>ORDER</span><span>#A47291</span></div>
-              <div class="row"><span>FOR</span><span>T. PEREZ</span></div>
-              <div class="row"><span>ETA</span><span>4 MIN</span></div>
-              <span class="adv">▼</span>
-            </div>
-          </div>
-        </div></div>
-        <div class="phone-label"><b>03</b>Dispatch</div>
-      </div>
-
-      <!-- HUD -->
-      <div>
-        <div class="phone"><div class="phone-screen">
-          <div class="scr hud">
-            <div class="hud-scene"><canvas id="huddrive" width="98" height="211"></canvas></div>
-            <div class="hud-order"><b>#A47291</b><br>ZAATAR W ZEIT</div>
-            <div class="hud-timer">0:42</div>
-            <div class="hud-pen">P·0s</div>
-            <div class="hud-coach">▲ ALIGN &amp; EASE</div>
-            <div class="hud-speed">KM/H<b>08</b></div>
-            <div class="hud-joy"></div>
-            <div class="hud-thr"></div>
-          </div>
-        </div></div>
-        <div class="phone-label"><b>04</b>Live HUD</div>
-      </div>
-
-      <!-- result -->
-      <div>
-        <div class="phone"><div class="phone-screen">
-          <div class="scr result">
-            <div class="notes"><span>♪</span><span>♫</span><span>♪</span></div>
-            <div class="top">▸ ORDER DELIVERED ◂</div>
-            <div class="grade">S</div>
-            <div class="score">100<small>/100</small></div>
-            <div class="row"><span>BAY</span><b>+60</b></div>
-            <div class="row"><span>ALIGN</span><b>+20</b></div>
-            <div class="row"><span>CENTER</span><b>+10</b></div>
-            <div class="row"><span>CLEAN</span><b>+10</b></div>
-            <div class="msg">▸ NEW HIGH SCORE ◂</div>
-            <div class="again">▶ RESTART ◀</div>
-          </div>
-        </div></div>
-        <div class="phone-label"><b>05</b>Result</div>
-      </div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="title" width="176" height="320"></canvas></div><div class="cap"><b>01</b>Title</div></div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="select" width="176" height="320"></canvas></div><div class="cap"><b>02</b>Stage select</div></div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="dispatch" width="176" height="320"></canvas></div><div class="cap"><b>03</b>Dispatch</div></div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="hud" width="176" height="320"></canvas></div><div class="cap"><b>04</b>Live HUD</div></div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="over" width="176" height="320"></canvas></div><div class="cap"><b>05</b>Game Over</div></div>
+      <div class="phone"><div class="frame"><canvas class="scr" data-scr="win" width="176" height="320"></canvas></div><div class="cap"><b>06</b>Delivered</div></div>
     </div>
   </section>
 
   <!-- TOKENS -->
   <section class="sec">
     <div class="sec-title">Retro tokens</div>
-    <div class="sec-lede">The 4-hue talabat palette + one accent blue (used only for signage). No gradients, no anti-aliasing, no transparency other than solid overlays.</div>
+    <div class="sec-lede">The brand palette plus one night-plum for atmosphere. Each colour ships as a
+      3-stop ramp (base / highlight / shadow) so the bevel engine shades every tile automatically.</div>
     <div class="tokens">
       <div class="tok">
-        <h4>Palette</h4>
+        <h4>Palette ramps</h4>
         <div class="swatches">
           <div class="sw" data-hex="#FF5900" style="background:#FF5900"></div>
           <div class="sw" data-hex="#CFFF00" style="background:#CFFF00"></div>
           <div class="sw" data-hex="#411517" style="background:#411517"></div>
           <div class="sw" data-hex="#F4EDE3" style="background:#F4EDE3"></div>
-          <div class="sw" data-hex="#3A6DB8" style="background:#3A6DB8"></div>
+          <div class="sw" data-hex="#3A1F34" style="background:#3A1F34"></div>
         </div>
         <div style="margin-top:22px">
-          <div class="tokrow"><span>Orange · brand</span><b>#FF5900</b></div>
-          <div class="tokrow"><span>Lime · POS</span><b>#CFFF00</b></div>
-          <div class="tokrow"><span>Brown · surface</span><b>#411517</b></div>
+          <div class="tokrow"><span>Orange · hero</span><b>#FF5900</b></div>
+          <div class="tokrow"><span>Lime · coins / POS</span><b>#CFFF00</b></div>
+          <div class="tokrow"><span>Brown · platforms</span><b>#411517</b></div>
           <div class="tokrow"><span>Off-white · type</span><b>#F4EDE3</b></div>
-          <div class="tokrow"><span>Sign blue · P sign</span><b>#3A6DB8</b></div>
+          <div class="tokrow"><span>Night-plum · sky</span><b>#3A1F34</b></div>
         </div>
       </div>
       <div class="tok">
-        <h4>Grid &amp; type</h4>
-        <div class="tokrow"><span>Base cell</span><b>8 × 8 px</b></div>
-        <div class="tokrow"><span>Sprite</span><b>16 × 16 px</b></div>
-        <div class="tokrow"><span>Render scale</span><b>×4 · ×6</b></div>
-        <div class="tokrow"><span>Font</span><b>Canvas bitmap</b></div>
-        <div class="tokrow"><span>Line-height</span><b>1.6 · fixed</b></div>
-        <div class="tokrow"><span>Text shadow</span><b>2 · 2 · #000</b></div>
+        <h4>Grid &amp; sprites</h4>
+        <div class="tokrow"><span>Tile bevel</span><b>1px hi / 1px lo</b></div>
+        <div class="tokrow"><span>Scooter sprite</span><b>34 × 24 px</b></div>
+        <div class="tokrow"><span>Coin frames</span><b>4 · spin</b></div>
+        <div class="tokrow"><span>Font</span><b>5×7 · beveled</b></div>
+        <div class="tokrow"><span>Skyline</span><b>parallax · 2 layers</b></div>
+        <div class="tokrow"><span>Render</span><b>canvas · pixelated</b></div>
       </div>
       <div class="tok">
         <h4>Motion &amp; audio</h4>
-        <div class="tokrow"><span>Modal open</span><b>1 frame</b></div>
-        <div class="tokrow"><span>Cursor blink</span><b>1000ms · steps</b></div>
-        <div class="tokrow"><span>Score count</span><b>25ms · tick</b></div>
-        <div class="tokrow"><span>Engine wave</span><b>square · 60→180Hz</b></div>
-        <div class="tokrow"><span>Win jingle</span><b>C-E-G · 3-note</b></div>
-        <div class="tokrow"><span>CRT overlay</span><b>toggleable</b></div>
+        <div class="tokrow"><span>Coin spin</span><b>8 fps</b></div>
+        <div class="tokrow"><span>Scooter bob</span><b>2px sine</b></div>
+        <div class="tokrow"><span>Ghost float</span><b>3px sine</b></div>
+        <div class="tokrow"><span>Blink</span><b>1000ms steps</b></div>
+        <div class="tokrow"><span>Engine wave</span><b>square 60→180Hz</b></div>
+        <div class="tokrow"><span>Win jingle</span><b>C-E-G arp</b></div>
       </div>
     </div>
   </section>
 
   <div class="foot">
-    <div>talabat · Rider Arcade · <b>Design direction — 8-bit</b></div>
-    <div>Mockup for CEO review · <b>press ▶ to explore</b></div>
+    <div>talabat · Rider Arcade · <b>8-bit direction rev.2</b></div>
+    <div>Mockup for CEO review · <b>toggle CRT top-right</b></div>
   </div>
 </div>
 
 <script>
 'use strict';
-/* ── CRT toggle ─────────────────────────────────────── */
-const btn = document.getElementById('crtToggle');
-btn.addEventListener('click', () => {
-  document.body.classList.toggle('no-crt');
-  btn.textContent = document.body.classList.contains('no-crt') ? 'CRT · OFF' : 'CRT · ON';
+/* ═══════════════════════════════════════════════════════════
+   PIXEL ENGINE — every logical pixel is a beveled tile
+═══════════════════════════════════════════════════════════ */
+// colour ramps: [base, highlight, shadow]
+const RAMP = {
+  o:['#FF5900','#FF9A4E','#B03B00'],   // orange
+  O:['#E24E00','#FF7A2E','#8F2E00'],   // deep orange (OVER letters)
+  l:['#CFFF00','#EAFF7A','#8FB000'],   // lime
+  w:['#F4EDE3','#FFFFFF','#B4A996'],   // off-white
+  W:['#C9BDA9','#F4EDE3','#8A7E6C'],   // silver (GAME letters / gamepad)
+  d:['#2A1216','#3E1D22','#170A0D'],   // dark brown
+  b:['#5A2A1E','#7A4030','#3A1810'],   // brick brown
+  m:['#3A1F34','#54324B','#241426'],   // night plum (skyline)
+  M:['#2A1626','#3C2338','#180E18'],   // far skyline
+  g:['#8FA82E','#B6D64A','#5C6E18'],   // grass olive
+  k:['#160B12','#241420','#0A0509'],   // near-black block
+  s:['#F4EDE3','#FFFFFF','#9A8F7E'],   // skin
+  e:['#1a0d10','#2a1a1e','#000000'],   // eye dark
+  p:['#7A4030','#9A5A44','#4A2418'],   // pipe/pillar
+};
+function bevel(g,x,y,s,key){
+  const r=RAMP[key]; if(!r){return;}
+  g.fillStyle=r[0]; g.fillRect(x,y,s,s);
+  g.fillStyle=r[1]; g.fillRect(x,y,s,1); g.fillRect(x,y,1,s);
+  g.fillStyle=r[2]; g.fillRect(x,y+s-1,s,1); g.fillRect(x+s-1,y,1,s);
+}
+function flat(g,x,y,s,col){ g.fillStyle=col; g.fillRect(x,y,s,s); }
+
+/* draw a sprite from a string-grid + palette map. ' ' = transparent */
+function sprite(g,art,ox,oy,s){
+  if(!art||!art.length)return;
+  for(let y=0;y<art.length;y++){
+    const row=art[y];
+    if(!row)continue;
+    for(let x=0;x<row.length;x++){
+      const ch=row[x];
+      if(ch===' ')continue;
+      bevel(g,ox+x*s,oy+y*s,s,ch);
+    }
+  }
+}
+
+/* ── 5×7 bevel font ──────────────────────────────────────── */
+const GLY={
+' ':'00000/00000/00000/00000/00000/00000/00000',
+'A':'01110/10001/10001/11111/10001/10001/10001','B':'11110/10001/11110/10001/10001/10001/11110',
+'C':'01111/10000/10000/10000/10000/10000/01111','D':'11110/10001/10001/10001/10001/10001/11110',
+'E':'11111/10000/11110/10000/10000/10000/11111','F':'11111/10000/11110/10000/10000/10000/10000',
+'G':'01111/10000/10000/10111/10001/10001/01111','H':'10001/10001/10001/11111/10001/10001/10001',
+'I':'11111/00100/00100/00100/00100/00100/11111','J':'00111/00010/00010/00010/00010/10010/01100',
+'K':'10001/10010/10100/11000/10100/10010/10001','L':'10000/10000/10000/10000/10000/10000/11111',
+'M':'10001/11011/10101/10101/10001/10001/10001','N':'10001/11001/10101/10011/10001/10001/10001',
+'O':'01110/10001/10001/10001/10001/10001/01110','P':'11110/10001/10001/11110/10000/10000/10000',
+'Q':'01110/10001/10001/10001/10101/10010/01101','R':'11110/10001/10001/11110/10100/10010/10001',
+'S':'01111/10000/10000/01110/00001/00001/11110','T':'11111/00100/00100/00100/00100/00100/00100',
+'U':'10001/10001/10001/10001/10001/10001/01110','V':'10001/10001/10001/10001/10001/01010/00100',
+'W':'10001/10001/10001/10101/10101/11011/10001','X':'10001/10001/01010/00100/01010/10001/10001',
+'Y':'10001/10001/01010/00100/00100/00100/00100','Z':'11111/00001/00010/00100/01000/10000/11111',
+'0':'01110/10011/10101/10101/11001/10001/01110','1':'00100/01100/00100/00100/00100/00100/01110',
+'2':'01110/10001/00001/00110/01000/10000/11111','3':'11110/00001/00001/01110/00001/00001/11110',
+'4':'00010/00110/01010/10010/11111/00010/00010','5':'11111/10000/11110/00001/00001/10001/01110',
+'6':'01110/10000/10000/11110/10001/10001/01110','7':'11111/00001/00010/00100/01000/01000/01000',
+'8':'01110/10001/10001/01110/10001/10001/01110','9':'01110/10001/10001/01111/00001/00001/01110',
+'.':'00000/00000/00000/00000/00000/01100/01100','·':'00000/00000/01100/01100/00000/00000/00000',
+'-':'00000/00000/00000/11111/00000/00000/00000',':':'00000/01100/01100/00000/01100/01100/00000',
+'/':'00001/00010/00010/00100/01000/01000/10000','!':'00100/00100/00100/00100/00100/00000/00100',
+'?':'01110/10001/00001/00110/00100/00000/00100','+':'00000/00100/00100/11111/00100/00100/00000',
+'#':'01010/11111/01010/01010/11111/01010/00000',"'":'00100/00100/00100/00000/00000/00000/00000',
+};
+function text(g,str,x,y,key,cell){
+  cell=cell||1;
+  str=String(str).toUpperCase();
+  let cx=x;
+  for(const ch of str){
+    const gl=GLY[ch]||GLY['?'];
+    const rows=gl.split('/');
+    for(let r=0;r<7;r++)for(let c=0;c<5;c++)
+      if(rows[r][c]==='1') bevel(g,cx+c*cell,y+r*cell,cell,key);
+    cx+=6*cell;
+  }
+  return cx;
+}
+function textW(str,cell){ return String(str).length*6*cell; }
+function textCenter(g,str,cx,y,key,cell){ text(g,str,Math.round(cx-textW(str,cell)/2),y,key,cell); }
+
+/* ── SPRITES ─────────────────────────────────────────────── */
+// talabat delivery scooter + rider, 34 wide × 24 tall
+// keys: o orange, O deep orange, d dark, w off-white, l lime, s skin, k black, e eye
+const SCOOTER=[
+'                                  ',
+'              wwww                ',
+'             wOOOOw               ',
+'            wOooooOw    ss         ',
+'            wOoooooOw  ssss        ',
+'            wOoooooOw  soos        ',
+'            wOoooooOw  ssss        ',
+'            wOoooooOw   dd         ',
+'   wwww     wOoooooOw  dddd        ',
+'  wllllw    wOoooooOw ddoodd       ',
+'  wl..lw    wOoooooOw ddoodd       ',
+'  wllllw    wOOOOOOOwddd  ddd      ',
+'   o  oooooooooooooooo      o      ',
+'  ooooooooooooooooooooo    ooo     ',
+' oo   ddd   oooooo   ddd  oooo     ',
+' o   ddddd  oooooo  ddddd  oo      ',
+'    dd   dd oooooo dd   dd         ',
+'    dd k dd        dd k dd         ',
+'    dd   dd        dd   dd         ',
+'     ddddd          ddddd          ',
+'      ddd            ddd           ',
+'                                   ',
+];
+// coin frames (7 wide) — spin
+const COIN=[
+['  lll  ',' l   l ','l  w  l','l  w  l','l  w  l',' l   l ','  lll  '],
+['   l   ','  ll   ',' lwl   ',' lwl   ',' lwl   ','  ll   ','   l   '],
+['   l   ','   l   ','   l   ','   w   ','   l   ','   l   ','   l   '],
+['   l   ','   ll  ','   lwl ','   lwl ','   lwl ','   ll  ','   l   '],
+];
+// heart 7×6
+const HEART=['0oo0oo0','ooooooo','ooooooo','0ooooo0','00ooo00','000o000'].map(r=>r.replace(/0/g,' '));
+// ghost 12×11 (mischief) — orange body, white eyes
+const GHOST=[
+'    oooo    ',
+'   oooooo   ',
+'  oooooooo  ',
+' oowwoowwoo ',
+' owweoowweo ',
+' owweoowweo ',
+' oooooooooo ',
+' oooooooooo ',
+' oooooooooo ',
+' oo oo oo oo',
+' o   oo   o ',
+];
+// ? block 9×9
+const QBLOCK=[
+'ddddddddd',
+'dOOOOOOOd',
+'dOo   oOd',
+'dO ww  Od',
+'dO  w  Od',
+'dO  w  Od',
+'dO  w  Od',
+'dOo   oOd',
+'ddddddddd',
+];
+// small scooter icon 18×12 for HUD/1UP badge
+const MINISCOOT=[
+'      ooo   ss     ',
+'     oOOOo ssss    ',
+'     oOOOo  dd     ',
+'  ll oOOOo ddd     ',
+' l.l oOOOoddood    ',
+'  llooooooo   o    ',
+' ooooooooooo ooo   ',
+'oo ddd ooo ddd oo  ',
+'o ddddd o ddddd o  ',
+'  dd dd   dd dd    ',
+'  dd dd   dd dd    ',
+'   ddd     ddd     ',
+];
+
+/* pipe/pillar (parking bollard) 14 wide */
+function drawBollard(g,ox,oy,s){
+  const art=[
+  '  pppppppp  ',
+  ' pPPPPPPPPp ',
+  ' pP      Pp ',
+  '  pppppppp  ',
+  '   p    p   ',
+  '   pdddop   ',
+  '   pdodop   ',
+  '   pdddop   ',
+  '   pdddop   ',
+  '   pdddop   ',
+  ];
+  // P highlight for pipe top rim
+  const map={p:'p',P:'w',d:'d',o:'o'};
+  for(let y=0;y<art.length;y++)for(let x=0;x<art[y].length;x++){
+    const ch=art[y][x]; if(ch===' ')continue;
+    bevel(g,ox+x*s,oy+y*s,s,map[ch]);
+  }
+}
+
+/* ── skyline (Dubai) ─────────────────────────────────────── */
+function drawSkyline(g,W,groundY,s,layerKey,seed,offset){
+  // deterministic pseudo-random buildings + one tall tapered spire (Burj Khalifa)
+  let n=seed;
+  const rnd=()=>{n=(n*1103515245+12345)&0x7fffffff;return n/0x7fffffff;};
+  let x=-offset;
+  const spireX=Math.round(W*0.5);
+  while(x<W+20){
+    const bw=(3+Math.floor(rnd()*4))*s;
+    const bh=(6+Math.floor(rnd()*16))*s;
+    // building block
+    for(let by=groundY-bh;by<groundY;by+=s)
+      for(let bx=x;bx<x+bw;bx+=s) bevel(g,bx,by,s,layerKey);
+    // a couple of lit windows (lime) on nearer layer
+    if(layerKey==='m'&&rnd()>0.5){
+      const wy=groundY-bh+2*s;
+      flat(g,x+s, wy, s-1, '#CFFF00');
+    }
+    x+=bw+s;
+  }
+  // Burj Khalifa spire
+  const baseH=48*s;
+  for(let i=0;i<48;i++){
+    const w=Math.max(s, Math.round((6 - i*0.11))*s);
+    const yy=groundY-i*s-s;
+    const xx=spireX - Math.floor(w/2/s)*s;
+    if(w<=0)break;
+    for(let bx=xx;bx<xx+w;bx+=s) bevel(g,bx,yy,s,layerKey);
+  }
+  // spire tip light
+  flat(g,spireX-1,groundY-49*s,3,'#FF9A4E');
+}
+
+/* ── star field ──────────────────────────────────────────── */
+function stars(g,W,H,s,seed,t){
+  let n=seed;
+  const rnd=()=>{n=(n*1103515245+12345)&0x7fffffff;return n/0x7fffffff;};
+  for(let i=0;i<46;i++){
+    const x=Math.floor(rnd()*W/s)*s, y=Math.floor(rnd()*H*0.55/s)*s;
+    const tw=(Math.sin(t*2.2+i)*0.5+0.5);
+    if(tw>0.35){ flat(g,x,y,s, tw>0.75?'#F4EDE3':'#7A6E60'); }
+  }
+}
+
+/* ── brick + grass ground ────────────────────────────────── */
+function ground(g,W,gy,s,rows){
+  for(let r=0;r<rows;r++){
+    const y=gy+r*s;
+    for(let x=0;x<W;x+=s){
+      // brick with offset mortar
+      const off=(r%2)? s*1.5:0;
+      const brickKey=((Math.floor((x+off)/(s*3)))%2===0)?'b':'d';
+      bevel(g,x,y,s,brickKey);
+    }
+  }
+  // grass strip on top
+  for(let x=0;x<W;x+=s){
+    bevel(g,x,gy-s,s,'g');
+    if((x/s)%2===0) flat(g,x, gy-2*s, s, '#B6D64A');
+  }
+}
+
+/* platform (floating) */
+function platform(g,x,y,wTiles,s){
+  for(let i=0;i<wTiles;i++){
+    bevel(g,x+i*s,y,s,'g');
+    bevel(g,x+i*s,y+s,s,'b');
+    bevel(g,x+i*s,y+2*s,s,'d');
+  }
+  for(let i=0;i<wTiles;i+=2) flat(g,x+i*s,y-s+1,s,'#8FA82E');
+}
+
+/* ── big procedural talabat scooter + rider (readable hero) ─ */
+// side view, facing right. content spans x2..27, y1..23 (~26×23)
+function scooterBig(g,ox,oy,s){
+  const R=(x,y,w,h,k)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)bevel(g,ox+(x+i)*s,oy+(y+j)*s,s,k);};
+  const disc=(cx,cy,r,k)=>{for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++)
+    if(dx*dx+dy*dy<=r*r+1)bevel(g,ox+(cx+dx)*s,oy+(cy+dy)*s,s,k);};
+  disc(9,19,4,'d'); disc(25,19,4,'d');           // wheels (round, black)
+  bevel(g,ox+9*s,oy+19*s,s,'w'); bevel(g,ox+25*s,oy+19*s,s,'w'); // hub glints
+  R(9,15,17,2,'o');                              // footboard between wheels
+  R(23,9,4,7,'o'); R(26,12,2,2,'l');             // front shield + headlight
+  R(24,5,2,5,'o'); R(22,4,5,2,'d');              // handlebar riser + bar
+  R(11,12,8,2,'d');                              // seat
+  R(2,5,7,9,'o'); R(2,5,7,2,'O');                // delivery box + lid (behind)
+  R(4,7,3,4,'w'); R(5,8,1,1,'o');                // box panel + logo
+  R(14,6,5,7,'O');                               // rider jacket (deep orange)
+  R(15,1,6,5,'o'); R(16,4,4,2,'d'); R(16,6,3,1,'s'); // helmet + visor + chin
+  R(18,8,6,2,'O');                               // arm to bar
+  R(15,13,2,3,'O');                              // leg
+}
+/* outlined icon — dark 1px keyline so it pops off the starfield */
+function scooterIcon(g,ox,oy,s){
+  const W=30*s,H=27*s;
+  const oc=document.createElement('canvas'); oc.width=W; oc.height=H;
+  const og=oc.getContext('2d'); og.imageSmoothingEnabled=false;
+  scooterBig(og,0,0,s);
+  const dk=document.createElement('canvas'); dk.width=W; dk.height=H;
+  const dg=dk.getContext('2d'); dg.imageSmoothingEnabled=false;
+  dg.drawImage(oc,0,0); dg.globalCompositeOperation='source-in';
+  dg.fillStyle='#080407'; dg.fillRect(0,0,W,H);
+  for(const o of [[-s,0],[s,0],[0,-s],[0,s]]) g.drawImage(dk,ox+o[0],oy+o[1]);
+  g.drawImage(oc,ox,oy);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HERO POSTER SCENE
+═══════════════════════════════════════════════════════════ */
+const hero=document.getElementById('hero');
+const hg=hero.getContext('2d');
+hg.imageSmoothingEnabled=false;
+const HW=hero.width, HH=hero.height;            // 416 × 576
+
+function drawHero(t){
+  const g=hg;
+  // starfield sky + moon glow
+  g.fillStyle='#120810'; g.fillRect(0,0,HW,HH);
+  const sky=g.createLinearGradient(0,0,0,HH);
+  sky.addColorStop(0,'#1e1018'); sky.addColorStop(.6,'#140a12'); sky.addColorStop(1,'#0c0610');
+  g.fillStyle=sky; g.fillRect(0,0,HW,HH);
+  g.fillStyle='rgba(255,120,40,.09)';
+  g.beginPath(); g.arc(HW*0.82,HH*0.12,70,0,7); g.fill();
+  stars(g,HW,HH,4,7,t);
+
+  // ── bottom game-scene strip ──
+  const groundY=HH-56;                 // brick band 56px tall
+  drawSkyline(g,HW,groundY,5,'M',11,(t*3)%HW);
+  drawSkyline(g,HW,groundY,5,'m',29,(t*6)%HW);
+  ground(g,HW,groundY,5,3);
+  // props on the ground band
+  drawBollard(g,20,groundY-58,5);
+  const cf=Math.floor((t||0)*8)%4;
+  for(let i=0;i<3;i++) sprite(g,COIN[(cf+i)%4],130+i*38,groundY-42,5);
+  sprite(g,QBLOCK,HW-66,groundY-52+Math.round(Math.sin(t*2)*4),5);
+  sprite(g,GHOST,HW-120,groundY-64+Math.round(Math.sin(t*1.6+1)*6),5);
+
+  // ── HUD ──
+  text(g,'1UP',14,14,'o',3);
+  for(let i=0;i<3;i++) sprite(g,HEART,14+i*30,42,4);
+  textCenter(g,'LEVEL 01',HW/2,18,'W',3);
+  const hs='HIGH SCORE'; text(g,hs,HW-textW(hs,2)-14,14,'o',2);
+  const sc='99999';      text(g,sc,HW-textW(sc,3)-14,40,'W',3);
+
+  // ── hero scooter icon (floats upper-middle) ──
+  const s=8, sx=Math.round(HW/2-14.5*s), sy=78+Math.round(Math.sin(t*2.4)*4);
+  g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(sx+5*s,sy+23*s,20*s,6);
+  scooterIcon(g,sx,sy,s);
+
+  // ── title ──
+  textCenter(g,'TALABAT',HW/2,318,'o',5);
+  textCenter(g,'RIDER TRAINING SIMULATOR',HW/2,368,'w',2);
+
+  // ── decorative marquee box ──
+  const bw=textW('BASEMENT B-03',2)+40, bx=Math.round(HW/2-bw/2), by=392;
+  dialogBox(g,bx,by,bw,34,'l');
+  text(g,'>',bx+12,by+10,'o',2);
+  text(g,'BASEMENT B-03',bx+30,by+10,'w',2);
+
+  // ── PRESS START (blink) over the ground ──
+  if(Math.floor(t*1.6)%2===0){
+    const ps='PRESS START', py=HH-30, px=Math.round(HW/2-textW(ps,3)/2);
+    flat(g,px-22,py+3,7,'#FF5900'); flat(g,px-15,py+9,7,'#FF5900'); flat(g,px-22,py+15,7,'#FF5900');
+    text(g,ps,px,py,'W',3);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PHONE SCREENS
+═══════════════════════════════════════════════════════════ */
+function screenBase(g,W,H,s,t){
+  g.fillStyle='#140a10'; g.fillRect(0,0,W,H);
+  const sky=g.createLinearGradient(0,0,0,H*0.7);
+  sky.addColorStop(0,'#1c0f18'); sky.addColorStop(1,'#0e0710');
+  g.fillStyle=sky; g.fillRect(0,0,W,H);
+  stars(g,W,H,s,13,t);
+}
+function drawTitleScr(g,W,H,s,t){
+  screenBase(g,W,H,s,t);
+  const gy=H-9*s;
+  drawSkyline(g,W,gy,s,'m',17,0);
+  ground(g,W,gy,s,3);
+  const ss=3, scX=Math.round(W/2-14.5*ss), scY=gy-23*ss+Math.round(Math.sin(t*3)*ss);
+  scooterIcon(g,scX,scY,ss);
+  textCenter(g,'TALABAT',W/2,6*s,'o',2);
+  textCenter(g,'RIDER SIM',W/2,15*s,'w',1);
+  if(Math.floor(t*1.6)%2===0) textCenter(g,'TAP TO START',W/2,gy-6*s,'l',1);
+}
+function drawSelectScr(g,W,H,s,t){
+  screenBase(g,W,H,s,t);
+  textCenter(g,'CHOOSE STAGE',W/2,4*s,'o',1);
+  // two stage cards
+  function card(y,name,diff,best,on){
+    const x=4*s, w=W-8*s, h=13*s;
+    g.fillStyle=on?'#FF5900':'#1e0f16'; g.fillRect(x,y,w,h);
+    // bevel frame
+    g.fillStyle=on?'#FF9A4E':'#3E1D22'; g.fillRect(x,y,w,2); g.fillRect(x,y,2,h);
+    g.fillStyle=on?'#B03B00':'#0a0509'; g.fillRect(x,y+h-2,w,2); g.fillRect(x+w-2,y,2,h);
+    // thumb
+    if(name==='MALL B-03'){ flat(g,x+2*s,y+2*s,7*s,'#411517'); flat(g,x+4*s,y+7*s,3*s,'#FF5900');}
+    else { flat(g,x+2*s,y+2*s,7*s,'#7A4030'); flat(g,x+2*s,y+5*s,7*s,'#3A1F34'); flat(g,x+4*s,y+7*s,3*s,'#FF5900'); }
+    text(g,name,x+11*s,y+2*s, on?'w':'w',1);
+    text(g,diff,x+11*s,y+6*s, on?'w':'l',1);
+    text(g,'BEST '+best,x+11*s,y+9*s, on?'w':'l',1);
+    if(on&&Math.floor(t*2)%2===0) text(g,'>',x-1,y+5*s,'l',1);
+  }
+  card(8*s,'MALL B-03','** DIFF','---',true);
+  card(23*s,'TOWER','*** DIFF','92',false);
+  if(Math.floor(t*1.6)%2===0) textCenter(g,'PRESS START',W/2,H-4*s,'l',1);
+}
+function dialogBox(g,x,y,w,h,key){
+  const r=RAMP[key];
+  g.fillStyle='#160b12'; g.fillRect(x,y,w,h);
+  g.fillStyle=r[0];
+  g.fillRect(x,y,w,2); g.fillRect(x,y+h-2,w,2); g.fillRect(x,y,2,h); g.fillRect(x+w-2,y,2,h);
+  // corner ornaments
+  g.fillStyle=r[1];
+  g.fillRect(x-1,y-1,4,4); g.fillRect(x+w-3,y-1,4,4);
+  g.fillRect(x-1,y+h-3,4,4); g.fillRect(x+w-3,y+h-3,4,4);
+}
+function drawDispatchScr(g,W,H,s,t){
+  screenBase(g,W,H,s,t);
+  const gy=H-7*s;
+  drawSkyline(g,W,gy,s,'M',5,0);
+  ground(g,W,gy,s,2);
+  scooterIcon(g,Math.round(W/2-29),gy-46,2);
+  const bx=4*s,by=6*s,bw=W-8*s,bh=26*s;
+  dialogBox(g,bx,by,bw,bh,'o');
+  text(g,'NEW ORDER',bx+3*s,by+3*s,'o',1);
+  text(g,'ZAATAR W ZEIT',bx+3*s,by+7*s,'w',1);
+  text(g,'ORDER #A47291',bx+3*s,by+11*s,'l',1);
+  text(g,'FOR  T.PEREZ',bx+3*s,by+14*s,'w',1);
+  text(g,'PARK  BAY B-03',bx+3*s,by+17*s,'w',1);
+  if(Math.floor(t*2)%2===0) text(g,'DISPATCH!',bx+3*s,by+22*s,'l',1);
+}
+function drawHudScr(g,W,H,s,t){
+  screenBase(g,W,H,s,t);
+  const gy=H-6*s;
+  // road perspective lines
+  for(let y=(Math.floor(t*20)%(4*s));y<gy;y+=4*s){ flat(g,W/2-1,y,2,'#3E1D22'); }
+  drawSkyline(g,W,gy,s,'M',3,0);
+  ground(g,W,gy,s,2);
+  drawBollard(g,3*s,gy-14*s,s);
+  drawBollard(g,W-15*s,gy-12*s,s);
+  // orange target bay
+  flat(g,Math.round(W/2-6*s),gy-9*s,12*s,7*s,'#FF5900');
+  g.fillStyle='#B03B00'; g.fillRect(Math.round(W/2-6*s),gy-9*s,12*s,1);
+  g.fillStyle='#F4EDE3'; g.fillRect(Math.round(W/2-6*s),gy-9*s,12*s,1); g.fillRect(Math.round(W/2-6*s),gy-2*s,12*s,1);
+  // scooter
+  scooterIcon(g,Math.round(W/2-29),gy-48+Math.round(Math.sin(t*4)*2),2);
+  // HUD chrome
+  g.fillStyle='#FF5900'; g.fillRect(W/2-9*s,2*s,18*s,5*s);
+  text(g,'0:42',W/2-7*s,3*s,'w',1);
+  g.fillStyle='#1e0f16'; g.fillRect(2*s,2*s,W*0.4,4*s);
+  text(g,'#A47291',3*s,3*s,'o',1);
+  g.fillStyle='#1e0f16'; g.fillRect(W-8*s,2*s,6*s,4*s);
+  text(g,'8',W-6*s,3*s,'l',1);
+  if(Math.floor(t*2)%2===0){ g.fillStyle='#CFFF00'; g.fillRect(W/2-15*s,gy-1*s,30*s,4*s);
+    text(g,'ALIGN + EASE',W/2-14*s,gy,'d',1); }
+}
+function drawOverScr(g,W,H,s,t){
+  // echoes the reference GAME OVER poster
+  screenBase(g,W,H,s,t);
+  const gy=H-7*s;
+  drawSkyline(g,W,gy,s,'m',23,0);
+  ground(g,W,gy,s,2);
+  // coins + ghost decor
+  sprite(g,GHOST,W-15*s,gy-15*s+Math.round(Math.sin(t*1.6)*1.5*s),s);
+  const cf=Math.floor((t||0)*8)%4;
+  for(let i=0;i<3;i++) sprite(g,COIN[(cf+i)%4],(6+i*8)*s,gy-9*s,s);
+  drawBollard(g,3*s,gy-13*s,s);
+  // scooter crest
+  scooterIcon(g,Math.round(W/2-29),5*s,2);
+  // GAME (silver) OVER (orange)
+  const cell=2;
+  const gw=textW('GAME',cell), ow=textW('OVER',cell), gap=2*s;
+  const total=gw+gap+ow;
+  let tx=Math.round(W/2-total/2);
+  text(g,'GAME',tx,22*s,'W',cell);
+  text(g,'OVER',tx+gw+gap,22*s,'O',cell);
+  // dialog box: skull + better luck
+  const bx=3*s,by=31*s,bw=W-6*s,bh=12*s;
+  dialogBox(g,bx,by,bw,bh,'o');
+  // skull
+  const SK=['0www0','wewew','wwwww','0www0','0w0w0'].map(r=>r.replace(/0/g,' '));
+  const skMap={w:'o',e:'k'};
+  for(let y=0;y<SK.length;y++)for(let x=0;x<SK[y].length;x++){const ch=SK[y][x];if(ch===' ')continue;bevel(g,bx+3*s+x*s,by+3*s+y*s,s,skMap[ch]);}
+  text(g,'BETTER LUCK',bx+10*s,by+3*s,'w',1);
+  text(g,'NEXT TIME!',bx+10*s,by+7*s,'w',1);
+  if(Math.floor(t*1.6)%2===0) textCenter(g,'PRESS START',W/2,gy-5*s,'l',1);
+}
+function drawWinScr(g,W,H,s,t){
+  screenBase(g,W,H,s,t);
+  const gy=H-7*s;
+  drawSkyline(g,W,gy,s,'m',41,0);
+  ground(g,W,gy,s,2);
+  // confetti coins
+  const cf=Math.floor((t||0)*8)%4;
+  for(let i=0;i<4;i++) sprite(g,COIN[(cf+i)%4],(4+i*10)*s,(8+((i*7)%10))*s,s);
+  textCenter(g,'DELIVERED!',W/2,4*s,'o',1);
+  // big grade S
+  const gx=Math.round(W/2-6*s);
+  g.fillStyle='#160b12'; g.fillRect(gx-2,10*s-2,12*s+4,12*s+4);
+  g.fillStyle='#CFFF00'; g.fillRect(gx-2,10*s-2,12*s+4,2); g.fillRect(gx-2,10*s-2,2,12*s+4);
+  g.fillStyle='#8FB000'; g.fillRect(gx-2,10*s+12*s-2,12*s+4,2); g.fillRect(gx+12*s,10*s-2,2,12*s+4);
+  text(g,'S',gx+3*s,11*s,'l',2);
+  textCenter(g,'100 / 100',W/2,24*s,'w',1);
+  text(g,'BAY    +60',5*s,29*s,'w',1);
+  text(g,'ALIGN  +20',5*s,32*s,'w',1);
+  text(g,'CLEAN  +20',5*s,35*s,'w',1);
+  textCenter(g,'NEW BEST!',W/2,39*s,'l',1);
+  if(Math.floor(t*1.6)%2===0) textCenter(g,'PRESS START',W/2,gy-5*s,'l',1);
+}
+
+const SCREENS={title:drawTitleScr,select:drawSelectScr,dispatch:drawDispatchScr,
+  hud:drawHudScr,over:drawOverScr,win:drawWinScr};
+const scrCanvases=[...document.querySelectorAll('.scr')].map(c=>{
+  const g=c.getContext('2d'); g.imageSmoothingEnabled=false;
+  return {g,c,fn:SCREENS[c.dataset.scr],s:4};
 });
 
-/* ── pixel-font atlas ───────────────────────────────
-   Hand-drawn 5×7 glyphs (uppercase, numbers, a few symbols).
-   Encoded as bitmask strings — 1 pixel per character in the string. */
-const GLYPHS = {
-  ' ':'00000/00000/00000/00000/00000/00000/00000',
-  'A':'01110/10001/10001/11111/10001/10001/10001',
-  'B':'11110/10001/10001/11110/10001/10001/11110',
-  'C':'01111/10000/10000/10000/10000/10000/01111',
-  'D':'11110/10001/10001/10001/10001/10001/11110',
-  'E':'11111/10000/10000/11110/10000/10000/11111',
-  'F':'11111/10000/10000/11110/10000/10000/10000',
-  'G':'01111/10000/10000/10111/10001/10001/01110',
-  'H':'10001/10001/10001/11111/10001/10001/10001',
-  'I':'11111/00100/00100/00100/00100/00100/11111',
-  'J':'11111/00010/00010/00010/00010/10010/01100',
-  'K':'10001/10010/10100/11000/10100/10010/10001',
-  'L':'10000/10000/10000/10000/10000/10000/11111',
-  'M':'10001/11011/10101/10001/10001/10001/10001',
-  'N':'10001/11001/10101/10011/10001/10001/10001',
-  'O':'01110/10001/10001/10001/10001/10001/01110',
-  'P':'11110/10001/10001/11110/10000/10000/10000',
-  'Q':'01110/10001/10001/10001/10101/10010/01101',
-  'R':'11110/10001/10001/11110/10100/10010/10001',
-  'S':'01111/10000/10000/01110/00001/00001/11110',
-  'T':'11111/00100/00100/00100/00100/00100/00100',
-  'U':'10001/10001/10001/10001/10001/10001/01110',
-  'V':'10001/10001/10001/10001/10001/01010/00100',
-  'W':'10001/10001/10001/10001/10101/11011/10001',
-  'X':'10001/10001/01010/00100/01010/10001/10001',
-  'Y':'10001/10001/10001/01010/00100/00100/00100',
-  'Z':'11111/00001/00010/00100/01000/10000/11111',
-  '0':'01110/10011/10101/11001/10001/10001/01110',
-  '1':'00100/01100/00100/00100/00100/00100/01110',
-  '2':'01110/10001/00001/00110/01000/10000/11111',
-  '3':'11110/00001/00001/01110/00001/00001/11110',
-  '4':'00010/00110/01010/10010/11111/00010/00010',
-  '5':'11111/10000/11110/00001/00001/10001/01110',
-  '6':'01110/10000/10000/11110/10001/10001/01110',
-  '7':'11111/00001/00010/00100/01000/01000/01000',
-  '8':'01110/10001/10001/01110/10001/10001/01110',
-  '9':'01110/10001/10001/01111/00001/00001/01110',
-  '.':'00000/00000/00000/00000/00000/00110/00110',
-  '·':'00000/00000/00000/01100/01100/00000/00000',
-  '!':'00100/00100/00100/00100/00100/00000/00100',
-  '?':'01110/10001/00001/00010/00100/00000/00100'
-};
-function drawText(ctx, txt, x, y, color, cell) {
-  cell = cell || 2;
-  ctx.fillStyle = color;
-  txt = String(txt).toUpperCase();
-  let cx = x;
-  for (const ch of txt) {
-    const g = GLYPHS[ch] || GLYPHS['?'];
-    const rows = g.split('/');
-    for (let r=0;r<rows.length;r++) for (let c=0;c<5;c++)
-      if (rows[r][c] === '1') ctx.fillRect(cx + c*cell, y + r*cell, cell, cell);
-    cx += 6 * cell;
-  }
+/* ── main loop ───────────────────────────────────────────── */
+let start=performance.now();
+function loop(now){
+  const t=(now-start)/1000;
+  drawHero(t);
+  for(const sc of scrCanvases) sc.fn(sc.g,sc.c.width,sc.c.height,sc.s,t);
+  requestAnimationFrame(loop);
 }
+requestAnimationFrame(loop);
 
-/* ── talabat wordmark (hero, 6px cell) ──────────────── */
-{
-  const c = document.getElementById('logo');
-  const g = c.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  // shadow
-  drawText(g, 'TALABAT', 8, 8, '#1A0708', 8);
-  drawText(g, 'TALABAT', 4, 4, '#FF5900', 8);
-}
-{
-  const c = document.getElementById('p-logo');
-  const g = c.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  drawText(g, 'TALABAT', 3, 3, '#1A0708', 3);
-  drawText(g, 'TALABAT', 0, 0, '#FF5900', 3);
-}
-
-/* ── pixel scooter sprite (32×24 → scaled up) ───────
-   Encoded as a colour-index map. 0 = transparent, others = palette. */
-const BIKE = [
-  '................................',
-  '................................',
-  '................................',
-  '..........55555.................',
-  '.........5222225................',
-  '.........5233325................',
-  '.........5233325.......8........',
-  '.........5233325.......88.......',
-  '..........55555.......888.......',
-  '.....................8888.......',
-  '..........22........888888......',
-  '.........2222......888..888.....',
-  '........2211......88......88....',
-  '........2222.....88...44...88...',
-  '.........22.....88...4444...88..',
-  '.........44....88...44..44...88.',
-  '........4444...88...44..44...88.',
-  '.......44..44...88...44..44..88.',
-  '......44....44...888.4444...888.',
-  '......44....44....888888.88888..',
-  '.......44..44......888888888....',
-  '.......88888........................',
-  '.......88888........................',
-  '.................................'
-].map(r => r.padEnd(32,'.'));
-const PALETTE = { '.':null, '1':'#F4EDE3', '2':'#FF5900', '3':'#B84100', '4':'#411517', '5':'#CFFF00', '8':'#1A0708' };
-function drawBike(canvas, cell) {
-  const g = canvas.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  g.clearRect(0,0,canvas.width,canvas.height);
-  cell = cell || 4;
-  const w = 32, h = BIKE.length;
-  const ox = (canvas.width  - w * cell) / 2;
-  const oy = (canvas.height - h * cell) / 2;
-  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-    const col = PALETTE[BIKE[y][x]];
-    if (col) { g.fillStyle = col; g.fillRect(ox + x*cell, oy + y*cell, cell, cell); }
-  }
-}
-drawBike(document.getElementById('bike'), 4);
-drawBike(document.getElementById('p-bike'), 2);
-
-/* idle bob on hero bike */
-{
-  const c = document.getElementById('bike');
-  let t = 0;
-  setInterval(() => {
-    t = (t + 1) % 4;
-    c.style.transform = 'translateY(' + (t < 2 ? 0 : -2) + 'px)';
-  }, 220);
-}
-
-/* ── scenario thumbs (16×16 tiles) ─────────────────── */
-function drawThumb(canvas, kind) {
-  const g = canvas.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  const cell = 2;
-  if (kind === 'basement') {
-    // dark floor with orange bay + pillars
-    g.fillStyle = '#411517'; g.fillRect(0,0,32,32);
-    g.fillStyle = '#A89B87';
-    g.fillRect(4,4,2,4); g.fillRect(14,4,2,4); g.fillRect(24,4,2,4);
-    g.fillRect(4,14,2,4); g.fillRect(24,14,2,4);
-    g.fillStyle = '#FF5900';
-    g.fillRect(10,20,12,8);
-    g.fillStyle = '#F4EDE3';
-    g.fillRect(11,21,10,1); g.fillRect(11,27,10,1);
-  } else {
-    // apron with palm silhouettes
-    g.fillStyle = '#F0B769'; g.fillRect(0,0,32,20);
-    g.fillStyle = '#B84100'; g.fillRect(0,20,32,12);
-    g.fillStyle = '#411517'; g.fillRect(2,10,3,10); g.fillRect(27,8,3,12);
-    g.fillStyle = '#3A5F33';
-    g.fillRect(0,7,6,3); g.fillRect(26,4,6,4);
-    g.fillStyle = '#FF5900'; g.fillRect(22,24,6,4);
-  }
-}
-document.querySelectorAll('[data-thumb]').forEach(el => drawThumb(el, el.dataset.thumb));
-
-/* ── mini HUD scene: pillars + bay + bike (looping) ── */
-{
-  const c = document.getElementById('huddrive');
-  const g = c.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  function scene(t) {
-    const W = c.width, H = c.height;
-    g.fillStyle = '#180608'; g.fillRect(0,0,W,H);
-    // floor arrow lane
-    g.fillStyle = '#2A0D0F';
-    for (let y = (t % 12); y < H; y += 12) g.fillRect(W/2 - 1, y, 2, 6);
-    // pillars
-    g.fillStyle = '#A89B87';
-    g.fillRect(10, 40, 10, 60);
-    g.fillRect(W-20, 50, 10, 60);
-    g.fillStyle = '#3A6DB8';
-    g.fillRect(10, 68, 10, 6); g.fillRect(W-20, 78, 10, 6);
-    // bay
-    g.fillStyle = '#FF5900';
-    g.fillRect(W/2 - 16, H - 90, 32, 44);
-    g.fillStyle = '#F4EDE3';
-    g.fillRect(W/2 - 15, H - 89, 30, 1);
-    g.fillRect(W/2 - 15, H - 46, 30, 1);
-    // bike (chunky)
-    const bx = W/2 - 8, by = H - 78;
-    g.fillStyle = '#FF5900'; g.fillRect(bx, by, 16, 20);
-    g.fillStyle = '#B84100'; g.fillRect(bx+2, by+2, 12, 8);
-    g.fillStyle = '#F4EDE3'; g.fillRect(bx+4, by+4, 8, 4);
-    g.fillStyle = '#1A0708'; g.fillRect(bx, by+18, 4, 4); g.fillRect(bx+12, by+18, 4, 4);
-  }
-  let t = 0;
-  setInterval(() => { t++; scene(t); }, 120);
-  scene(0);
-}
+/* CRT toggle */
+const btn=document.getElementById('crtBtn');
+btn.addEventListener('click',()=>{
+  document.body.classList.toggle('no-crt');
+  btn.textContent=document.body.classList.contains('no-crt')?'CRT · OFF':'CRT · ON';
+});
 </script>
 </body>
 </html>
