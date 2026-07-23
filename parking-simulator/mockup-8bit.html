@@ -498,18 +498,27 @@ function scooterBig(g,ox,oy,s){
   R(18,8,6,2,'O');                               // arm to bar
   R(15,13,2,3,'O');                              // leg
 }
-/* outlined icon — dark 1px keyline so it pops off the starfield */
+/* outlined icon — baked ONCE per size into a cache, then blitted.
+   (creating offscreen canvases every frame can choke sandboxed previews) */
+const _iconCache={};
 function scooterIcon(g,ox,oy,s){
-  const W=30*s,H=27*s;
-  const oc=document.createElement('canvas'); oc.width=W; oc.height=H;
-  const og=oc.getContext('2d'); og.imageSmoothingEnabled=false;
-  scooterBig(og,0,0,s);
-  const dk=document.createElement('canvas'); dk.width=W; dk.height=H;
-  const dg=dk.getContext('2d'); dg.imageSmoothingEnabled=false;
-  dg.drawImage(oc,0,0); dg.globalCompositeOperation='source-in';
-  dg.fillStyle='#080407'; dg.fillRect(0,0,W,H);
-  for(const o of [[-s,0],[s,0],[0,-s],[0,s]]) g.drawImage(dk,ox+o[0],oy+o[1]);
-  g.drawImage(oc,ox,oy);
+  let out=_iconCache[s];
+  if(!out){
+    const W=30*s,H=27*s;
+    const oc=document.createElement('canvas'); oc.width=W; oc.height=H;
+    const og=oc.getContext('2d'); og.imageSmoothingEnabled=false;
+    scooterBig(og,0,0,s);
+    const dk=document.createElement('canvas'); dk.width=W; dk.height=H;
+    const dg=dk.getContext('2d'); dg.imageSmoothingEnabled=false;
+    dg.drawImage(oc,0,0); dg.globalCompositeOperation='source-in';
+    dg.fillStyle='#080407'; dg.fillRect(0,0,W,H);
+    out=document.createElement('canvas'); out.width=W; out.height=H;
+    const oG=out.getContext('2d'); oG.imageSmoothingEnabled=false;
+    for(const o of [[-s,0],[s,0],[0,-s],[0,s]]) oG.drawImage(dk,o[0],o[1]);
+    oG.drawImage(oc,0,0);
+    _iconCache[s]=out;
+  }
+  g.drawImage(out,ox,oy);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -727,14 +736,23 @@ const scrCanvases=[...document.querySelectorAll('.scr')].map(c=>{
   return {g,c,fn:SCREENS[c.dataset.scr],s:4};
 });
 
-/* ── main loop ───────────────────────────────────────────── */
+/* ── main loop ───────────────────────────────────────────────
+   Each canvas is drawn in its own try/catch so a single bad frame
+   on one canvas can never freeze the others, and rAF is ALWAYS
+   rescheduled. A static first render guarantees paint even if rAF
+   is throttled in a sandboxed preview. */
 let start=performance.now();
+function renderAll(t){
+  try{ drawHero(t); }catch(e){ /* keep going */ }
+  for(const sc of scrCanvases){
+    try{ sc.fn(sc.g,sc.c.width,sc.c.height,sc.s,t); }catch(e){ /* keep going */ }
+  }
+}
 function loop(now){
-  const t=(now-start)/1000;
-  drawHero(t);
-  for(const sc of scrCanvases) sc.fn(sc.g,sc.c.width,sc.c.height,sc.s,t);
+  renderAll((now-start)/1000);
   requestAnimationFrame(loop);
 }
+renderAll(0);                 // guaranteed first paint
 requestAnimationFrame(loop);
 
 /* CRT toggle */
