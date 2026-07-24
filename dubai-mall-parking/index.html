@@ -318,12 +318,15 @@ if(typeof THREE.GLTFLoader==='function'){
       const root=gltf.scene;
       root.updateWorldMatrix(true,true);
       const bb=new THREE.Box3().setFromObject(root);
-      const sz=bb.getSize(new THREE.Vector3());
+      const sz=bb.getSize(new THREE.Vector3()), ctr=bb.getCenter(new THREE.Vector3());
       const L=Math.max(sz.x,sz.z), s=cfg.length/L;
       // yaw: face along +Z regardless of source orientation
       cfg.yaw = sz.z>sz.x ? 0 : Math.PI/2;
       cfg.scale = s;
-      cfg.dropY = -bb.min.y*s;
+      // offsets that centre X/Z on the bay and sit wheels exactly on the floor
+      cfg.offX = -ctr.x * s;
+      cfg.offY = -bb.min.y * s;
+      cfg.offZ = -ctr.z * s;
       cfg.root = root;
       cfg.ready = true;
       // spawn every waiting hero of this kind
@@ -348,10 +351,10 @@ function spawnHero(b){
     if(o.material.length===1)o.material=o.material[0];
     o.castShadow=true;o.receiveShadow=false;
   });
+  g.scale.setScalar(cfg.scale);
+  g.position.set(cfg.offX,cfg.offY,cfg.offZ);         // centre + drop
   const wrap=new THREE.Group();
   wrap.add(g);
-  g.scale.setScalar(cfg.scale);
-  g.position.y=cfg.dropY;
   wrap.rotation.y=b.rot+cfg.yaw;
   wrap.position.set(b.x,0,b.z);
   scene.add(wrap);
