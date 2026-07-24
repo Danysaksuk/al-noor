@@ -182,6 +182,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="GLTFLoader.js"></script>
+<script src="DRACOLoader.js"></script>
 <script>
 'use strict';
 /* ══ INITIALIZER ═══════════════════════════════════════════ */
@@ -272,6 +273,74 @@ const luxeMats=[0x14171a,0x101010,0xdbc48a,0x201513,0x0b1626].map(
 const taxiBodyM=new THREE.MeshStandardMaterial({color:0xf0e7cf,metalness:.6,roughness:.4});
 const taxiRoofM=new THREE.MeshStandardMaterial({color:0xb3252b,metalness:.5,roughness:.45});
 const taxiSignM=new THREE.MeshStandardMaterial({color:0xf5c518,emissive:0x6a5208,emissiveIntensity:.5});
+
+/* ══ HERO CARS · Ferrari GLB, recoloured per instance ══════════════
+   8 curated luxury bays get a real Ferrari 458 (Khronos glTF sample,
+   CC-BY 3.0 pxr72). The RNG bay loop skips these positions. The GLB
+   loads async; until it arrives, the hero bays are empty (much better
+   than a placeholder box that gets popped mid-run). */
+const HERO_COLORS=[0x0a0a0d,0xe6e2d8,0x1a2635,0xa0876b,0x1a1a1e,0x5a1418,0x2a2a2f,0x141414];
+// x values snap to the bay grid (x = -36 + 3.4·n) and avoid special zones + skip ranges
+const HERO_BAYS=[
+  {x:  8.2, z:25, rot:0,       col:HERO_COLORS[0]},   // opposite entry — first thing you see
+  {x:-15.6, z:25, rot:0,       col:HERO_COLORS[1]},
+  {x: 28.6, z:25, rot:0,       col:HERO_COLORS[2]},
+  {x:-22.4, z:15, rot:Math.PI, col:HERO_COLORS[3]},   // across from goal (goal is x=-8,z=15)
+  {x:  4.8, z:11, rot:0,       col:HERO_COLORS[4]},
+  {x: 25.2, z:11, rot:0,       col:HERO_COLORS[5]},
+  {x:-15.6, z: 1, rot:Math.PI, col:HERO_COLORS[6]},
+  {x: -8.8, z:-3, rot:0,       col:HERO_COLORS[7]},
+];
+const heroKey=(x,z)=>x.toFixed(1)+','+z.toFixed(1);
+const heroSet=new Set(HERO_BAYS.map(b=>heroKey(b.x,b.z)));
+const heroAt=(x,z)=>heroSet.has(heroKey(x,z));
+let ferrariTpl=null;
+if(typeof THREE.GLTFLoader==='function'){
+  const gl=new THREE.GLTFLoader();
+  if(typeof THREE.DRACOLoader==='function'){
+    const dl=new THREE.DRACOLoader();dl.setDecoderPath('draco/');gl.setDRACOLoader(dl);
+  }
+  gl.load('assets/cars/ferrari.glb',(gltf)=>{
+    const root=gltf.scene;
+    root.updateWorldMatrix(true,true);
+    const bb=new THREE.Box3().setFromObject(root);
+    const sz=bb.getSize(new THREE.Vector3());
+    // real Ferrari 458 is 4.5m long — scale so the longest axis matches
+    const L=Math.max(sz.x,sz.z), s=4.5/L;
+    // orient: shorter horizontal axis becomes cross-car (X in local space).
+    // the model as shipped is +Z long, so no yaw needed by default.
+    const yaw=sz.z>sz.x?0:Math.PI/2;
+    ferrariTpl={root,scale:s,yaw,dropY:-bb.min.y*s};
+    // now spawn every hero bay
+    for(const b of HERO_BAYS) spawnHero(b);
+  },undefined,()=>{ /* GLB missing → hero bays stay empty (still looks right) */ });
+}
+function spawnHero(b){
+  if(!ferrariTpl)return;
+  const g=ferrariTpl.root.clone(true);
+  // recolour the "Body_Color" material per instance
+  g.traverse(o=>{
+    if(!o.isMesh||!o.material)return;
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    o.material=mats.map(mt=>{
+      if(mt.name==='Body_Color'){const nm=mt.clone();nm.color=new THREE.Color(b.col);nm.metalness=.9;nm.roughness=.28;return nm;}
+      return mt;
+    });
+    if(o.material.length===1)o.material=o.material[0];
+    o.castShadow=true;o.receiveShadow=false;
+  });
+  const wrap=new THREE.Group();
+  wrap.add(g);
+  g.scale.setScalar(ferrariTpl.scale);
+  g.position.y=ferrariTpl.dropY;
+  wrap.rotation.y=b.rot+ferrariTpl.yaw;
+  wrap.position.set(b.x,0,b.z);
+  scene.add(wrap);
+  // collision box (Ferrari footprint: ~2m × 4.5m)
+  const hx=Math.abs(Math.sin(b.rot))>.5?2.25:1.0;
+  const hz=Math.abs(Math.sin(b.rot))>.5?1.0:2.25;
+  box(b.x-hx,b.x+hx,b.z-hz,b.z+hz);
+}
 function makeCar(x,z,rotY,suv,taxi,luxe){
   const pool=luxe?luxeMats:carMats;
   const g=new THREE.Group(),m=taxi?taxiBodyM:pool[(Math.random()*pool.length)|0];
@@ -576,6 +645,7 @@ for(const r of bayRows){
   bayLines(r.z,-38,38);
   for(let x=-36;x<=36;x+=3.4){
     if(r.skip.some(([a,b])=>x>a&&x<b)){ continue; }
+    if(heroAt(x,r.z)){ continue; }                     // hero-bay slot: Ferrari or empty
     const kind=specialAt(x,r.z);
     // reserved bays run emptier — reads as premium (not every space is a car)
     const occ=rnd()<(kind?(kind==='family'?.5:.22):.5);
