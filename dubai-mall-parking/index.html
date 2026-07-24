@@ -430,10 +430,10 @@ function gantry(x,z,rotY,lines){
   const t=canvasTex(1024,256,(g)=>{
     g.fillStyle='#0a3d91';g.fillRect(0,0,1024,256);
     g.fillStyle='#0e4bb0';g.fillRect(0,0,1024,10);g.fillStyle='#082f70';g.fillRect(0,246,1024,10);
-    g.font='800 46px system-ui';g.textBaseline='middle';
+    g.font='800 60px system-ui';g.textBaseline='middle';
     const n=lines.length,cw=1024/n;
     lines.forEach((L,i)=>{ g.fillStyle='#ffffff';g.textAlign='center';
-      g.fillText(L.a+' '+L.t,cw*(i+.5),128);
+      g.fillText(L.a+'  '+L.t,cw*(i+.5),128);
       if(i<n-1){g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=3;g.beginPath();g.moveTo(cw*(i+1),40);g.lineTo(cw*(i+1),216);g.stroke();} });
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(11,2.75),new THREE.MeshBasicMaterial({map:t}));
@@ -441,7 +441,7 @@ function gantry(x,z,rotY,lines){
   for(const sx of [-5,5]){const rod=new THREE.Mesh(new THREE.BoxGeometry(.1,2.4,.1),new THREE.MeshStandardMaterial({color:0x555}));
     rod.position.set(x+(rotY?0:sx),3.55+1.35,z+(rotY?sx:0));scene.add(rod);}
 }
-gantry(0,17.5,0,[{t:'Fashion Ave',a:'←'},{t:'Cinema',a:'→'},{t:'Metro Link',a:'↑'},{t:'The Fountain',a:'←'}]);
+gantry(0,17.5,0,[{t:'Fashion Ave',a:'←'},{t:'Cinema',a:'→'},{t:'Metro',a:'↑'}]);
 gantry(-24,6,Math.PI/2,[{t:'Fashion Avenue',a:'↑'},{t:'The Souk',a:'↓'}]);
 
 // hanging zone banners (coloured)
@@ -536,26 +536,50 @@ let frontFork,frontWheel,rearWheel;
   frontFork=new THREE.Group();frontFork.position.set(0,.245,.62);leanG.add(frontFork);
   frontWheel=wheel();frontFork.add(frontWheel);
   // ── rider (talabat kit) ──
-  const jacket=new THREE.MeshStandardMaterial({color:0xff5900,roughness:.55,metalness:.1});
-  const helmetM=new THREE.MeshStandardMaterial({color:0xff5900,roughness:.3,metalness:.2});
-  const visor=new THREE.MeshStandardMaterial({color:0x141a1e,roughness:.15,metalness:.6});
-  const dark=new THREE.MeshStandardMaterial({color:0x241012,roughness:.8});
-  // hips/seat contact
-  add(new THREE.Mesh(new THREE.BoxGeometry(.3,.22,.34),dark),0,.9,-.12);
-  // torso leaning forward toward the bars
-  const torso=add(new THREE.Mesh(new THREE.BoxGeometry(.34,.5,.28),jacket),0,1.18,.02); torso.rotation.x=.34;
-  // backpack strap hint
-  add(new THREE.Mesh(new THREE.BoxGeometry(.36,.34,.06),dark),0,1.2,-.15);
-  // head + helmet + visor
-  add(new THREE.Mesh(new THREE.SphereGeometry(.145,14,12),helmetM),0,1.6,.2);
-  const vz=add(new THREE.Mesh(new THREE.SphereGeometry(.12,14,10),visor),0,1.58,.32); vz.scale.set(1,.7,.7);
-  // upper arms reaching to the handlebar
+  const jacket=new THREE.MeshStandardMaterial({color:0xff5900,roughness:.5,metalness:.15});
+  const helmetM=new THREE.MeshStandardMaterial({color:0xf4ede3,roughness:.25,metalness:.25});
+  const visor=new THREE.MeshStandardMaterial({color:0x141a1e,roughness:.12,metalness:.7});
+  const pants=new THREE.MeshStandardMaterial({color:0x1a1c22,roughness:.85});
+  const strap=new THREE.MeshStandardMaterial({color:0x0e1013,roughness:.75});
+  const bag=new THREE.MeshStandardMaterial({color:0xff5900,roughness:.4,metalness:.1});
+  const skin=new THREE.MeshStandardMaterial({color:0xd9a37b,roughness:.75});
+  // hips (dark pants) — kept small so the orange jacket dominates the silhouette
+  add(new THREE.Mesh(new THREE.BoxGeometry(.3,.18,.32),pants),0,.9,-.1);
+  // torso — orange jacket, leaning forward
+  const torso=add(new THREE.Mesh(new THREE.BoxGeometry(.36,.52,.3),jacket),0,1.2,.02); torso.rotation.x=.32;
+  // lime piping across the shoulders (front + back readability)
+  const pipe=new THREE.MeshBasicMaterial({color:0xCFFF00});
+  const pF=add(new THREE.Mesh(new THREE.BoxGeometry(.37,.05,.06),pipe),0,1.36,.18); pF.rotation.x=.32;
+  const pB=add(new THREE.Mesh(new THREE.BoxGeometry(.37,.05,.06),pipe),0,1.36,-.14); pB.rotation.x=.32;
+  // tiny talabat wordmark on the back of the jacket
+  { const bt=canvasTex(256,96,(g)=>{g.clearRect(0,0,256,96);
+      g.fillStyle='#F4EDE3';g.font='800 62px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',128,54);});
+    const bp=new THREE.Mesh(new THREE.PlaneGeometry(.28,.1),new THREE.MeshBasicMaterial({map:bt,transparent:true}));
+    bp.position.set(0,1.2,-.16); bp.rotation.y=Math.PI; bp.rotation.x=-.32; leanG.add(bp); }
+  // backpack (orange rectangular) with dark straps
+  const pack=add(new THREE.Mesh(new THREE.BoxGeometry(.32,.36,.14),bag),0,1.22,-.22); pack.rotation.x=.32;
+  add(new THREE.Mesh(new THREE.BoxGeometry(.05,.5,.03),strap),-.12,1.24,-.03).rotation.x=.32;
+  add(new THREE.Mesh(new THREE.BoxGeometry(.05,.5,.03),strap), .12,1.24,-.03).rotation.x=.32;
+  // neck
+  add(new THREE.Mesh(new THREE.CylinderGeometry(.055,.06,.09,10),skin),0,1.44,.14);
+  // head + helmet (off-white, brand pop) + visor + chin strap
+  add(new THREE.Mesh(new THREE.SphereGeometry(.155,16,12),helmetM),0,1.6,.18);
+  // orange helmet stripe (top-to-back)
+  const st=add(new THREE.Mesh(new THREE.BoxGeometry(.05,.16,.32),jacket),0,1.72,.1); st.rotation.x=.1;
+  const vz=add(new THREE.Mesh(new THREE.SphereGeometry(.128,14,10),visor),0,1.58,.32); vz.scale.set(1,.68,.7);
+  add(new THREE.Mesh(new THREE.BoxGeometry(.24,.03,.04),strap),0,1.47,.22); // chin strap
+  // upper arms → forearms reaching to the handlebar
   for(const sx of [-.2,.2]){
-    const arm=add(new THREE.Mesh(new THREE.BoxGeometry(.1,.4,.1),jacket),sx,1.2,.28); arm.rotation.x=1.05;
-    add(new THREE.Mesh(new THREE.BoxGeometry(.08,.08,.09),dark),sx,1.02,.6); // glove on grip
+    const arm=add(new THREE.Mesh(new THREE.BoxGeometry(.1,.36,.11),jacket),sx,1.2,.28); arm.rotation.x=1.0;
+    const fore=add(new THREE.Mesh(new THREE.BoxGeometry(.09,.28,.1),jacket),sx,1.06,.5); fore.rotation.x=1.35;
+    add(new THREE.Mesh(new THREE.BoxGeometry(.09,.09,.1),strap),sx,1.02,.62); // glove
   }
-  // thighs down to the deck
-  for(const sx of [-.13,.13]) add(new THREE.Mesh(new THREE.BoxGeometry(.12,.14,.42),dark),sx,.86,.12);
+  // thighs → shins down to the deck
+  for(const sx of [-.13,.13]){
+    add(new THREE.Mesh(new THREE.BoxGeometry(.13,.14,.42),pants),sx,.86,.12);
+    add(new THREE.Mesh(new THREE.BoxGeometry(.1,.22,.12),pants),sx,.62,.3);
+    add(new THREE.Mesh(new THREE.BoxGeometry(.11,.07,.2),strap),sx,.5,.36); // shoe
+  }
 }
 
 /* ══ PHYSICS CONTROLLER ════════════════════════════════════ */
