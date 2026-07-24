@@ -183,6 +183,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="GLTFLoader.js"></script>
 <script src="DRACOLoader.js"></script>
+<script src="RGBELoader.js"></script>
+<script src="vendor/CopyShader.js"></script>
+<script src="vendor/LuminosityHighPassShader.js"></script>
+<script src="vendor/EffectComposer.js"></script>
+<script src="vendor/RenderPass.js"></script>
+<script src="vendor/ShaderPass.js"></script>
+<script src="vendor/UnrealBloomPass.js"></script>
 <script>
 'use strict';
 /* ══ INITIALIZER ═══════════════════════════════════════════ */
@@ -213,16 +220,40 @@ const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,240);
 addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);
   camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
 
-{ // warm cinematic env — walnut ceiling above, dark polished floor below
-  const c=document.createElement('canvas');c.width=64;c.height=32;
+// real HDR environment (pedestrian overpass — warm indoor tint) → PMREM.
+// This is the single biggest AAA cheat code: cars and brass now reflect an
+// actual room instead of a canvas gradient.
+const pm=new THREE.PMREMGenerator(renderer);pm.compileEquirectangularShader();
+// warm fallback while the HDR loads (avoids a blank frame on slow connections)
+{ const c=document.createElement('canvas');c.width=64;c.height=32;
   const g=c.getContext('2d');const gr=g.createLinearGradient(0,0,0,32);
-  gr.addColorStop(0,'#f0dcae');gr.addColorStop(.45,'#7a5a34');gr.addColorStop(.55,'#2a2018');gr.addColorStop(1,'#0c0906');
+  gr.addColorStop(0,'#f0dcae');gr.addColorStop(.5,'#5a3818');gr.addColorStop(1,'#0c0906');
   g.fillStyle=gr;g.fillRect(0,0,64,32);
-  const tex=new THREE.CanvasTexture(c);
-  tex.mapping=THREE.EquirectangularReflectionMapping;
-  const pm=new THREE.PMREMGenerator(renderer);
-  scene.environment=pm.fromEquirectangular(tex).texture;
-  tex.dispose();pm.dispose();
+  const tex=new THREE.CanvasTexture(c);tex.mapping=THREE.EquirectangularReflectionMapping;
+  scene.environment=pm.fromEquirectangular(tex).texture;tex.dispose(); }
+new THREE.RGBELoader().load('assets/tex/env.hdr',(hdr)=>{
+  hdr.mapping=THREE.EquirectangularReflectionMapping;
+  const t=pm.fromEquirectangular(hdr).texture;
+  scene.environment=t; hdr.dispose();
+});
+
+// ── HDR post-processing: bloom on the warm lights + brass + emissives ──
+// Composer initialises after the renderer + scene + camera are wired.
+let composer=null;
+{ const rt=new THREE.WebGLRenderTarget(innerWidth,innerHeight,{
+    minFilter:THREE.LinearFilter, magFilter:THREE.LinearFilter,
+    format:THREE.RGBAFormat, type:THREE.HalfFloatType, encoding:THREE.sRGBEncoding });
+  composer=new THREE.EffectComposer(renderer,rt);
+  composer.setPixelRatio(renderer.getPixelRatio());
+  composer.setSize(innerWidth,innerHeight);
+  composer.addPass(new THREE.RenderPass(scene,camera));
+  const bloom=new THREE.UnrealBloomPass(
+    new THREE.Vector2(innerWidth,innerHeight),
+    /*strength*/ 0.62,
+    /*radius*/   0.42,
+    /*threshold*/0.82);
+  composer.addPass(bloom);
+  addEventListener('resize',()=>{composer.setSize(innerWidth,innerHeight);});
 }
 scene.add(new THREE.AmbientLight(0xe8cd94,.22));
 scene.add(new THREE.HemisphereLight(0xffd58a,0x1a120c,.42));
@@ -280,19 +311,42 @@ const taxiSignM=new THREE.MeshStandardMaterial({color:0xf5c518,emissive:0x6a5208
    Wayne Dixon), Cesium delivery van (CC-BY 4.0 Cesium). The RNG bay
    loop skips every hero position. Until the GLBs load the bays stay
    empty — better than a placeholder that gets popped mid-run. */
-const HERO_COLORS=[0x0a0a0d,0xe6e2d8,0x1a2635,0xa0876b,0x1a1a1e,0x5a1418,0x2a2a2f,0x141414];
-// x values snap to the bay grid (x = -36 + 3.4·n) and avoid special zones + skip ranges.
-// `kind` chooses which GLB model to spawn. Mix reads as: 5 Ferraris,
-// 2 futuristic concepts, 1 valet delivery van.
+// Expanded hero-bay set — every visible parked car is now a real GLB.
+// Grid-aligned x values, outside every skip range, special zone, and the
+// talabat goal footprint. Curated for read-quality from the drive lane.
 const HERO_BAYS=[
-  {x:  8.2, z:25, rot:0,       col:HERO_COLORS[0], kind:'ferrari'},
-  {x:-15.6, z:25, rot:0,       col:HERO_COLORS[1], kind:'concept'},
-  {x: 28.6, z:25, rot:0,       col:HERO_COLORS[2], kind:'ferrari'},
-  {x:-22.4, z:15, rot:Math.PI, col:HERO_COLORS[3], kind:'ferrari'},  // across from goal
-  {x:  4.8, z:11, rot:0,       col:HERO_COLORS[4], kind:'concept'},
-  {x: 25.2, z:11, rot:0,       col:HERO_COLORS[5], kind:'ferrari'},
-  {x:-15.6, z: 1, rot:Math.PI, col:HERO_COLORS[6], kind:'ferrari'},
-  {x: -8.8, z:-3, rot:0,       col:HERO_COLORS[7], kind:'van'},      // delivery van
+  // z=25 (Grand Drive, top row, faces south)
+  {x:-32.6, z:25, rot:0, col:0x0a0a0d, kind:'ferrari'},
+  {x:-25.8, z:25, rot:0, col:0xa0876b, kind:'concept'},
+  {x:-15.6, z:25, rot:0, col:0xe6e2d8, kind:'ferrari'},
+  {x: -8.8, z:25, rot:0, col:0x141414, kind:'ferrari'},
+  {x:  8.2, z:25, rot:0, col:0x1a2635, kind:'concept'},
+  {x: 15.0, z:25, rot:0, col:0xf4ede3, kind:'van'},
+  {x: 21.8, z:25, rot:0, col:0x2a2a2f, kind:'ferrari'},
+  {x: 28.6, z:25, rot:0, col:0x1a1a1e, kind:'ferrari'},
+  {x: 35.4, z:25, rot:0, col:0x14171a, kind:'concept'},
+  // z=15 (Grand Drive, faces north — the aisle we drive down toward the goal)
+  {x:-35.4, z:15, rot:Math.PI, col:0x5a1418, kind:'ferrari'},
+  {x:-22.4, z:15, rot:Math.PI, col:0x0a0a0d, kind:'concept'},  // across from goal
+  {x: 21.8, z:15, rot:Math.PI, col:0xe6e2d8, kind:'ferrari'},
+  {x: 32.0, z:15, rot:Math.PI, col:0x1a1a1e, kind:'ferrari'},
+  // z=11 (opposite Fashion aisle)
+  {x:-35.4, z:11, rot:0, col:0x2a2a2f, kind:'ferrari'},
+  {x:  4.8, z:11, rot:0, col:0xa0876b, kind:'concept'},
+  {x: 25.2, z:11, rot:0, col:0x141414, kind:'ferrari'},
+  // z=1 (Fashion faces north)
+  {x:-32.6, z: 1, rot:Math.PI, col:0x1a2635, kind:'ferrari'},
+  {x:-15.6, z: 1, rot:Math.PI, col:0x14171a, kind:'concept'},
+  {x:  4.8, z: 1, rot:Math.PI, col:0xe6e2d8, kind:'ferrari'},
+  {x: 18.4, z: 1, rot:Math.PI, col:0xf4ede3, kind:'van'},
+  // z=-3 (Cinema faces south)
+  {x:-15.6, z:-3, rot:0, col:0x0a0a0d, kind:'ferrari'},
+  {x: -8.8, z:-3, rot:0, col:0x5a1418, kind:'ferrari'},
+  {x:  8.2, z:-3, rot:0, col:0xa0876b, kind:'concept'},
+  {x: 21.8, z:-3, rot:0, col:0x1a1a1e, kind:'ferrari'},
+  // z=-14 (Cinema back row, faces north — mostly empty, valet-reserved)
+  {x:-19.0, z:-14, rot:Math.PI, col:0xe6e2d8, kind:'ferrari'},
+  {x:  1.4, z:-14, rot:Math.PI, col:0x14171a, kind:'concept'},
 ];
 const heroKey=(x,z)=>x.toFixed(1)+','+z.toFixed(1);
 const heroSet=new Set(HERO_BAYS.map(b=>heroKey(b.x,b.z)));
@@ -343,8 +397,15 @@ function spawnHero(b){
     const mats=Array.isArray(o.material)?o.material:[o.material];
     o.material=mats.map(mt=>{
       if(mt && cfg.paint.includes(mt.name)){
-        const nm=mt.clone();nm.color=new THREE.Color(b.col);
-        nm.metalness=.9;nm.roughness=.28;return nm;
+        // Convert to a MeshPhysicalMaterial so we can add clearcoat — the
+        // shiny automotive lacquer that makes a car look photographed.
+        const nm=new THREE.MeshPhysicalMaterial({
+          color:new THREE.Color(b.col),
+          metalness:.85, roughness:.28,
+          clearcoat:1.0, clearcoatRoughness:.05,
+          envMapIntensity:1.15,
+        });
+        return nm;
       }
       return mt;
     });
@@ -447,27 +508,23 @@ const floor=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
   new THREE.MeshStandardMaterial({map:floorTex,roughness:.32,metalness:.35,color:0x1a1410}));
 floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
 
-// ceiling — walnut slat texture (procedural: warm wood strips with grain)
-const ceilTex=canvasTex(512,512,(g)=>{
-  g.fillStyle='#2b1a10';g.fillRect(0,0,512,512);
-  for(let i=0;i<16;i++){                                             // 16 walnut slats
-    const y=i*32;
-    const c=g.createLinearGradient(0,y,0,y+32);
-    const base=32+Math.random()*20;
-    c.addColorStop(0,`rgb(${base+18},${base+6},${base-6})`);
-    c.addColorStop(.5,`rgb(${base+42},${base+22},${base+8})`);
-    c.addColorStop(1,`rgb(${base+8},${base-2},${base-10})`);
-    g.fillStyle=c;g.fillRect(0,y+1,512,30);
-    // black reveal between slats
-    g.fillStyle='#0a0604';g.fillRect(0,y,512,1);g.fillRect(0,y+31,512,1);
-    // grain
-    for(let k=0;k<6;k++){g.strokeStyle=`rgba(20,10,4,${.14+Math.random()*.14})`;
-      g.lineWidth=.5+Math.random();g.beginPath();g.moveTo(0,y+3+k*4+Math.random()*3);
-      g.bezierCurveTo(160,y+3+k*4-1,320,y+3+k*4+2,512,y+3+k*4);g.stroke();}
-  }
-});
+// ceiling — real photographed hardwood texture (diffuse + bump + roughness),
+// tinted walnut-dark. Replaces the hand-drawn Canvas 2D walnut that read
+// painted.
+const texLd=new THREE.TextureLoader();
+function loadRep(url,rx,ry){
+  const t=texLd.load(url);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);
+  t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;
+}
+const ceilMap  =loadRep('assets/tex/hardwood.jpg',       16,10);
+const ceilBump =loadRep('assets/tex/hardwood_bump.jpg',  16,10);ceilBump.encoding=THREE.LinearEncoding;
+const ceilRough=loadRep('assets/tex/hardwood_rough.jpg', 16,10);ceilRough.encoding=THREE.LinearEncoding;
 const ceil=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
-  new THREE.MeshStandardMaterial({map:ceilTex,roughness:.6,metalness:.05}));
+  new THREE.MeshStandardMaterial({
+    map:ceilMap, bumpMap:ceilBump, bumpScale:.02,
+    roughnessMap:ceilRough, roughness:.55, metalness:.05,
+    color:0x9c6a3a,
+  }));
 ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
 
 // warm LED trough — two parallel strips running the length of the drive lane
@@ -520,7 +577,12 @@ const wallTex=canvasTex(512,512,(g)=>{
   g.fillStyle='rgba(30,20,10,.35)';
   for(let x=85;x<512;x+=85)g.fillRect(x,0,2,378);
 },4,1);
-const wallMat=new THREE.MeshStandardMaterial({map:wallTex,roughness:.72,metalness:.06});
+// Overlay real photographed stone bump on top of the hand-painted travertine
+// pattern — the tiny surface variation kills the "painted flat" tell.
+const wallBump=loadRep('assets/tex/brick_b.jpg',12,4);wallBump.encoding=THREE.LinearEncoding;
+const wallRough=loadRep('assets/tex/brick_r.jpg',12,4);wallRough.encoding=THREE.LinearEncoding;
+const wallMat=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:wallBump,bumpScale:.008,
+  roughnessMap:wallRough,roughness:.7,metalness:.06,envMapIntensity:.6});
 const skirtMat=new THREE.MeshStandardMaterial({color:0x1a1108,roughness:.6});
 function wall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);m.receiveShadow=true;scene.add(m);box(x-w/2,x+w/2,z-d/2,z+d/2);}
 wall(88,4.7,1, 0,2.35,31.5);   // south (entry)
@@ -663,22 +725,17 @@ const SPECIAL=[
 ];
 const specialAt=(x,z)=>{const s=SPECIAL.find(s=>s.z===z&&x>=s.x0&&x<=s.x1);return s?s.kind:null;};
 
+// Only paint bay lines + special plaques + EV posts. NO procedural cars are
+// spawned — every parked vehicle is now a real GLB placed in a hero bay.
+// This removes the biggest kiddie-tell: cubes with cylinder wheels everywhere.
+// The empty bays read as premium ("this valet level isn't full").
 for(const r of bayRows){
   bayLines(r.z,-38,38);
   for(let x=-36;x<=36;x+=3.4){
     if(r.skip.some(([a,b])=>x>a&&x<b)){ continue; }
-    if(heroAt(x,r.z)){ continue; }                     // hero-bay slot: Ferrari or empty
     const kind=specialAt(x,r.z);
-    // reserved bays run emptier — reads as premium (not every space is a car)
-    const occ=rnd()<(kind?(kind==='family'?.5:.22):.5);
     if(kind && ((x/3.4)|0)%3===0) bayPad(x,r.z,r.rot,kind);
     if(kind==='ev'&&((x/3.4)|0)%2===0) evPost(x+1.7,r.z+(r.rot?-2.3:2.3));
-    const suv=rnd()<.34, taxi=rnd()<.05, luxe=rnd()<.28;
-    // footprint test against the goal bay (+1m margin) — the objective must
-    // always be reachable regardless of how the RNG lands
-    const hx=1.0,hz=2.3;
-    const fouls=(x-hx<GOAL.x1+1)&&(x+hx>GOAL.x0-1)&&(r.z-hz<GOAL.z1+1)&&(r.z+hz>GOAL.z0-1);
-    if(occ&&!fouls) makeCar(x,r.z,r.rot+(rnd()-.5)*.04,suv,taxi,luxe);
   }
 }
 
@@ -702,12 +759,10 @@ arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive tow
   const hump=new THREE.Mesh(new THREE.BoxGeometry(7,.1,.6),new THREE.MeshStandardMaterial({map:ht,roughness:.4,metalness:.7}));
   hump.position.set(0,.055,24);scene.add(hump); }
 
-// ── refined crosswalk + shoppers ──
+// crosswalk only — cube-shaped pedestrians were an AAA-immersion killer
 { const cw=canvasTex(64,64,(g)=>{g.clearRect(0,0,64,64);g.fillStyle='rgba(217,169,98,.7)';for(let i=0;i<4;i++)g.fillRect(0,i*16,64,6);},1,1);
   const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,7),new THREE.MeshBasicMaterial({map:cw,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);scene.add(m);
-  peds.push(makePed(18,17,'z',15.5,23.5,.75));
-  peds.push(makePed(19,23,'z',15.5,23.5,1.0)); }
+  m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);scene.add(m); }
 
 /* ══ SET DRESSING · the details riders actually notice ════ */
 
@@ -1309,7 +1364,7 @@ function frame(now){
     if(tt!==hudT){hudT=tt;$('timerPill').textContent=fmt(timeLeft);
       $('timerPill').classList.toggle('low',timeLeft<20);}
   }
-  renderer.render(scene,camera);
+  composer ? composer.render() : renderer.render(scene,camera);
 }
 
 /* init */
