@@ -86,6 +86,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 #orderChip{position:absolute;top:calc(12px + var(--safe-t));left:12px;background:rgba(65,21,23,.85);
   border:1px solid rgba(255,89,0,.5);border-radius:12px;padding:8px 12px;font-size:12px;line-height:1.45;max-width:42vw}
 #orderChip b{color:var(--orange)}
+/* on a phone the chip must not creep under the timer pill */
+@media (max-width:520px){
+  #orderChip{max-width:36vw;font-size:10.5px;padding:6px 9px;line-height:1.4}
+}
 #penChip{position:absolute;top:calc(12px + var(--safe-t));right:12px;background:rgba(65,21,23,.85);
   border:1px solid rgba(244,237,227,.18);border-radius:12px;padding:8px 12px;font-size:12px;font-weight:700}
 #penChip b{color:var(--orange);font-size:15px}
@@ -177,6 +181,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="GLTFLoader.js"></script>
 <script>
 'use strict';
 /* ══ INITIALIZER ═══════════════════════════════════════════ */
@@ -194,14 +199,14 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,isMobile?1.5:2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.05;
+renderer.toneMappingExposure=.88;
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
 const scene=new THREE.Scene();
 // bright, clean, neutral-cool basement — like a real Dubai Mall parking level
-scene.background=new THREE.Color(0xcfd4d6);
-scene.fog=new THREE.Fog(0xd0d5d7,34,120);
+scene.background=new THREE.Color(0x9fa7ab);
+scene.fog=new THREE.Fog(0xa6aeb2,30,96);
 
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,240);
 addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);
@@ -218,9 +223,9 @@ addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);
   scene.environment=pm.fromEquirectangular(tex).texture;
   tex.dispose();pm.dispose();
 }
-scene.add(new THREE.AmbientLight(0xffffff,.72));
-scene.add(new THREE.HemisphereLight(0xf4f7f8,0x5a5e60,.55));
-const sun=new THREE.DirectionalLight(0xffffff,.9);
+scene.add(new THREE.AmbientLight(0xdfe7ea,.26));
+scene.add(new THREE.HemisphereLight(0xe4edf1,0x3a3f42,.32));
+const sun=new THREE.DirectionalLight(0xfff6e8,.52);
 sun.position.set(10,28,10);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.left=-60;sun.shadow.camera.right=60;
@@ -230,7 +235,7 @@ sun.shadow.bias=-.0006;
 scene.add(sun,sun.target);
 // cool fluorescent fill from the ceiling grid
 for(const lx of [-30,-10,10,30]) for(const lz of [18,2,-14]){
-  const pl=new THREE.PointLight(0xeaf2ff,.32,30,2);pl.position.set(lx,4.2,lz);scene.add(pl);
+  const pl=new THREE.PointLight(0xeaf2ff,.24,26,2);pl.position.set(lx,4.2,lz);scene.add(pl);
 }
 
 /* ══ ASSET BUILDER ═════════════════════════════════════════ */
@@ -250,22 +255,35 @@ const carGeo={
   suvBody:new THREE.BoxGeometry(1.9,.8,4.6), suvCab:new THREE.BoxGeometry(1.74,.62,2.9),
   win:new THREE.BoxGeometry(1.66,.3,2.0), suvWin:new THREE.BoxGeometry(1.76,.34,2.7),
   wheel:new THREE.CylinderGeometry(.33,.33,.24,10),
-  light:new THREE.BoxGeometry(.3,.12,.06)
+  light:new THREE.BoxGeometry(.3,.12,.06),
+  taxiSign:new THREE.BoxGeometry(.5,.16,.2),
+  tailBar:new THREE.BoxGeometry(1.5,.13,.07)
 };
 const rubberM=new THREE.MeshStandardMaterial({color:0x141414,roughness:.9});
 const glassM=new THREE.MeshStandardMaterial({color:0x1a2126,roughness:.15,metalness:.6});
 const lampM=new THREE.MeshStandardMaterial({color:0xfff3c8,emissive:0x8a7c50,emissiveIntensity:.6});
-const carMats=[0xdcd8d0,0xb8bcc0,0x1e3350,0x17181a,0x6e1f1f,0x2a5240,0x8c8f96].map(
+const tailM=new THREE.MeshStandardMaterial({color:0x8e1f22,emissive:0xd2352c,emissiveIntensity:.55,roughness:.4});
+// Dubai's carpark reality: lots of white, a lot of big SUVs, and the
+// unmistakable cream-with-a-red-roof RTA taxi.
+const carMats=[0xdcd8d0,0xeceae6,0xb8bcc0,0x1e3350,0x17181a,0x6e1f1f,0x2a5240,0x8c8f96].map(
   c=>new THREE.MeshStandardMaterial({color:c,metalness:.75,roughness:.35}));
-function makeCar(x,z,rotY,suv){
-  const g=new THREE.Group(),m=carMats[(Math.random()*carMats.length)|0];
+const taxiBodyM=new THREE.MeshStandardMaterial({color:0xf0e7cf,metalness:.6,roughness:.4});
+const taxiRoofM=new THREE.MeshStandardMaterial({color:0xb3252b,metalness:.5,roughness:.45});
+const taxiSignM=new THREE.MeshStandardMaterial({color:0xf5c518,emissive:0x6a5208,emissiveIntensity:.5});
+function makeCar(x,z,rotY,suv,taxi){
+  const g=new THREE.Group(),m=taxi?taxiBodyM:carMats[(Math.random()*carMats.length)|0];
+  if(taxi)suv=false;
   // parked cars don't cast shadows (perf: ~60 cars would blow the shadow pass)
   const body=new THREE.Mesh(suv?carGeo.suvBody:carGeo.body,m);
   body.position.y=suv?.72:.62;g.add(body);
-  const cab=new THREE.Mesh(suv?carGeo.suvCab:carGeo.cab,m);
+  const cab=new THREE.Mesh(suv?carGeo.suvCab:carGeo.cab,taxi?taxiRoofM:m);
   cab.position.set(0,suv?1.35:1.12,-.15);g.add(cab);
   const win=new THREE.Mesh(suv?carGeo.suvWin:carGeo.win,glassM);
   win.position.set(0,suv?1.32:1.1,-.15);g.add(win);
+  if(taxi){ const ts=new THREE.Mesh(carGeo.taxiSign,taxiSignM);
+    ts.position.set(0,1.44,-.15);g.add(ts); }
+  const tail=new THREE.Mesh(carGeo.tailBar,tailM);
+  tail.position.set(0,suv?.86:.72,suv?-2.33:-2.18);g.add(tail);
   for(const [wx,wz] of [[-.85,1.5],[.85,1.5],[-.85,-1.5],[.85,-1.5]]){
     const w=new THREE.Mesh(carGeo.wheel,rubberM);
     w.rotation.z=Math.PI/2;w.position.set(wx,.33,wz);g.add(w);
@@ -280,7 +298,10 @@ function makePed(x,z,pathAxis,p0,p1,speed){
   const shirt=new THREE.MeshStandardMaterial({color:[0x3a5f8a,0x7a3a3a,0x3a6a4a][(Math.random()*3)|0],roughness:.85});
   const pants=new THREE.MeshStandardMaterial({color:0x2a2a30,roughness:.9});
   const torso=new THREE.Mesh(new THREE.BoxGeometry(.42,.55,.24),shirt);torso.position.y=1.15;torso.castShadow=true;g.add(torso);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),skin);head.position.y=1.58;g.add(head);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.055,.07,.1,8),skin);neck.position.y=1.45;g.add(neck);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.145,10,8),skin);head.position.y=1.6;g.add(head);
+  for(const ax of [-.27,.27]){const a=new THREE.Mesh(new THREE.BoxGeometry(.1,.46,.13),shirt);
+    a.position.set(ax,1.14,0);g.add(a);}
   const legL=new THREE.Mesh(new THREE.BoxGeometry(.15,.85,.18),pants);legL.position.set(-.11,.44,0);g.add(legL);
   const legR=legL.clone();legR.position.x=.11;g.add(legR);
   g.position.set(x,0,z);scene.add(g);
@@ -310,18 +331,28 @@ function sign(txt,arrow,x,z,rotY,w){
 
 // floor — light concrete, grime, expansion joints
 const floorTex=canvasTex(256,256,(g)=>{
-  g.fillStyle='#b7bab9';g.fillRect(0,0,256,256);
+  g.fillStyle='#83878a';g.fillRect(0,0,256,256);
   for(let i=0;i<220;i++){g.fillStyle=`rgba(${138+Math.random()*34|0},${140+Math.random()*34|0},${138+Math.random()*32|0},${.12+Math.random()*.22})`;
     g.beginPath();g.arc(Math.random()*256,Math.random()*256,3+Math.random()*11,0,7);g.fill();}
+  // oil drips where cars sit, and scuffed tyre rubber
+  for(let i=0;i<7;i++){const ox=Math.random()*256,oy=Math.random()*256;
+    const r=g.createRadialGradient(ox,oy,1,ox,oy,7+Math.random()*9);
+    r.addColorStop(0,'rgba(48,44,42,.34)');r.addColorStop(1,'rgba(48,44,42,0)');
+    g.fillStyle=r;g.beginPath();g.arc(ox,oy,16,0,7);g.fill();}
+  g.lineCap='round';
+  for(let i=0;i<5;i++){g.strokeStyle=`rgba(70,70,72,${.08+Math.random()*.1})`;
+    g.lineWidth=3+Math.random()*4;g.beginPath();
+    const sx=Math.random()*256,sy=Math.random()*256;
+    g.moveTo(sx,sy);g.quadraticCurveTo(sx+40,sy+30,sx+90,sy+16);g.stroke();}
   g.strokeStyle='rgba(96,98,98,.5)';g.lineWidth=3;g.strokeRect(0,0,256,256);
 },16,12);
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
-  new THREE.MeshStandardMaterial({map:floorTex,roughness:.93,metalness:.02}));
+  new THREE.MeshStandardMaterial({map:floorTex,roughness:.9,metalness:.04}));
 floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
 
 // ceiling — white with a bright fluorescent strip grid + exposed ducts
 const ceil=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
-  new THREE.MeshStandardMaterial({color:0xe9ecec,roughness:1}));
+  new THREE.MeshStandardMaterial({color:0xc6cccd,roughness:1}));
 ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
 { const geo=new THREE.BoxGeometry(.42,.08,9);
   const mat=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:1.5});
@@ -330,7 +361,7 @@ ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
   for(const lz of [10,-4,-16]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,84,10),pipe);p.rotation.z=Math.PI/2;p.position.set(0,4.35,lz);scene.add(p);} }
 
 // perimeter walls
-const wallMat=new THREE.MeshStandardMaterial({color:0xccd0d1,roughness:.9});
+const wallMat=new THREE.MeshStandardMaterial({color:0xa2a9ac,roughness:.92});
 const skirtMat=new THREE.MeshStandardMaterial({color:0x8a9092,roughness:.9});
 function wall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);m.receiveShadow=true;scene.add(m);box(x-w/2,x+w/2,z-d/2,z+d/2);}
 wall(88,4.7,1, 0,2.35,31.5);   // south (entry)
@@ -345,10 +376,12 @@ const ZONES=[
   {name:'CINEMA',      hex:'#2f6fd0', col:0x2f6fd0, z:-8},
 ];
 const zoneOf=z=>ZONES.reduce((a,b)=>Math.abs(b.z-z)<Math.abs(a.z-z)?b:a);
+// the talabat bay rect, declared early so nothing can be parked into it
+const GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
 
 // ── pillars: concrete, hazard skirt, zone colour band + level/section code ──
 function pillarTex(zoneHex,code){ return canvasTex(128,256,(g)=>{
-  g.fillStyle='#c9c6c0';g.fillRect(0,0,128,256);
+  g.fillStyle='#b5b2ac';g.fillRect(0,0,128,256);
   g.fillStyle=zoneHex;g.fillRect(0,58,128,60);
   g.fillStyle='#ffffff';g.font='800 30px system-ui';g.textAlign='center';g.fillText(code,64,98);
   g.fillStyle='#e8c81e';g.fillRect(0,206,128,26);
@@ -391,13 +424,74 @@ const bayRows=[
   {z:-3, rot:0,        skip:[]},
   {z:-14,rot:Math.PI,  skip:[]},
 ];
+/* ── special bays: family (pink), accessible (blue), EV (green) ──
+   These three are what make a UAE mall carpark instantly recognisable. */
+const padCache={};
+function padTexture(kind){
+  if(padCache[kind])return padCache[kind];
+  const bg={family:'#d8408f',access:'#1f6fd0',ev:'#17a55c'}[kind];
+  return padCache[kind]=canvasTex(256,320,(g)=>{
+    g.fillStyle=bg;g.fillRect(0,0,256,320);
+    g.strokeStyle='#f2f4f2';g.lineWidth=10;g.strokeRect(9,9,238,302);
+    g.fillStyle='#f7f9f7';
+    if(kind==='access'){                                   // wheelchair pictogram
+      g.beginPath();g.arc(128,86,20,0,7);g.fill();          // head
+      g.lineWidth=16;g.strokeStyle='#f7f9f7';g.lineCap='round';
+      g.beginPath();g.moveTo(128,112);g.lineTo(128,180);g.lineTo(186,180);g.stroke();
+      g.beginPath();g.moveTo(128,140);g.lineTo(176,132);g.stroke();
+      g.lineWidth=13;g.beginPath();g.arc(126,200,50,-0.35,4.2);g.stroke();
+    }else if(kind==='family'){                             // adult + child
+      g.beginPath();g.arc(96,80,21,0,7);g.fill();
+      g.fillRect(78,108,36,86); g.fillRect(70,194,15,60); g.fillRect(107,194,15,60);
+      g.beginPath();g.arc(170,124,15,0,7);g.fill();
+      g.fillRect(157,144,26,60); g.fillRect(152,204,11,44); g.fillRect(177,204,11,44);
+      g.fillRect(114,150,44,13);                            // held hands
+    }else{                                                  // EV bolt
+      g.beginPath();g.moveTo(150,52);g.lineTo(84,178);g.lineTo(124,178);
+      g.lineTo(104,270);g.lineTo(174,140);g.lineTo(132,140);g.closePath();g.fill();
+    }
+  },1,1);
+}
+const padGeo=new THREE.PlaneGeometry(3.2,4.5);
+function bayPad(x,z,kind){
+  const m=new THREE.Mesh(padGeo,new THREE.MeshBasicMaterial({map:padTexture(kind),transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.set(x,.028,z);scene.add(m);
+}
+// EV charge post — slim white bollard with a lit status ring
+const evPostGeo=new THREE.BoxGeometry(.26,1.35,.24), evHeadGeo=new THREE.BoxGeometry(.3,.34,.28);
+const evBodyM=new THREE.MeshStandardMaterial({color:0xf1f3f2,roughness:.5});
+const evHeadM=new THREE.MeshStandardMaterial({color:0x17a55c,emissive:0x17a55c,emissiveIntensity:.8});
+function evPost(x,z){
+  const p=new THREE.Mesh(evPostGeo,evBodyM);p.position.set(x,.67,z);p.castShadow=true;scene.add(p);
+  const h=new THREE.Mesh(evHeadGeo,evHeadM);h.position.set(x,1.5,z);scene.add(h);
+  box(x-.2,x+.2,z-.2,z+.2);
+}
+const SPECIAL=[
+  {z:15, x0:11,  x1:24,  kind:'family'},
+  {z:11, x0:-22, x1:-12, kind:'access'},
+  {z:1,  x0:24,  x1:34,  kind:'ev'},
+  {z:-3, x0:-34, x1:-25, kind:'family'},
+];
+const PADCOL={family:0xd8408f,access:0x1f6fd0,ev:0x17a55c};
+const specialAt=(x,z)=>{const s=SPECIAL.find(s=>s.z===z&&x>=s.x0&&x<=s.x1);return s?s.kind:null;};
+
 for(const r of bayRows){
   bayLines(r.z,-38,38);
   for(let x=-36;x<=36;x+=3.4){
     if(r.skip.some(([a,b])=>x>a&&x<b)){ continue; }
-    const occ=rnd()<.62;
-    smartLight(x, r.z, occ?RED:GREEN);
-    if(occ) makeCar(x,r.z,r.rot+(rnd()-.5)*.04,rnd()<.34);
+    const kind=specialAt(x,r.z);
+    // accessible/EV bays sit empty far more often — reads as "reserved"
+    const occ=rnd()<(kind?(kind==='family'?.5:.25):.62);
+    if(kind){ bayPad(x,r.z,kind);
+      smartLight(x,r.z,occ?RED:PADCOL[kind]);
+      if(kind==='ev'&&((x/3.4)|0)%2===0) evPost(x+1.7,r.z+(r.rot?-2.3:2.3));
+    } else smartLight(x,r.z,occ?RED:GREEN);
+    const suv=rnd()<.34, taxi=rnd()<.07;
+    // footprint test against the goal bay (+1m margin) — the objective must
+    // always be reachable regardless of how the RNG lands
+    const hx=1.0,hz=2.3;
+    const fouls=(x-hx<GOAL.x1+1)&&(x+hx>GOAL.x0-1)&&(r.z-hz<GOAL.z1+1)&&(r.z+hz>GOAL.z0-1);
+    if(occ&&!fouls) makeCar(x,r.z,r.rot+(rnd()-.5)*.04,suv,taxi);
   }
 }
 
@@ -423,6 +517,127 @@ arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive tow
   m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);scene.add(m);
   peds.push(makePed(18,17,'z',15.5,23.5,.75));
   peds.push(makePed(19,23,'z',15.5,23.5,1.0)); }
+
+/* ══ SET DRESSING · the details riders actually notice ════ */
+
+// ── ceiling services: red sprinkler main, grey cable trays, sprinkler heads ──
+{ const redPipe=new THREE.MeshStandardMaterial({color:0xb3252b,metalness:.35,roughness:.55});
+  const tray=new THREE.MeshStandardMaterial({color:0x8d9498,metalness:.55,roughness:.55});
+  const pGeo=new THREE.CylinderGeometry(.09,.09,84,8);
+  for(const lz of [22,6,-10,-24]){
+    const p=new THREE.Mesh(pGeo,redPipe);p.rotation.z=Math.PI/2;p.position.set(0,4.46,lz);scene.add(p);
+  }
+  const trayGeo=new THREE.BoxGeometry(84,.07,.4);
+  for(const lz of [17,-1,-19]){const t=new THREE.Mesh(trayGeo,tray);t.position.set(0,4.5,lz);scene.add(t);}
+  // sprinkler heads dropping off the mains
+  const sGeo=new THREE.CylinderGeometry(.03,.05,.16,6);
+  for(const lz of [22,6,-10,-24]) for(let sx=-36;sx<=36;sx+=6){
+    const s=new THREE.Mesh(sGeo,redPipe);s.position.set(sx,4.33,lz);scene.add(s);
+  }
+}
+
+// ── glass lift + travelator lobby (the way up into the mall) ──
+function liftLobby(x,z){
+  const g=new THREE.Group();
+  const glass=new THREE.MeshStandardMaterial({color:0xbcd6ea,metalness:.35,roughness:.12,
+    transparent:true,opacity:.5});
+  const frame=new THREE.MeshStandardMaterial({color:0x8e959a,metalness:.7,roughness:.35});
+  const inner=new THREE.MeshStandardMaterial({color:0xe6e3dc,emissive:0xcdd6dc,emissiveIntensity:.22,roughness:.85});
+  const core=new THREE.Mesh(new THREE.BoxGeometry(7.4,4.3,4.4),inner);core.position.y=2.15;g.add(core);
+  const gl=new THREE.Mesh(new THREE.BoxGeometry(7.6,3.4,4.6),glass);gl.position.y=1.9;g.add(gl);
+  for(const fx of [-3.8,3.8]){const c=new THREE.Mesh(new THREE.BoxGeometry(.22,4.4,4.7),frame);
+    c.position.set(fx,2.2,0);g.add(c);}
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(7.9,.3,4.9),frame);cap.position.y=4.4;g.add(cap);
+  // header sign
+  const t=canvasTex(512,128,(gg)=>{gg.fillStyle='#0a3d91';gg.fillRect(0,0,512,128);
+    gg.fillStyle='#fff';gg.font='800 44px system-ui';gg.textAlign='center';gg.textBaseline='middle';
+    gg.fillText('▲  TO THE DUBAI MALL',256,64);});
+  const hd=new THREE.Mesh(new THREE.PlaneGeometry(7,1.7),new THREE.MeshBasicMaterial({map:t}));
+  hd.position.set(0,3.3,2.36);g.add(hd);
+  g.position.set(x,0,z);scene.add(g);
+  box(x-3.9,x+3.9,z-2.4,z+2.4);
+  const pl=new THREE.PointLight(0xe8f2ff,.6,16,2);pl.position.set(x,3.4,z+2.6);scene.add(pl);
+}
+liftLobby(16,-23);
+
+// ── shopping-trolley bay (shared geometry, cheap) ──
+{ const wire=new THREE.MeshStandardMaterial({color:0xb9bec1,metalness:.75,roughness:.35});
+  const handleM=new THREE.MeshStandardMaterial({color:0xd8412f,roughness:.6});
+  const basket=new THREE.BoxGeometry(.5,.34,.72), legG=new THREE.BoxGeometry(.05,.36,.05);
+  const handleG=new THREE.BoxGeometry(.5,.05,.05);
+  function trolley(x,z,rotY){
+    const g=new THREE.Group();
+    const b=new THREE.Mesh(basket,wire);b.position.y=.6;b.castShadow=true;g.add(b);
+    const h=new THREE.Mesh(handleG,handleM);h.position.set(0,.86,-.34);g.add(h);
+    for(const [lx,lz] of [[-.2,.3],[.2,.3],[-.2,-.3],[.2,-.3]]){
+      const l=new THREE.Mesh(legG,wire);l.position.set(lx,.2,lz);g.add(l);}
+    g.position.set(x,0,z);g.rotation.y=rotY;scene.add(g);
+  }
+  for(let i=0;i<6;i++) trolley(12.4,-19.4+i*.5,0);
+  for(let i=0;i<4;i++) trolley(20.2,-19.4+i*.5,0);
+  // bay frame + sign
+  const rail=new THREE.MeshStandardMaterial({color:0xc9ac2a,roughness:.6});
+  for(const rx of [11.5,13.3,19.3,21.1]){
+    const r=new THREE.Mesh(new THREE.BoxGeometry(.08,.9,4),rail);r.position.set(rx,.45,-18.4);scene.add(r);}
+  const tt=canvasTex(256,96,(g)=>{g.fillStyle='#c9ac2a';g.fillRect(0,0,256,96);
+    g.fillStyle='#231a06';g.font='800 34px system-ui';g.textAlign='center';g.textBaseline='middle';
+    g.fillText('TROLLEY BAY',128,48);});
+  for(const sx of [12.4,20.2]){
+    const s=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.64),new THREE.MeshBasicMaterial({map:tt}));
+    s.position.set(sx,1.75,-16.3);scene.add(s);}
+}
+
+// ── fire-hose reel cabinets on pillars + green EXIT boxes ──
+{ const red=new THREE.MeshStandardMaterial({color:0xb3252b,roughness:.6});
+  const cab=new THREE.BoxGeometry(.7,.8,.24);
+  for(const [fx,fz] of [[-24,13],[12,13],[-12,-1],[24,-1],[0,-14]]){
+    const c=new THREE.Mesh(cab,red);c.position.set(fx,1.4,fz+.6);c.castShadow=true;scene.add(c);}
+  const ex=canvasTex(256,128,(g)=>{g.fillStyle='#0f8f45';g.fillRect(0,0,256,128);
+    g.fillStyle='#fff';g.font='800 40px system-ui';g.textAlign='center';g.textBaseline='middle';
+    g.fillText('EXIT',96,64);
+    g.beginPath();g.arc(178,40,10,0,7);g.fill();                       // running man
+    g.lineWidth=9;g.strokeStyle='#fff';g.lineCap='round';
+    g.beginPath();g.moveTo(178,54);g.lineTo(176,84);g.stroke();
+    g.beginPath();g.moveTo(176,84);g.lineTo(162,108);g.moveTo(176,84);g.lineTo(196,104);g.stroke();
+    g.beginPath();g.moveTo(178,62);g.lineTo(200,72);g.stroke();
+    g.fillStyle='#fff';g.font='800 22px system-ui';g.fillText('▶',232,64);});
+  const exG=new THREE.PlaneGeometry(1.5,.75);
+  for(const [ex1,ez,ry] of [[-38,24,Math.PI/2],[38,24,-Math.PI/2],[-38,-12,Math.PI/2],[38,-12,-Math.PI/2]]){
+    const s=new THREE.Mesh(exG,new THREE.MeshBasicMaterial({map:ex}));
+    s.position.set(ex1,3.9,ez);s.rotation.y=ry;scene.add(s);}
+}
+
+// ── height-restriction bar over the entry (2.1 M — the rider's daily check) ──
+{ const ht=canvasTex(256,64,(g)=>{g.fillStyle='#e8c81e';g.fillRect(0,0,256,64);
+    g.fillStyle='#1c1a17';for(let i=0;i<8;i++){g.save();g.translate(i*32,0);
+      g.beginPath();g.moveTo(0,0);g.lineTo(16,0);g.lineTo(32,64);g.lineTo(16,64);g.closePath();g.fill();g.restore();}
+    g.fillStyle='#1c1a17';g.font='800 30px system-ui';g.textAlign='center';g.textBaseline='middle';
+    g.fillText('MAX HEIGHT  2.10 M',128,32);},2,1);
+  const bar=new THREE.Mesh(new THREE.BoxGeometry(13,.5,.16),
+    new THREE.MeshStandardMaterial({map:ht,roughness:.7}));
+  bar.position.set(0,2.65,28.4);scene.add(bar);
+  const post=new THREE.MeshStandardMaterial({color:0x9aa0a2,metalness:.5,roughness:.5});
+  for(const px of [-6.6,6.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.22,2.9,.22),post);
+    p.position.set(px,1.45,28.4);p.castShadow=true;scene.add(p);box(px-.2,px+.2,28.2,28.6);}
+}
+
+// ── giant painted level number on the side walls ──
+{ const lt=canvasTex(512,512,(g)=>{g.clearRect(0,0,512,512);
+    g.fillStyle='rgba(120,126,128,.42)';g.font='800 300px system-ui';
+    g.textAlign='center';g.textBaseline='middle';g.fillText('P2',256,240);
+    g.font='800 64px system-ui';g.fillText('LEVEL',256,420);});
+  for(const [wx,ry] of [[-43.4,Math.PI/2],[43.4,-Math.PI/2]]){
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(4.4,4.4),
+      new THREE.MeshBasicMaterial({map:lt,transparent:true,depthWrite:false}));
+    m.position.set(wx,2.4,-20);m.rotation.y=ry;scene.add(m);}
+}
+
+// ── zone-coloured aisle edge stripes (paint that tells you which zone you're in) ──
+for(const zn of ZONES){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(76,.22),
+    new THREE.MeshBasicMaterial({color:zn.col,transparent:true,opacity:.75,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.set(0,.022,zn.z+(zn.z>10?3.1:3.1));scene.add(m);
+}
 
 /* ══ MALL SIGNAGE (the relatable part) ═══════════════════ */
 // wayfinding gantry — blue, mall destinations + arrows
@@ -480,7 +695,6 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
   const gl=new THREE.PointLight(0xdcecff,.7,20,2);gl.position.set(-8,3,-23);scene.add(gl); }
 
 /* ══ TALABAT EXPRESS PICKUP BAY (goal) ═══════════════════ */
-const GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
 { const t=canvasTex(256,256,(g)=>{ g.fillStyle='#FF5900';g.fillRect(0,0,256,256);
     g.strokeStyle='#F4EDE3';g.lineWidth=12;g.strokeRect(10,10,236,236);
     g.fillStyle='#F4EDE3';g.font='800 40px system-ui';g.textAlign='center';g.textBaseline='middle';
@@ -492,8 +706,9 @@ const GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
   smartLight(-8,15,BRAND.orange);
   // hanging talabat bay sign
   const st=canvasTex(512,160,(g)=>{g.fillStyle='#411517';g.fillRect(0,0,512,160);
-    g.fillStyle='#FF5900';g.font='800 56px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',210,80);
-    g.fillStyle='#F4EDE3';g.font='800 34px system-ui';g.fillText('RIDER BAY',400,80);});
+    g.fillStyle='#FF5900';g.font='800 52px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',152,80);
+    g.fillStyle='rgba(244,237,227,.35)';g.fillRect(268,34,3,92);
+    g.fillStyle='#F4EDE3';g.font='800 32px system-ui';g.fillText('RIDER BAY',384,80);});
   const sgn=new THREE.Mesh(new THREE.PlaneGeometry(5,1.6),new THREE.MeshBasicMaterial({map:st}));
   sgn.position.set(-8,3.5,15);sgn.rotation.y=0;scene.add(sgn);
   const pl=new THREE.PointLight(0xff7a20,.9,16,2);pl.position.set(-8,3.8,15);scene.add(pl);
@@ -505,15 +720,17 @@ const JUNCTIONS=[];   // no quiz overlay — guided by signage + beacon
 
 
 /* ══ ASSET BUILDER · TALABAT BIKE ══════════════════════════ */
-const bikeG=new THREE.Group(),leanG=new THREE.Group();
-bikeG.add(leanG);scene.add(bikeG);
+// procG holds the procedural stand-in; it is hidden the moment the
+// branded GLB finishes loading (and stays visible if the GLB can't load).
+const bikeG=new THREE.Group(),leanG=new THREE.Group(),procG=new THREE.Group();
+bikeG.add(leanG);leanG.add(procG);scene.add(bikeG);
 let frontFork,frontWheel,rearWheel;
 {
   const orange=new THREE.MeshStandardMaterial({color:BRAND.orange,metalness:.6,roughness:.35});
   const black=new THREE.MeshStandardMaterial({color:0x17090a,roughness:.7});
   const rubber=new THREE.MeshStandardMaterial({color:0x121212,roughness:.95});
   const chrome=new THREE.MeshStandardMaterial({color:0x999999,metalness:.9,roughness:.3});
-  const add=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;leanG.add(m);return m;};
+  const add=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;procG.add(m);return m;};
   add(new THREE.Mesh(new THREE.BoxGeometry(.34,.1,.8),orange),0,.36,.05);
   add(new THREE.Mesh(new THREE.BoxGeometry(.13,.62,.13),orange),0,.68,.55).rotation.x=-.28;
   add(new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.56,8),chrome),0,1.02,.64).rotation.z=Math.PI/2;
@@ -523,7 +740,7 @@ let frontFork,frontWheel,rearWheel;
   const logoT=canvasTex(128,96,(g)=>{g.fillStyle='#FF5900';g.fillRect(0,0,128,96);
     g.fillStyle='#F4EDE3';g.font='800 30px system-ui';g.textAlign='center';g.fillText('talabat',64,58);});
   const logo=new THREE.Mesh(new THREE.PlaneGeometry(.42,.32),new THREE.MeshBasicMaterial({map:logoT}));
-  logo.position.set(0,.88,-.8);logo.rotation.y=Math.PI;leanG.add(logo);
+  logo.position.set(0,.88,-.8);logo.rotation.y=Math.PI;procG.add(logo);
   add(new THREE.Mesh(new THREE.SphereGeometry(.05,10,8),
     new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfff6dd,emissiveIntensity:2.5})),0,.84,.7);
   const beam=new THREE.PointLight(0xffeecc,.7,8,2);beam.position.set(0,.8,1.2);leanG.add(beam);
@@ -532,8 +749,8 @@ let frontFork,frontWheel,rearWheel;
     t.rotation.y=Math.PI/2;t.castShadow=true;
     const hub=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.09,10),chrome);
     hub.rotation.z=Math.PI/2;w.add(t,hub);return w;}
-  rearWheel=wheel();rearWheel.position.set(0,.245,-.52);leanG.add(rearWheel);
-  frontFork=new THREE.Group();frontFork.position.set(0,.245,.62);leanG.add(frontFork);
+  rearWheel=wheel();rearWheel.position.set(0,.245,-.52);procG.add(rearWheel);
+  frontFork=new THREE.Group();frontFork.position.set(0,.245,.62);procG.add(frontFork);
   frontWheel=wheel();frontFork.add(frontWheel);
   // ── rider (talabat kit) ──
   const jacket=new THREE.MeshStandardMaterial({color:0xff5900,roughness:.5,metalness:.15});
@@ -555,7 +772,7 @@ let frontFork,frontWheel,rearWheel;
   { const bt=canvasTex(256,96,(g)=>{g.clearRect(0,0,256,96);
       g.fillStyle='#F4EDE3';g.font='800 62px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',128,54);});
     const bp=new THREE.Mesh(new THREE.PlaneGeometry(.28,.1),new THREE.MeshBasicMaterial({map:bt,transparent:true}));
-    bp.position.set(0,1.2,-.16); bp.rotation.y=Math.PI; bp.rotation.x=-.32; leanG.add(bp); }
+    bp.position.set(0,1.2,-.16); bp.rotation.y=Math.PI; bp.rotation.x=-.32; procG.add(bp); }
   // backpack (orange rectangular) with dark straps
   const pack=add(new THREE.Mesh(new THREE.BoxGeometry(.32,.36,.14),bag),0,1.22,-.22); pack.rotation.x=.32;
   add(new THREE.Mesh(new THREE.BoxGeometry(.05,.5,.03),strap),-.12,1.24,-.03).rotation.x=.32;
@@ -580,6 +797,56 @@ let frontFork,frontWheel,rearWheel;
     add(new THREE.Mesh(new THREE.BoxGeometry(.1,.22,.12),pants),sx,.62,.3);
     add(new THREE.Mesh(new THREE.BoxGeometry(.11,.07,.2),strap),sx,.5,.36); // shoe
   }
+}
+
+/* ══ BRANDED SCOOTER GLB ═══════════════════════════════════
+   The real talabat rider asset. Loaded async and swapped in over the
+   procedural stand-in — if it 404s or GLTFLoader is missing, the
+   stand-in simply stays and the game is unaffected.                  */
+const GLB={url:'assets/rider_scooter.glb',yaw:0,height:1.82,loaded:false};
+// soft contact shadow so whichever bike is showing reads as grounded
+{ const t=canvasTex(64,64,(g)=>{ const r=g.createRadialGradient(32,32,2,32,32,30);
+    r.addColorStop(0,'rgba(0,0,0,.5)');r.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=r;g.fillRect(0,0,64,64); });
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(1.5,2.1),
+    new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.y=.012;bikeG.add(m); }
+if(typeof THREE.GLTFLoader==='function'){
+  new THREE.GLTFLoader().load(GLB.url,(gltf)=>{
+    const root=gltf.scene;
+    root.updateWorldMatrix(true,true);
+    const bb=new THREE.Box3().setFromObject(root);
+    const size=bb.getSize(new THREE.Vector3()),ctr=bb.getCenter(new THREE.Vector3());
+    if(!isFinite(size.y)||size.y<1e-4)return;                 // degenerate → keep stand-in
+    const s=GLB.height/size.y;
+    root.scale.setScalar(s);
+    // centre on X/Z, sit exactly on the floor
+    root.position.set(-ctr.x*s,-bb.min.y*s,-ctr.z*s);
+    root.traverse(o=>{
+      if(!o.isMesh)return;
+      o.castShadow=true;o.receiveShadow=false;
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      for(const mt of mats){ if(!mt)continue;
+        mt.envMapIntensity=.45;
+        if(mt.map)mt.map.encoding=THREE.sRGBEncoding;
+        mt.side=THREE.FrontSide;                              // doubleSided → halves the fill cost
+        mt.needsUpdate=true; }
+    });
+    // yaw pivot so the model faces the game's forward axis (+Z)
+    const pivot=new THREE.Group();pivot.rotation.y=GLB.yaw;pivot.add(root);
+    leanG.add(pivot);
+    // the one brand touch the supplied model is missing: wordmark on the
+    // back face of the delivery box, mounted from the measured bounds
+    const lb=new THREE.Box3().setFromObject(pivot),ls=lb.getSize(new THREE.Vector3());
+    const lt=canvasTex(512,192,(g)=>{g.clearRect(0,0,512,192);
+      g.fillStyle='#F4EDE3';g.font='800 118px system-ui';g.textAlign='center';g.textBaseline='middle';
+      g.fillText('talabat',256,104);});
+    const dec=new THREE.Mesh(new THREE.PlaneGeometry(ls.x*.52,ls.x*.195),
+      new THREE.MeshBasicMaterial({map:lt,transparent:true,depthWrite:false}));
+    dec.position.set(0,ls.y*.68,-ls.z*.5+.02);dec.rotation.y=Math.PI;
+    leanG.add(dec);GLB.decal=dec;
+    procG.visible=false;GLB.loaded=true;GLB.root=pivot;
+  },undefined,()=>{ /* keep the procedural stand-in */ });
 }
 
 /* ══ PHYSICS CONTROLLER ════════════════════════════════════ */
