@@ -843,19 +843,42 @@ const railM=new THREE.MeshStandardMaterial({color:0xc99a51,metalness:.92,roughne
 function mazeWall(x0,x1,z){
   const w=x1-x0, m=new THREE.Mesh(new THREE.BoxGeometry(w,.85,.34),barM);
   m.position.set((x0+x1)/2,.42,z);m.castShadow=true;m.receiveShadow=true;SCENE.add(m);
-  // brass top rail — hero moment, reads as a real hotel valet barrier
   const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.06,.36),railM);
   rail.position.set((x0+x1)/2,.88,z);SCENE.add(rail);
   box(x0,x1,z-.2,z+.2);
 }
-// Barriers sit in the AISLES between bay rows (never in a row itself).
-// Real aisle gaps at Mall: z=17-22, z=3-8, z=-11..-1.
-// Aisle A · z=20 — first fork after entry. Gap x=-3 to +3 forces central entry.
+// north-south wall — splits a zone into east/west corridors
+function mazeWallV(x,z0,z1){
+  const d=z1-z0, m=new THREE.Mesh(new THREE.BoxGeometry(.34,.85,d),barM);
+  m.position.set(x,.42,(z0+z1)/2);m.castShadow=true;m.receiveShadow=true;SCENE.add(m);
+  const rail=new THREE.Mesh(new THREE.BoxGeometry(.36,.06,d),railM);
+  rail.position.set(x,.88,(z0+z1)/2);SCENE.add(rail);
+  box(x-.2,x+.2,z0,z1);
+}
+// ── MAZE V2 · corridor grid with dead ends and wrong routes ────
+// Horizontal barriers in the aisles between bay rows (never in a row).
+// Aisle A · z=20 — entry gate. Gap x=-3 to +3 (central chute only).
 mazeWall(-38,-3,20);   mazeWall( 3,38,20);
-// Aisle B · z=6 — separates the goal area from the south wings. Gap x=-3 to +3.
-mazeWall(-38,-3,6);    mazeWall( 3,38,6);
-// Aisle C · z=-8 — divides the south Fashion/Cinema wings from below. Gap x=-3 to +3.
-mazeWall(-38,-3,-8);   mazeWall( 3,38,-8);
+// Aisle B · z=6 — splits Zone 2 (Rider Bay) from Zone 3 (wrong).
+// Two gaps: x=-16 to -12 (west, correct return) + x=13 to 17 (east, wrong).
+mazeWall(-38,-16,6);   mazeWall(-12,13,6);   mazeWall(17,38,6);
+// Aisle C · z=-8 — separates south wings. Gap only at x=-20 to -16 (very west, trap).
+mazeWall(-38,-20,-8);  mazeWall(-16,38,-8);
+// ── Vertical dividers · turn the open zones into corridors ──
+// Zone 2 (spawn side): narrow chute above aisle A gap so entry stays central
+mazeWallV( 6, 17, 20);            // east side of central chute
+mazeWallV(-6, 17, 20);            // west side of central chute
+// Zone 3 pockets — trap the wrong-turn rider around each decoy
+mazeWallV( 20, -8, 6);            // east extreme wall — FAMILY/HOTEL pocket boundary
+mazeWallV( 22, -8,-6);            // HOTEL sub-pocket back wall
+mazeWallV( 10, -8,-2);            // east corridor west edge (creates FAMILY pocket)
+mazeWallV(-10, -6, 4);            // west Zone 3 pocket around FIRE EXIT
+mazeWall (-16,-10, 4);            // horizontal top of west pocket
+// Zone 4 pockets — LOADING dead-end (accessible only via extreme west)
+mazeWallV( 10,-27,-8);            // Zone 4 east divider — traps LOADING behind it
+mazeWallV(-10,-14,-8);            // Zone 4 west divider — ACCESS at back
+mazeWall (-16,-4,-14);            // horizontal wall — LOADING dead-end north face
+mazeWall (  4, 10,-14);           // extension of dead-end wall
 
 // ── DECOY BAYS · wrong-park training ──────────────────────
 // Each decoy is a floor tile with obvious wrong colour + label. The bike
@@ -874,10 +897,17 @@ function decoyBay(x,z,label,sub,color){
   return {x0:x-1.6,x1:x+1.6,z0:z-2.3,z1:z+2.3,label,sub};
 }
 const MALL_DECOYS=[
-  decoyBay( 15,15,'CUSTOMER','Blue bays only','#1f4fa8'),
-  decoyBay( 22,15,'EV ONLY','Green charging bay','#1e8a3a'),
-  decoyBay(-15,-3,'FIRE EXIT','Keep clear','#9c1d1d'),
-  decoyBay( 15,-3,'FAMILY','Reserved','#a3286d'),
+  // Zone 2 (goal zone) traps — east corridor after central chute
+  decoyBay( 15, 15,'CUSTOMER','Blue bays only',      '#1f4fa8'),
+  decoyBay( 25, 15,'EV ONLY', 'Green charging bay',  '#1e8a3a'),
+  // Zone 3 traps — wrong side of aisle B
+  decoyBay( 15, -3,'FAMILY',  'Reserved',            '#a3286d'),
+  decoyBay( 25, -3,'HOTEL',   'Guests only',         '#8b6a3a'),
+  decoyBay(-15, -3,'FIRE EXIT','Keep clear',         '#9c1d1d'),
+  decoyBay( 25,  3,'STAFF',   'Employees only',      '#5a4028'),
+  // Zone 4 (deep south, wrong route) — visible from center dead end
+  decoyBay(  0,-12,'LOADING', 'Trucks only',         '#8f5a1f'),
+  decoyBay(-24,-12,'ACCESS',  'Wheelchair reserved', '#1f6fa8'),
 ];
 
 // ── etched brass floor arrows guiding the route to the talabat bay ──
@@ -1309,12 +1339,24 @@ const TOWER_JUNCTIONS=[
     rail.position.set((x0+x1)/2,.88,z);SCENE.add(rail);
     box(x0,x1,z-.2,z+.2);
   }
-  // Aisle A · z=17 — separates the drop-off arrivals from the alcove/valet.
-  //   Gap x=-6 to +6 (must pass through the central drop-off circle).
+  function tmazeV(x,z0,z1){
+    const d=z1-z0, m=new THREE.Mesh(new THREE.BoxGeometry(.34,.85,d),tbarM);
+    m.position.set(x,.42,(z0+z1)/2);m.castShadow=true;SCENE.add(m);
+    const rail=new THREE.Mesh(new THREE.BoxGeometry(.36,.06,d),trailM);
+    rail.position.set(x,.88,(z0+z1)/2);SCENE.add(rail);
+    box(x-.2,x+.2,z0,z1);
+  }
+  // ── Horizontal aisles ──
+  // Aisle A · z=17 — arrivals side. Gap x=-6 to +6 (central drop-off).
   tmaze(-28,-6,17);   tmaze(6,28,17);
-  // Aisle B · z=5 — separates the alcove approach from the podium wing.
-  //   Gap x=-16 to -8 forces the west-turn toward the alcove.
-  tmaze(-28,-16,5);   tmaze(-8,28,5);
+  // Aisle B · z=5 — north edge of the alcove approach.
+  //   Two gaps: west x=-16 to -8 (correct) + east x=14 to 18 (wrong, VALET pocket).
+  tmaze(-28,-16,5);   tmaze(-8,14,5);   tmaze(18,28,5);
+  // Aisle C · z=-8 — dead-end division. Only gap x=-16 to -12 (extreme west, wrong).
+  tmaze(-28,-16,-8);  tmaze(-12,28,-8);
+  // ── Vertical dividers ──
+  tmazeV( 22, -8, 5);      // east perimeter — traps VALET/CONCIERGE pocket
+  tmazeV(-22,-18, 5);      // west perimeter — traps LIMO/SERVICE pocket
 
   // DECOY BAYS — the training moment for Tower. Wrong stops teach the
   // rider that valet/guest/service zones are NOT the Rider Alcove.
@@ -1331,9 +1373,15 @@ const TOWER_JUNCTIONS=[
     return {x0:x-1.6,x1:x+1.6,z0:z-2.3,z1:z+2.3,label,sub};
   }
   var TOWER_DECOYS=[
-    decoyBayTower( 22, -2,'VALET','Hotel guests only','#1f4fa8'),
-    decoyBayTower( 10, 10,'GUEST DROP','No parking','#8a2f28'),
-    decoyBayTower(-20,-14,'SERVICE','Staff only','#5a4028'),
+    // Aisle A drop-off wrong bays (north of aisle B, before west turn)
+    decoyBayTower( 10, 10,'GUEST DROP','No parking',    '#8a2f28'),
+    decoyBayTower( -3, 10,'PORTER',    'Bell staff only','#5a4028'),
+    // East pocket — reached via wrong east-turn through aisle B east gap
+    decoyBayTower( 18,  0,'VALET',     'Hotel guests only','#1f4fa8'),
+    decoyBayTower( 18, -5,'CONCIERGE','Reserved',        '#8b6a3a'),
+    // West extreme trap (past aisle C west gap)
+    decoyBayTower(-20,-14,'SERVICE',   'Staff only',      '#5a4028'),
+    decoyBayTower(-20,  0,'LIMO',      'Ambassador cars', '#1a2a4a'),
   ];
 
   // DROP-OFF LANE MARKINGS — sweeping curve, cream painted arrows
