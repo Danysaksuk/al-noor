@@ -75,6 +75,42 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
   background:var(--orange);color:var(--off);font-size:16px;font-weight:800;letter-spacing:.14em;
   font-family:inherit;cursor:pointer}
 .btn:active{transform:scale(.97)}
+.btnGhost{display:block;width:100%;margin-top:10px;padding:12px 0;border:1px solid rgba(217,169,98,.4);border-radius:14px;
+  background:transparent;color:var(--off);font-size:13px;font-weight:700;letter-spacing:.16em;
+  font-family:inherit;cursor:pointer;opacity:.75}
+.btnGhost:active{transform:scale(.97)}
+
+/* scenario select */
+#select{background:rgba(15,11,8,.92);backdrop-filter:blur(6px)}
+.selTitle{font-size:11px;font-weight:800;letter-spacing:.32em;opacity:.55;margin-bottom:18px}
+#selCards{display:flex;flex-direction:column;gap:14px;width:min(92vw,380px)}
+.scard{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,#1a110a,#0e0805);
+  border:1px solid rgba(201,154,81,.55);border-radius:16px;padding:14px 16px;cursor:pointer;
+  box-shadow:0 12px 40px rgba(0,0,0,.55);transition:transform .18s ease,border-color .18s ease}
+.scard:active{transform:scale(.98)}
+.scard.locked{opacity:.5;cursor:not-allowed}
+.swatch{width:56px;height:56px;border-radius:12px;flex:0 0 56px;
+  box-shadow:inset 0 0 0 1px rgba(217,169,98,.4)}
+.scard .mid{flex:1;text-align:left}
+.sname{font-family:"Times New Roman",serif;font-size:20px;font-weight:700;color:#d9a962;letter-spacing:.02em}
+.sdots{margin-top:4px;font-size:10px;letter-spacing:.24em;opacity:.6}
+.sdots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7a6a4a;margin-right:5px}
+.sdots i.on{background:#ff5900}
+.sbest{text-align:right;font-size:10px;letter-spacing:.2em;opacity:.7}
+.sbest b{display:block;font-family:"Times New Roman",serif;font-size:22px;font-weight:700;color:#d9a962;margin-top:3px}
+.sbest b.none{color:#5a4028}
+.newBest{display:none;background:var(--orange);color:#fff;border-radius:99px;padding:4px 12px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;margin-bottom:12px;box-shadow:0 4px 14px rgba(255,89,0,.5)}
+.newBest.show{display:inline-block}
+.gradeBadge{width:120px;height:120px;border-radius:50%;margin:14px auto 4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Times New Roman",serif;font-size:74px;font-weight:700;
+  background:radial-gradient(circle at 30% 30%,#3b2a18,#12100a);
+  border:3px solid #c99a51;color:#d9a962;
+  box-shadow:0 12px 40px rgba(0,0,0,.6),inset 0 0 0 6px rgba(0,0,0,.35)}
+.gradeBadge.S{color:#CFFF00;border-color:#CFFF00;box-shadow:0 12px 40px rgba(207,255,0,.35),inset 0 0 0 6px rgba(0,0,0,.35)}
+.gradeBadge.A{color:#ffd06a;border-color:#e9b95a}
+.gradeBadge.F{color:#ff5a3c;border-color:#ff5a3c}
 
 /* HUD */
 #hud{position:fixed;inset:0;z-index:5;pointer-events:none}
@@ -138,12 +174,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 
 <div id="splash" class="overlay open">
   <div class="logo">talabat</div>
-  <div class="sub">Fashion Avenue Valet · The Dubai Mall · P2</div>
-  <div class="brief">You've picked up from Shake Shack. Follow the mall signs and the green
-    arrows to the glowing <b>talabat Rider Bay</b> on <b>Grand Drive</b>, and park it
-    clean before the clock runs out.<br><br>
-    Drive with <b>WASD / arrows</b> (or thumb controls on mobile).</div>
+  <div class="sub">Rider Academy · Parking Programme</div>
+  <div class="brief">You'll navigate a real Dubai valet basement with a live delivery order.
+    Follow the wayfinding, answer the signboard quiz at each junction,
+    and park at the glowing <b>talabat Rider Bay</b> before the clock runs out.<br><br>
+    Wrong turn at a junction = <b>+20s penalty</b>.</div>
   <div id="tapline">LOADING…</div>
+</div>
+
+<div id="select" class="overlay hidden">
+  <div class="selTitle">CHOOSE  SCENARIO</div>
+  <div id="selCards">
+    <div class="scard dlg" id="cardBasement" data-scen="basement">
+      <div class="swatch" style="background:linear-gradient(135deg,#0f0806 20%,#c99a51 90%,#ff5900)"></div>
+      <div class="mid">
+        <div class="sname">Fashion Avenue Valet</div>
+        <div class="sdots"><i class="on"></i><i class="on"></i><i></i>  DIFFICULTY</div>
+      </div>
+      <div class="sbest">BEST<b id="bestBasement" class="num none">—</b></div>
+    </div>
+    <div class="scard dlg" id="cardTower" data-scen="tower">
+      <div class="swatch" style="background:linear-gradient(135deg,#4a2b18 15%,#f7c98c 50%,#ff9648 85%,#ff5900)"></div>
+      <div class="mid">
+        <div class="sname">Tower Porte-Cochère</div>
+        <div class="sdots"><i class="on"></i><i class="on"></i><i class="on"></i>  DIFFICULTY</div>
+      </div>
+      <div class="sbest">BEST<b id="bestTower" class="num none">—</b></div>
+    </div>
+  </div>
 </div>
 
 <div id="quiz" class="overlay hidden">
@@ -157,26 +215,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
 
 <div id="win" class="overlay hidden">
   <div class="endCard dlg">
-    <div class="endTitle">ORDER PICKED UP</div>
+    <div class="endTitle">ORDER  PICKED  UP</div>
+    <span class="newBest" id="newBestChip">NEW  BEST</span>
+    <div class="gradeBadge" id="gradeBadge">A</div>
     <div class="endBig good num" id="winScore">0</div>
     <div class="endRows">
       <div class="er"><span>Time remaining</span><b class="pos num" id="winTime">0:00</b></div>
       <div class="er"><span>Wrong turns</span><b class="neg num" id="winWrong">0</b></div>
       <div class="er"><span>Penalty time</span><b class="neg num" id="winPen">0s</b></div>
     </div>
-    <button class="btn" id="btnWinAgain">PLAY AGAIN</button>
+    <button class="btn" id="btnWinAgain">PLAY  AGAIN</button>
+    <button class="btnGhost" id="btnWinChange">CHANGE  SCENARIO</button>
   </div>
 </div>
 
 <div id="lose" class="overlay hidden">
   <div class="endCard dlg">
-    <div class="endTitle">ORDER EXPIRED</div>
-    <div class="endBig bad">0:00</div>
+    <div class="endTitle">ORDER  EXPIRED</div>
+    <div class="gradeBadge F">F</div>
     <div class="endRows">
       <div class="er"><span>The customer is waiting…</span><b class="neg">Too slow</b></div>
       <div class="er"><span>Wrong turns</span><b class="neg num" id="loseWrong">0</b></div>
     </div>
-    <button class="btn" id="btnLoseAgain">TRY AGAIN</button>
+    <button class="btn" id="btnLoseAgain">TRY  AGAIN</button>
+    <button class="btnGhost" id="btnLoseChange">CHANGE  SCENARIO</button>
   </div>
 </div>
 
@@ -231,11 +293,19 @@ const pm=new THREE.PMREMGenerator(renderer);pm.compileEquirectangularShader();
   g.fillStyle=gr;g.fillRect(0,0,64,32);
   const tex=new THREE.CanvasTexture(c);tex.mapping=THREE.EquirectangularReflectionMapping;
   scene.environment=pm.fromEquirectangular(tex).texture;tex.dispose(); }
-new THREE.RGBELoader().load('assets/tex/env.hdr',(hdr)=>{
-  hdr.mapping=THREE.EquirectangularReflectionMapping;
-  const t=pm.fromEquirectangular(hdr).texture;
-  scene.environment=t; hdr.dispose();
-});
+// Two HDR envs — one per scenario. Both PMREM'd upfront so scenario
+// switch is instant.
+const ENVS={basement:null,tower:null};
+function loadEnv(name,url){
+  new THREE.RGBELoader().load(url,(hdr)=>{
+    hdr.mapping=THREE.EquirectangularReflectionMapping;
+    ENVS[name]=pm.fromEquirectangular(hdr).texture;
+    hdr.dispose();
+    if(name==='basement') scene.environment=ENVS.basement;   // default
+  });
+}
+loadEnv('basement','assets/tex/env.hdr');
+loadEnv('tower',   'assets/tex/env_tower.hdr');
 
 // ── HDR post-processing: bloom on the warm lights + brass + emissives ──
 // Composer initialises after the renderer + scene + camera are wired.
@@ -255,8 +325,11 @@ let composer=null;
   composer.addPass(bloom);
   addEventListener('resize',()=>{composer.setSize(innerWidth,innerHeight);});
 }
-scene.add(new THREE.AmbientLight(0xe8cd94,.22));
-scene.add(new THREE.HemisphereLight(0xffd58a,0x1a120c,.42));
+// Shared lights — intensities and colours are reassigned in activateScenario()
+// so each scenario has its own lighting mood (Mall: warm dim basement,
+// Tower: bright open covered golden-hour).
+const ambient=new THREE.AmbientLight(0xe8cd94,.22);scene.add(ambient);
+const hemi   =new THREE.HemisphereLight(0xffd58a,0x1a120c,.42);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffdca8,.38);
 sun.position.set(10,28,10);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
@@ -270,6 +343,13 @@ for(const lx of [-24,0,24]) for(const lz of [16,-10]){
   const pl=new THREE.PointLight(0xffcc78,.55,26,2);pl.position.set(lx,4.35,lz);scene.add(pl);
 }
 
+// ── scenario groups: everything Mall-specific goes into mallGroup,
+// everything Tower-specific into towerGroup. Scenario switch toggles
+// visibility instead of rebuilding the scene.
+const mallGroup=new THREE.Group();scene.add(mallGroup);
+const towerGroup=new THREE.Group();towerGroup.visible=false;scene.add(towerGroup);
+let SCENE=mallGroup;                    // active parent — Mall by default
+
 /* ══ ASSET BUILDER ═════════════════════════════════════════ */
 function canvasTex(w,h,draw,rx,ry){
   const c=document.createElement('canvas');c.width=w;c.height=h;
@@ -279,7 +359,11 @@ function canvasTex(w,h,draw,rx,ry){
   t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
   return t;
 }
-const obstacles=[];
+// Obstacles are per-scenario so the bike doesn't collide with the
+// invisible Tower cars while playing Mall (and vice versa).
+// `obstacles` is the active pile — reassigned on scenario switch.
+const mallObstacles=[], towerObstacles=[];
+let obstacles=mallObstacles;
 function box(x0,x1,z0,z1){obstacles.push({x0,x1,z0,z1});}
 
 const carGeo={
@@ -383,8 +467,9 @@ if(typeof THREE.GLTFLoader==='function'){
       cfg.offZ = -ctr.z * s;
       cfg.root = root;
       cfg.ready = true;
-      // spawn every waiting hero of this kind
-      for(const b of HERO_BAYS) if(b.kind===k) spawnHero(b);
+      // spawn every waiting hero of this kind — Mall + Tower both
+      for(const b of HERO_BAYS)       if(b.kind===k) spawnHero(b);
+      for(const b of TOWER_HERO_BAYS) if(b.kind===k) spawnHero(b);
     },undefined,()=>{ /* fetch failed → hero bays of this kind stay empty */ });
   });
 }
@@ -396,16 +481,19 @@ function spawnHero(b){
     if(!o.isMesh||!o.material)return;
     const mats=Array.isArray(o.material)?o.material:[o.material];
     o.material=mats.map(mt=>{
-      if(mt && cfg.paint.includes(mt.name)){
-        // Convert to a MeshPhysicalMaterial so we can add clearcoat — the
-        // shiny automotive lacquer that makes a car look photographed.
-        const nm=new THREE.MeshPhysicalMaterial({
+      if(!mt) return mt;
+      // For the van, strip every material EXCEPT glass — after Draco optimize,
+      // the Cesium ion logo texture is baked into the 'wheels' material used
+      // by the truck body. Full strip gives a clean valet-parked Sprinter.
+      const stripVan = (b.kind==='van' && mt.name!=='glass');
+      if(stripVan || cfg.paint.includes(mt.name)){
+        // MeshPhysicalMaterial + clearcoat = shiny automotive lacquer
+        return new THREE.MeshPhysicalMaterial({
           color:new THREE.Color(b.col),
-          metalness:.85, roughness:.28,
-          clearcoat:1.0, clearcoatRoughness:.05,
-          envMapIntensity:1.15,
+          metalness:.75, roughness:.32,
+          clearcoat:0.9, clearcoatRoughness:.06,
+          envMapIntensity:1.0,
         });
-        return nm;
       }
       return mt;
     });
@@ -418,11 +506,13 @@ function spawnHero(b){
   wrap.add(g);
   wrap.rotation.y=b.rot+cfg.yaw;
   wrap.position.set(b.x,0,b.z);
-  scene.add(wrap);
+  // route into the scenario group so scenario-switch visibility works
+  (b.group==='tower' ? towerGroup : mallGroup).add(wrap);
   const rotated = Math.abs(Math.sin(b.rot))>.5;
   const hx = rotated ? cfg.halfLen : cfg.halfWid;
   const hz = rotated ? cfg.halfWid : cfg.halfLen;
-  box(b.x-hx,b.x+hx,b.z-hz,b.z+hz);
+  // push the collision into the right scenario pile
+  (b.group==='tower' ? towerObstacles : mallObstacles).push({x0:b.x-hx,x1:b.x+hx,z0:b.z-hz,z1:b.z+hz});
 }
 function makeCar(x,z,rotY,suv,taxi,luxe){
   const pool=luxe?luxeMats:carMats;
@@ -443,7 +533,7 @@ function makeCar(x,z,rotY,suv,taxi,luxe){
     const w=new THREE.Mesh(carGeo.wheel,rubberM);
     w.rotation.z=Math.PI/2;w.position.set(wx,.33,wz);g.add(w);
   }
-  g.position.set(x,0,z);g.rotation.y=rotY;scene.add(g);
+  g.position.set(x,0,z);g.rotation.y=rotY;SCENE.add(g);
   const hx=Math.abs(Math.sin(rotY))>.5?2.3:1.0, hz=Math.abs(Math.sin(rotY))>.5?1.0:2.3;
   box(x-hx,x+hx,z-hz,z+hz);
 }
@@ -459,7 +549,7 @@ function makePed(x,z,pathAxis,p0,p1,speed){
     a.position.set(ax,1.14,0);g.add(a);}
   const legL=new THREE.Mesh(new THREE.BoxGeometry(.15,.85,.18),pants);legL.position.set(-.11,.44,0);g.add(legL);
   const legR=legL.clone();legR.position.x=.11;g.add(legR);
-  g.position.set(x,0,z);scene.add(g);
+  g.position.set(x,0,z);SCENE.add(g);
   return {g,legL,legR,axis:pathAxis,p0,p1,dir:1,speed:speed||.9,t:Math.random()*10};
 }
 const peds=[];
@@ -474,10 +564,10 @@ function sign(txt,arrow,x,z,rotY,w){
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(w||5,1.4),
     new THREE.MeshBasicMaterial({map:t}));
-  m.position.set(x,3.4,z);m.rotation.y=rotY;scene.add(m);
+  m.position.set(x,3.4,z);m.rotation.y=rotY;SCENE.add(m);
   const rod=new THREE.Mesh(new THREE.BoxGeometry(.06,.5,.06),
     new THREE.MeshStandardMaterial({color:0x333}));
-  rod.position.set(x,4.3,z);scene.add(rod);
+  rod.position.set(x,4.3,z);SCENE.add(rod);
 }
 
 /* ══ MAP GENERATOR · THE DUBAI MALL · P2 ══════════════════ */
@@ -506,7 +596,7 @@ const floorTex=canvasTex(512,512,(g)=>{
 },9,6);
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
   new THREE.MeshStandardMaterial({map:floorTex,roughness:.32,metalness:.35,color:0x1a1410}));
-floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;SCENE.add(floor);
 
 // ceiling — real photographed hardwood texture (diffuse + bump + roughness),
 // tinted walnut-dark. Replaces the hand-drawn Canvas 2D walnut that read
@@ -525,7 +615,7 @@ const ceil=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
     roughnessMap:ceilRough, roughness:.55, metalness:.05,
     color:0x9c6a3a,
   }));
-ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
+ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;SCENE.add(ceil);
 
 // warm LED trough — two parallel strips running the length of the drive lane
 { const trough=new THREE.MeshBasicMaterial({color:0xffdcaa});
@@ -534,8 +624,8 @@ ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
   const trGeo=new THREE.BoxGeometry(84,.05,.4);
   const brGeo=new THREE.BoxGeometry(84,.16,.6);
   for(const lz of [3.6,-3.6]){
-    const b=new THREE.Mesh(brGeo,brass);b.position.set(0,4.62,lz);scene.add(b);
-    const t=new THREE.Mesh(trGeo,trough);t.position.set(0,4.55,lz);scene.add(t);
+    const b=new THREE.Mesh(brGeo,brass);b.position.set(0,4.62,lz);SCENE.add(b);
+    const t=new THREE.Mesh(trGeo,trough);t.position.set(0,4.55,lz);SCENE.add(t);
   }
   // feature chandelier plane over the drive lane centre — bright honeycomb glow
   const chTex=canvasTex(1024,256,(g)=>{
@@ -549,7 +639,7 @@ ceil.rotation.x=Math.PI/2;ceil.position.y=4.7;scene.add(ceil);
   });
   const ch=new THREE.Mesh(new THREE.PlaneGeometry(38,4),
     new THREE.MeshBasicMaterial({map:chTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
-  ch.rotation.x=Math.PI/2;ch.position.set(0,4.6,0);scene.add(ch);
+  ch.rotation.x=Math.PI/2;ch.position.set(0,4.6,0);SCENE.add(ch);
 }
 
 // perimeter walls — travertine + walnut wainscot band, procedural texture
@@ -584,7 +674,7 @@ const wallRough=loadRep('assets/tex/brick_r.jpg',12,4);wallRough.encoding=THREE.
 const wallMat=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:wallBump,bumpScale:.008,
   roughnessMap:wallRough,roughness:.7,metalness:.06,envMapIntensity:.6});
 const skirtMat=new THREE.MeshStandardMaterial({color:0x1a1108,roughness:.6});
-function wall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);m.receiveShadow=true;scene.add(m);box(x-w/2,x+w/2,z-d/2,z+d/2);}
+function wall(w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),wallMat);m.position.set(x,y,z);m.receiveShadow=true;SCENE.add(m);box(x-w/2,x+w/2,z-d/2,z+d/2);}
 wall(88,4.7,1, 0,2.35,31.5);   // south (entry)
 wall(88,4.7,1, 0,2.35,-27.5);  // north (mall entrance)
 wall(1,4.7,60, 44,2.35,2);     // east
@@ -597,8 +687,10 @@ const ZONES=[
   {name:'CINEMA',      hex:'#2f6fd0', col:0x2f6fd0, z:-8},
 ];
 const zoneOf=z=>ZONES.reduce((a,b)=>Math.abs(b.z-z)<Math.abs(a.z-z)?b:a);
-// the talabat bay rect, declared early so nothing can be parked into it
-const GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
+// the talabat bay rect, declared early so nothing can be parked into it.
+// GOAL is a mutable pointer — reassigned on scenario switch to TOWER_GOAL.
+const MALL_GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
+let GOAL=MALL_GOAL;
 
 // ── pillars: polished cream marble + walnut base + big serif letter + bronze zone plaque ──
 function pillarTex(zoneHex,letter,code){ return canvasTex(256,512,(g)=>{
@@ -636,7 +728,7 @@ for(const z of [25,13,-1,-14]) for(let x=-36;x<=36;x+=12){
   const letter=String.fromCharCode(65+((z>15?0:z>0?1:z>-10?2:3)));
   const code=letter+(10+secN);
   const p=new THREE.Mesh(pgeo,new THREE.MeshStandardMaterial({map:pillarTex(zone.hex,letter,code),roughness:.4,metalness:.15}));
-  p.position.set(x,2.35,z);p.castShadow=p.receiveShadow=true;scene.add(p);
+  p.position.set(x,2.35,z);p.castShadow=p.receiveShadow=true;SCENE.add(p);
   box(x-.52,x+.52,z-.52,z+.52); secN++;
 }
 // pillar uplights — subtle warm pool at the base of every pillar
@@ -647,7 +739,7 @@ const upT=canvasTex(64,64,(g)=>{const r=g.createRadialGradient(32,32,2,32,32,30)
 const upM=new THREE.MeshBasicMaterial({map:upT,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
 for(const z of [25,13,-1,-14]) for(let x=-36;x<=36;x+=12){
   if(Math.abs(x)<5 && z>16) continue;
-  const u=new THREE.Mesh(upG,upM);u.rotation.x=-Math.PI/2;u.position.set(x,.03,z);scene.add(u);
+  const u=new THREE.Mesh(upG,upM);u.rotation.x=-Math.PI/2;u.position.set(x,.03,z);SCENE.add(u);
 }
 
 // ── bay lines: thin brushed-brass strokes, understated (no gaudy RGB balls) ──
@@ -657,7 +749,7 @@ function bayLines(z,x0,x1){ const w=x1-x0;
   const m=new THREE.Mesh(new THREE.PlaneGeometry(w,4.6),
     new THREE.MeshBasicMaterial({map:stallTex.clone(),transparent:true,depthWrite:false}));
   m.material.map.repeat.set(w/3,1);m.material.map.needsUpdate=true;
-  m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.02,z);scene.add(m); }
+  m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.02,z);SCENE.add(m); }
 // smartLight kept as a no-op stub so downstream code doesn't need patching
 function smartLight(){}
 let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
@@ -706,15 +798,15 @@ function bayPad(x,z,rot,kind){
   // face outward from the bay
   if(rot===0)      m.rotation.y=0;
   else if(rot===Math.PI) m.rotation.y=Math.PI;
-  scene.add(m);
+  SCENE.add(m);
 }
 // slim brushed-steel EV charge post
 const evPostGeo=new THREE.BoxGeometry(.22,1.4,.22), evHeadGeo=new THREE.BoxGeometry(.28,.32,.26);
 const evBodyM=new THREE.MeshStandardMaterial({color:0x24201c,roughness:.35,metalness:.75});
 const evHeadM=new THREE.MeshStandardMaterial({color:0xd9a962,emissive:0xffb955,emissiveIntensity:.55,roughness:.4,metalness:.8});
 function evPost(x,z){
-  const p=new THREE.Mesh(evPostGeo,evBodyM);p.position.set(x,.7,z);p.castShadow=true;scene.add(p);
-  const h=new THREE.Mesh(evHeadGeo,evHeadM);h.position.set(x,1.55,z);scene.add(h);
+  const p=new THREE.Mesh(evPostGeo,evBodyM);p.position.set(x,.7,z);p.castShadow=true;SCENE.add(p);
+  const h=new THREE.Mesh(evHeadGeo,evHeadM);h.position.set(x,1.55,z);SCENE.add(h);
   box(x-.18,x+.18,z-.18,z+.18);
 }
 const SPECIAL=[
@@ -746,7 +838,7 @@ const arrowTex=canvasTex(128,128,(g)=>{g.clearRect(0,0,128,128);
   g.strokeStyle='rgba(90,64,32,.6)';g.lineWidth=1.5;g.stroke();});
 function arrow(x,z,rotY){const m=new THREE.Mesh(new THREE.PlaneGeometry(1.7,1.7),
   new THREE.MeshBasicMaterial({map:arrowTex,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.rotation.z=rotY;m.position.set(x,.03,z);scene.add(m);}
+  m.rotation.x=-Math.PI/2;m.rotation.z=rotY;m.position.set(x,.03,z);SCENE.add(m);}
 arrow(0,26,0);arrow(0,22,0);                       // north up entry lane
 arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive toward bay
 
@@ -757,12 +849,12 @@ arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive tow
     g.fillStyle=gr;g.fillRect(0,0,128,32);
     g.fillStyle='#5a4028';for(let i=0;i<12;i++)g.fillRect(i*11,0,2,32);},1,1);
   const hump=new THREE.Mesh(new THREE.BoxGeometry(7,.1,.6),new THREE.MeshStandardMaterial({map:ht,roughness:.4,metalness:.7}));
-  hump.position.set(0,.055,24);scene.add(hump); }
+  hump.position.set(0,.055,24);SCENE.add(hump); }
 
 // crosswalk only — cube-shaped pedestrians were an AAA-immersion killer
 { const cw=canvasTex(64,64,(g)=>{g.clearRect(0,0,64,64);g.fillStyle='rgba(217,169,98,.7)';for(let i=0;i<4;i++)g.fillRect(0,i*16,64,6);},1,1);
   const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,7),new THREE.MeshBasicMaterial({map:cw,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);scene.add(m); }
+  m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);SCENE.add(m); }
 
 /* ══ SET DRESSING · the details riders actually notice ════ */
 
@@ -793,9 +885,9 @@ function liftLobby(x,z){
     gg.fillText('TOWER  ELEVATORS',256,64);});
   const hd=new THREE.Mesh(new THREE.PlaneGeometry(6.4,1.5),new THREE.MeshBasicMaterial({map:t}));
   hd.position.set(0,3.55,2.4);g.add(hd);
-  g.position.set(x,0,z);scene.add(g);
+  g.position.set(x,0,z);SCENE.add(g);
   box(x-3.9,x+3.9,z-2.4,z+2.4);
-  const pl=new THREE.PointLight(0xffb266,.75,16,2);pl.position.set(x,3.4,z+2.6);scene.add(pl);
+  const pl=new THREE.PointLight(0xffb266,.75,16,2);pl.position.set(x,3.4,z+2.6);SCENE.add(pl);
 }
 liftLobby(16,-23);
 
@@ -811,7 +903,7 @@ liftLobby(16,-23);
   const exG=new THREE.PlaneGeometry(1.35,.68);
   for(const [ex1,ez,ry] of [[-38,24,Math.PI/2],[38,24,-Math.PI/2],[-38,-12,Math.PI/2],[38,-12,-Math.PI/2]]){
     const s=new THREE.Mesh(exG,new THREE.MeshBasicMaterial({map:ex}));
-    s.position.set(ex1,3.7,ez);s.rotation.y=ry;scene.add(s);}
+    s.position.set(ex1,3.7,ez);s.rotation.y=ry;SCENE.add(s);}
 }
 
 // entry portal — brass beam and columns, no gaudy hazard tape
@@ -822,10 +914,10 @@ liftLobby(16,-23);
     g.fillText('MAX  HEIGHT   2.10 M',128,32);},2,1);
   const bar=new THREE.Mesh(new THREE.BoxGeometry(13,.4,.14),
     new THREE.MeshStandardMaterial({map:ht,roughness:.5,metalness:.6}));
-  bar.position.set(0,2.7,28.4);scene.add(bar);
+  bar.position.set(0,2.7,28.4);SCENE.add(bar);
   const post=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.92,roughness:.28});
   for(const px of [-6.6,6.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.95,.18),post);
-    p.position.set(px,1.5,28.4);p.castShadow=true;scene.add(p);box(px-.15,px+.15,28.3,28.5);}
+    p.position.set(px,1.5,28.4);p.castShadow=true;SCENE.add(p);box(px-.15,px+.15,28.3,28.5);}
 }
 
 // discreet etched-bronze level plaque, wall-mounted
@@ -838,14 +930,14 @@ liftLobby(16,-23);
   for(const [wx,ry] of [[-43.4,Math.PI/2],[43.4,-Math.PI/2]]){
     const m=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.2),
       new THREE.MeshBasicMaterial({map:lt}));
-    m.position.set(wx,2.5,-20);m.rotation.y=ry;scene.add(m);}
+    m.position.set(wx,2.5,-20);m.rotation.y=ry;SCENE.add(m);}
 }
 
 // hairline brass strips at aisle edges (subtle wayfinding — no primary paint)
 for(const zn of ZONES){
   const m=new THREE.Mesh(new THREE.PlaneGeometry(76,.12),
     new THREE.MeshBasicMaterial({color:0xc99a51,transparent:true,opacity:.55,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(0,.022,zn.z+3.1);scene.add(m);
+  m.rotation.x=-Math.PI/2;m.position.set(0,.022,zn.z+3.1);SCENE.add(m);
 }
 
 /* ══ MALL SIGNAGE (the relatable part) ═══════════════════ */
@@ -861,10 +953,10 @@ function gantry(x,z,rotY,lines){
       if(i<n-1){g.strokeStyle='rgba(217,169,98,.5)';g.lineWidth=2;g.beginPath();g.moveTo(cw*(i+1),24);g.lineTo(cw*(i+1),168);g.stroke();} });
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(11,2.05),new THREE.MeshBasicMaterial({map:t}));
-  m.position.set(x,3.55,z);m.rotation.y=rotY;scene.add(m);
+  m.position.set(x,3.55,z);m.rotation.y=rotY;SCENE.add(m);
   const rodMat=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.9,roughness:.35});
   for(const sx of [-5,5]){const rod=new THREE.Mesh(new THREE.BoxGeometry(.08,1.35,.08),rodMat);
-    rod.position.set(x+(rotY?0:sx),4.27,z+(rotY?sx:0));scene.add(rod);}
+    rod.position.set(x+(rotY?0:sx),4.27,z+(rotY?sx:0));SCENE.add(rod);}
 }
 gantry(0,17.5,0,[{t:'Fashion Ave',a:'‹‹'},{t:'Cinema',a:'››'},{t:'Metro',a:'▲'}]);
 gantry(-24,6,Math.PI/2,[{t:'Fashion Avenue',a:'▲'},{t:'The Souk',a:'▼'}]);
@@ -880,7 +972,7 @@ function zoneBanner(zone,x){
     g.beginPath();g.moveTo(140,100);g.lineTo(372,100);g.stroke();
     g.font='700 22px "Times New Roman",serif';g.fillStyle='#8b6a3a';g.fillText('P2  ·  ZONE',256,128); });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(5.4,1.7),new THREE.MeshBasicMaterial({map:t}));
-  m.position.set(x,3.4,zone.z);m.rotation.y=-Math.PI/2;scene.add(m);
+  m.position.set(x,3.4,zone.z);m.rotation.y=-Math.PI/2;SCENE.add(m);
 }
 zoneBanner(ZONES[0],43.4); zoneBanner(ZONES[1],43.4); zoneBanner(ZONES[2],43.4);
 
@@ -894,7 +986,7 @@ function countBoard(x,z,rotY,zoneName,free){
     g.fillStyle='#ffb955';g.font='800 122px "Courier New",monospace';g.textAlign='right';g.fillText(String(free).padStart(3,'0'),442,178);
     g.fillStyle='#d9a962';g.font='700 22px "Times New Roman",serif';g.textAlign='left';g.fillText('SPACES AVAILABLE',28,216); });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.6),new THREE.MeshBasicMaterial({map:t}));
-  m.position.set(x,3.2,z);m.rotation.y=rotY;scene.add(m);
+  m.position.set(x,3.2,z);m.rotation.y=rotY;SCENE.add(m);
 }
 countBoard(-40,20,Math.PI/2,'GRAND DRIVE',86);
 countBoard(-40,6,Math.PI/2,'FASHION','12');
@@ -923,8 +1015,8 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
       g.fillStyle=rg;g.beginPath();g.arc(dx,160,26,0,7);g.fill();}
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(9,4.4),new THREE.MeshBasicMaterial({map:t}));
-  m.position.set(-8,2.3,-26.9);scene.add(m);
-  const gl=new THREE.PointLight(0xffc98a,.9,22,2);gl.position.set(-8,3,-23);scene.add(gl); }
+  m.position.set(-8,2.3,-26.9);SCENE.add(m);
+  const gl=new THREE.PointLight(0xffc98a,.9,22,2);gl.position.set(-8,3,-23);SCENE.add(gl); }
 
 /* ══ TALABAT RIDER BAY (goal) ═══════════════════
    Restrained luxury: a dark polished tile with a brushed-brass border and
@@ -943,10 +1035,10 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
     g.fillStyle='#d9a962';g.font='700 34px "Times New Roman",serif';g.fillText('RIDER  BAY',256,338);
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(4.8,4.8),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(-8,.04,15);scene.add(m);
+  m.rotation.x=-Math.PI/2;m.position.set(-8,.04,15);SCENE.add(m);
   // subtle warm halo — pulses gently instead of glowing lime
   const glow=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),new THREE.MeshBasicMaterial({color:0xff8a3c,transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending}));
-  glow.rotation.x=-Math.PI/2;glow.position.set(-8,.05,15);scene.add(glow);window._goalGlow=glow;
+  glow.rotation.x=-Math.PI/2;glow.position.set(-8,.05,15);SCENE.add(glow);window._goalGlow=glow;
   // hanging premium sign — dark card, brass border, warm-lit talabat + serif RIDER BAY
   const st=canvasTex(512,160,(g)=>{
     g.fillStyle='#c99a51';g.fillRect(0,0,512,160);
@@ -956,17 +1048,291 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
     g.fillStyle='#d9a962';g.font='700 30px "Times New Roman",serif';g.fillText('RIDER  BAY',388,84);
   });
   const sgn=new THREE.Mesh(new THREE.PlaneGeometry(5,1.6),new THREE.MeshBasicMaterial({map:st}));
-  sgn.position.set(-8,3.5,15);sgn.rotation.y=0;scene.add(sgn);
+  sgn.position.set(-8,3.5,15);sgn.rotation.y=0;SCENE.add(sgn);
   // brass rods holding the sign
   const rodMat=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.9,roughness:.35});
   for(const sx of [-2.2,2.2]){const rod=new THREE.Mesh(new THREE.BoxGeometry(.08,1.1,.08),rodMat);
-    rod.position.set(-8+sx,4.15,15);scene.add(rod);}
-  const pl=new THREE.PointLight(0xffb266,1.1,14,2);pl.position.set(-8,3.6,15);scene.add(pl);
+    rod.position.set(-8+sx,4.15,15);SCENE.add(rod);}
+  const pl=new THREE.PointLight(0xffb266,1.1,14,2);pl.position.set(-8,3.6,15);SCENE.add(pl);
 }
 const beacon=new THREE.Mesh(new THREE.OctahedronGeometry(.28),new THREE.MeshStandardMaterial({color:0xd9a962,emissive:0xff7a20,emissiveIntensity:.6,metalness:.9,roughness:.28}));
-beacon.position.set(-8,2.6,15);scene.add(beacon);
+beacon.position.set(-8,2.6,15);SCENE.add(beacon);
 
-const JUNCTIONS=[];   // no quiz overlay — guided by signage + beacon
+// ── junction quiz sensors (the core game loop from 3Dgame.md).
+// The bike auto-decelerates on entry; a signboard opens with 3 answers.
+// Wrong = +20s penalty + red flash + buzz. Correct = path opens.
+// JUNCTIONS is a let binding — reassigned per scenario on activateScenario().
+const MALL_JUNCTIONS=[
+  { id:'P2-A', x:  0, z:22, r:2.2,
+    rows:[['Grand Drive',   '←'],
+          ['Fashion Ave',   '→'],
+          ['Metro Link',    '↑']],
+    opts:[
+      {label:'P1', correct:false},
+      {label:'P2', correct:true},
+      {label:'P3', correct:false},
+    ],
+    q:'Which floor is the Talabat Rider Bay on?' },
+  { id:'P2-B', x: -4, z:19, r:2.2,
+    rows:[['talabat Rider Bay',   '←'],
+          ['Public Parking',      '→'],
+          ['Elevators',           '↑']],
+    opts:[
+      {label:'← West', correct:true},
+      {label:'→ East', correct:false},
+      {label:'↑ North',correct:false},
+    ],
+    q:'Which way to the Talabat Pickup Bay?' },
+  { id:'P2-C', x:-14, z:18, r:2.2,
+    rows:[['ORANGE — Talabat Express',  '✓'],
+          ['BLUE — Customer Parking',   '✗'],
+          ['GREEN — EV Charging',       '✗']],
+    opts:[
+      {label:'Blue',   correct:false},
+      {label:'Orange', correct:true},
+      {label:'Green',  correct:false},
+    ],
+    q:'The Rider Bay is marked in which colour?' },
+  { id:'P2-D', x: -3.5, z:18, r:1.8,
+    rows:[['Speed limit inside garage'],
+          ['(km/h)']],
+    opts:[
+      {label:'5',  correct:false},
+      {label:'10', correct:true},
+      {label:'25', correct:false},
+    ],
+    q:'What is the maximum speed inside the P2 parking level?' },
+];
+let JUNCTIONS=MALL_JUNCTIONS;         // active junction list — reassigned per scenario
+
+
+/* ══ TOWER PORTE-COCHÈRE (scenario 2) ═══════════════════════════════════
+   Warm covered hotel drop-off. Cream travertine + sandstone columns +
+   coffered canopy + palm silhouettes + distant tower backdrop. Everything
+   goes into towerGroup so the Mall scene can hide with visibility=false.  */
+const TOWER_GOAL={x0:-22,x1:-16,z0:-3,z1:3,cx:-19,cz:0};   // rider alcove on the west edge
+const TOWER_JUNCTIONS=[
+  { id:'T1', x:18, z:20, r:2.2,
+    rows:[['Guest Drop-off',   '↑'],
+          ['Valet Stand',      '→'],
+          ['Rider Alcove',     '←']],
+    opts:[
+      {label:'Drop-off circle', correct:false},
+      {label:'Valet stand',     correct:false},
+      {label:'Rider alcove',    correct:true},
+    ],
+    q:'Where does a Talabat rider park at the Tower Porte-Cochère?' },
+  { id:'T2', x:-4, z:8, r:2.2,
+    rows:[['Approach the alcove'],
+          ['and stop clean of'],
+          ['the guest lane']],
+    opts:[
+      {label:'Yes', correct:true},
+      {label:'No — park anywhere', correct:false},
+    ],
+    q:'Should you keep the guest drop-off lane clear at all times?' },
+];
+{ // ── build the Tower environment into towerGroup ────────────────
+  const SCENE=towerGroup;               // shadow so appended geometry is scoped
+  const _restoreObs=obstacles; obstacles=towerObstacles;   // route box() into Tower's pile
+
+  // FLOOR — polished cream travertine, brass inlays around the drop-off
+  const trTex=canvasTex(512,512,(g)=>{
+    const bg=g.createRadialGradient(256,256,20,256,256,340);
+    bg.addColorStop(0,'#f4e6c8');bg.addColorStop(1,'#b89970');
+    g.fillStyle=bg;g.fillRect(0,0,512,512);
+    for(let i=0;i<18;i++){g.strokeStyle=`rgba(140,100,60,${.06+Math.random()*.1})`;
+      g.lineWidth=.5+Math.random()*1.4;g.beginPath();
+      const y=Math.random()*512;g.moveTo(0,y);g.bezierCurveTo(160,y+4,320,y-4,512,y+2);g.stroke();}
+    for(let i=0;i<400;i++){g.fillStyle=`rgba(90,60,30,${.04+Math.random()*.1})`;
+      g.beginPath();g.arc(Math.random()*512,Math.random()*512,.4+Math.random()*1.2,0,7);g.fill();}
+    g.strokeStyle='#c99a51';g.lineWidth=2;g.strokeRect(0,0,512,512);
+  },10,7);
+  const tFloor=new THREE.Mesh(new THREE.PlaneGeometry(92,60),
+    new THREE.MeshStandardMaterial({map:trTex,roughness:.35,metalness:.25,color:0xe8d4a8}));
+  tFloor.rotation.x=-Math.PI/2;tFloor.receiveShadow=true;SCENE.add(tFloor);
+
+  // COFFERED CANOPY — grid of shallow indents overhead + warm downlights
+  const ceilM=new THREE.MeshStandardMaterial({color:0x5a4028,roughness:.75,metalness:.1});
+  // extend the canopy edge-to-edge so the sunset HDR doesn't blow out
+  // the ground under the porte-cochère
+  const tCeil=new THREE.Mesh(new THREE.PlaneGeometry(66,50),ceilM);
+  tCeil.rotation.x=Math.PI/2;tCeil.position.y=6.6;SCENE.add(tCeil);
+  // south drop-fascia (canopy lip) — hides the sun coming from the drop-off side
+  const fascia=new THREE.Mesh(new THREE.BoxGeometry(66,1.4,.6),ceilM);
+  fascia.position.set(0,6.0,25);SCENE.add(fascia);
+  // coffer boxes + warm emissive downlights (perf-safe: emissive, no PointLight)
+  const cofM=new THREE.MeshStandardMaterial({color:0x3a2818,roughness:.7,metalness:.1});
+  const dnM=new THREE.MeshStandardMaterial({color:0xffb266,emissive:0xffa64b,emissiveIntensity:.6});
+  const cofG=new THREE.BoxGeometry(3.6,.24,3.6);
+  const dnG=new THREE.CircleGeometry(.55,16);
+  for(let cx=-27;cx<=27;cx+=4.5) for(let cz=-19;cz<=19;cz+=4.5){
+    const c=new THREE.Mesh(cofG,cofM);c.position.set(cx,6.5,cz);SCENE.add(c);
+    const d=new THREE.Mesh(dnG,dnM);d.rotation.x=Math.PI/2;d.position.set(cx,6.36,cz);SCENE.add(d);
+  }
+  // brass canopy edge trim
+  const trimM=new THREE.MeshStandardMaterial({color:0xc99a51,metalness:.85,roughness:.3,
+    emissive:0xffa64b,emissiveIntensity:.12});
+  for(const [w,d,x,z] of [[58,.5,0,21],[58,.5,0,-21],[.5,42,29,0],[.5,42,-29,0]]){
+    const t=new THREE.Mesh(new THREE.BoxGeometry(w,.5,d),trimM);t.position.set(x,6.75,z);SCENE.add(t);
+  }
+
+  // SANDSTONE COLUMNS — cylinder with wider base + capital, 6 total
+  const colM=new THREE.MeshStandardMaterial({color:0xd8bf94,roughness:.7,metalness:.05});
+  const capM=new THREE.MeshStandardMaterial({color:0xa88860,roughness:.5,metalness:.15});
+  const colGeo=new THREE.CylinderGeometry(.5,.5,6,16);
+  const baseGeo=new THREE.CylinderGeometry(.85,.95,.6,16);
+  const capGeo=new THREE.CylinderGeometry(.85,.5,.6,16);
+  const columnAt=(x,z)=>{
+    const shaft=new THREE.Mesh(colGeo,colM);shaft.position.set(x,3,z);shaft.castShadow=true;SCENE.add(shaft);
+    const bs=new THREE.Mesh(baseGeo,capM);bs.position.set(x,.3,z);SCENE.add(bs);
+    const cp=new THREE.Mesh(capGeo,capM);cp.position.set(x,6.3,z);SCENE.add(cp);
+    box(x-.65,x+.65,z-.65,z+.65);
+  };
+  for(const [cx,cz] of [[-25,18],[0,18],[25,18],[-25,-18],[0,-18],[25,-18]]) columnAt(cx,cz);
+
+  // PERIMETER WALL (only on the north side — south opens to the drop-off)
+  const twallM=new THREE.MeshStandardMaterial({color:0xc4a97a,roughness:.72,metalness:.06});
+  const twall=new THREE.Mesh(new THREE.BoxGeometry(60,7,.6),twallM);
+  twall.position.set(0,3.5,-22);twall.receiveShadow=true;SCENE.add(twall);
+  box(-30,30,-22.3,-21.7);
+  // east + west partial walls (for the alcove backing)
+  for(const [w,d,x,z] of [[.6,42,29,0],[.6,42,-29,0]]){
+    const w1=new THREE.Mesh(new THREE.BoxGeometry(w,7,d),twallM);
+    w1.position.set(x,3.5,z);SCENE.add(w1);box(x-w/2,x+w/2,z-d/2,z+d/2);
+  }
+
+  // GOLDEN-HOUR SKY BACKDROP — big gradient plane behind the columns
+  const skyT=canvasTex(1024,512,(g)=>{
+    const gr=g.createLinearGradient(0,0,0,512);
+    gr.addColorStop(0,'#c88a4a');gr.addColorStop(.35,'#f0a460');
+    gr.addColorStop(.55,'#f7c98c');gr.addColorStop(.85,'#e5b382');gr.addColorStop(1,'#7a5a3a');
+    g.fillStyle=gr;g.fillRect(0,0,1024,512);
+    // distant tower silhouettes
+    g.fillStyle='rgba(60,42,30,.7)';
+    g.fillRect(280,180,80,240);g.fillRect(430,140,140,280);g.fillRect(640,200,110,220);
+    // window lights on the tallest tower
+    g.fillStyle='rgba(255,220,150,.65)';
+    for(let ry=180;ry<410;ry+=14)for(let rx=440;rx<560;rx+=12){
+      if(Math.random()<.55)g.fillRect(rx,ry,4,5);
+    }
+    // faint stars
+    g.fillStyle='rgba(255,255,255,.35)';
+    for(let i=0;i<70;i++)g.fillRect(Math.random()*1024,Math.random()*140,1,1);
+  });
+  const sky=new THREE.Mesh(new THREE.PlaneGeometry(180,50),
+    new THREE.MeshBasicMaterial({map:skyT,depthWrite:false,fog:false}));
+  sky.position.set(0,20,-80);SCENE.add(sky);
+
+  // PALM SILHOUETTES — 2D planes with alpha, angled toward camera
+  const palmT=canvasTex(256,512,(g)=>{
+    g.clearRect(0,0,256,512);
+    // trunk
+    g.fillStyle='rgba(30,18,10,.85)';g.fillRect(120,180,16,332);
+    for(let i=0;i<12;i++){g.fillStyle=`rgba(20,12,6,${.4+Math.random()*.4})`;
+      g.fillRect(118,190+i*28,20,4);}
+    // fronds
+    g.fillStyle='rgba(24,60,30,.9)';
+    for(let i=0;i<8;i++){
+      const a=(i/8)*Math.PI*2, r=80+Math.random()*30;
+      const x=128+Math.cos(a)*r, y=170+Math.sin(a)*r*.4;
+      g.save();g.translate(128,170);g.rotate(a);
+      g.beginPath();g.ellipse(0,-70,10,60,0,0,7);g.fill();
+      g.restore();
+    }
+  });
+  const palmM=new THREE.MeshBasicMaterial({map:palmT,transparent:true,depthWrite:false,side:THREE.DoubleSide});
+  for(const [px,pz,sc] of [[-35,-15,3],[35,-15,3.2],[-40,10,2.6],[40,10,2.6],[-42,-2,3.2]]){
+    const p=new THREE.Mesh(new THREE.PlaneGeometry(4*sc,8*sc),palmM);
+    p.position.set(px,3*sc,pz);SCENE.add(p);
+  }
+
+  // DROP-OFF LANE MARKINGS — sweeping curve, cream painted arrows
+  const arrM=new THREE.MeshBasicMaterial({map:arrowTex,transparent:true,depthWrite:false});
+  for(const [ax,az,rot] of [[15,15,0],[8,10,-.4],[0,5,-.7],[-8,0,-1.1],[-15,-4,-1.4]]){
+    const a=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.4),arrM);
+    a.rotation.x=-Math.PI/2;a.rotation.z=rot;a.position.set(ax,.03,az);SCENE.add(a);
+  }
+
+  // GUEST DROP-OFF CIRCLE — polished marble tile (wrong-park zone visual only)
+  const gcT=canvasTex(256,256,(g)=>{
+    const gr=g.createRadialGradient(128,128,20,128,128,120);
+    gr.addColorStop(0,'#f8ecd0');gr.addColorStop(.7,'#d8b98a');gr.addColorStop(1,'#a88860');
+    g.fillStyle=gr;g.fillRect(0,0,256,256);
+    g.strokeStyle='#c99a51';g.lineWidth=6;g.beginPath();g.arc(128,128,116,0,7);g.stroke();
+  });
+  const gc=new THREE.Mesh(new THREE.CircleGeometry(6,32),
+    new THREE.MeshStandardMaterial({map:gcT,roughness:.25,metalness:.3}));
+  gc.rotation.x=-Math.PI/2;gc.position.set(10,.03,12);SCENE.add(gc);
+
+  // RIDER ALCOVE (goal) — dark walnut inlay + brass border + orange emblem
+  const goalT=canvasTex(512,512,(g)=>{
+    const bg=g.createRadialGradient(256,256,20,256,256,320);
+    bg.addColorStop(0,'#2a1c14');bg.addColorStop(1,'#0d0805');
+    g.fillStyle=bg;g.fillRect(0,0,512,512);
+    g.strokeStyle='#c99a51';g.lineWidth=10;g.strokeRect(24,24,464,464);
+    g.strokeStyle='rgba(217,169,98,.5)';g.lineWidth=2;g.strokeRect(44,44,424,424);
+    g.fillStyle='#FF5900';g.font='800 80px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',256,228);
+    g.strokeStyle='rgba(217,169,98,.6)';g.lineWidth=1;g.beginPath();g.moveTo(140,300);g.lineTo(372,300);g.stroke();
+    g.fillStyle='#d9a962';g.font='700 34px "Times New Roman",serif';g.fillText('RIDER  ALCOVE',256,338);
+  });
+  const goalMesh=new THREE.Mesh(new THREE.PlaneGeometry(6,6),
+    new THREE.MeshBasicMaterial({map:goalT,transparent:true,depthWrite:false}));
+  goalMesh.rotation.x=-Math.PI/2;goalMesh.position.set(TOWER_GOAL.cx,.04,TOWER_GOAL.cz);SCENE.add(goalMesh);
+  // warm halo
+  const tGlow=new THREE.Mesh(new THREE.PlaneGeometry(7.5,7.5),
+    new THREE.MeshBasicMaterial({color:0xff8a3c,transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending}));
+  tGlow.rotation.x=-Math.PI/2;tGlow.position.set(TOWER_GOAL.cx,.05,TOWER_GOAL.cz);SCENE.add(tGlow);
+  window._towerGoalGlow=tGlow;
+  // hovering brass beacon (matches Mall's, but scoped to towerGroup)
+  const tbeacon=new THREE.Mesh(new THREE.OctahedronGeometry(.28),
+    new THREE.MeshStandardMaterial({color:0xd9a962,emissive:0xff7a20,emissiveIntensity:.6,metalness:.9,roughness:.28}));
+  tbeacon.position.set(TOWER_GOAL.cx,2.6,TOWER_GOAL.cz);SCENE.add(tbeacon);
+  window._towerBeacon=tbeacon;
+  // hanging alcove sign
+  const asignT=canvasTex(512,160,(g)=>{
+    g.fillStyle='#c99a51';g.fillRect(0,0,512,160);
+    g.fillStyle='#120a06';g.fillRect(5,5,502,150);
+    g.fillStyle='#FF5900';g.font='800 52px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('talabat',132,84);
+    g.strokeStyle='rgba(217,169,98,.6)';g.lineWidth=2;g.beginPath();g.moveTo(252,36);g.lineTo(252,124);g.stroke();
+    g.fillStyle='#d9a962';g.font='700 28px "Times New Roman",serif';g.fillText('RIDER  ALCOVE',388,84);
+  });
+  const asgn=new THREE.Mesh(new THREE.PlaneGeometry(4.5,1.4),new THREE.MeshBasicMaterial({map:asignT}));
+  asgn.position.set(TOWER_GOAL.cx,4.6,TOWER_GOAL.cz);asgn.rotation.y=Math.PI/2;SCENE.add(asgn);
+  const spot=new THREE.PointLight(0xffb266,1.1,14,2);spot.position.set(TOWER_GOAL.cx+1,3.6,TOWER_GOAL.cz);SCENE.add(spot);
+
+  // VALET PODIUM
+  const vpM=new THREE.MeshStandardMaterial({color:0xd8bf94,roughness:.5,metalness:.15});
+  const vpTop=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.9,roughness:.3});
+  const vpost=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.15,.9),vpM);vpost.position.set(24,.575,-6);SCENE.add(vpost);
+  const vtop=new THREE.Mesh(new THREE.BoxGeometry(1.8,.08,1.05),vpTop);vtop.position.set(24,1.19,-6);SCENE.add(vtop);
+  const vsignT=canvasTex(256,128,(g)=>{
+    g.fillStyle='#c99a51';g.fillRect(0,0,256,128);
+    g.fillStyle='#120a06';g.fillRect(4,4,248,120);
+    g.fillStyle='#d9a962';g.font='700 32px "Times New Roman",serif';g.textAlign='center';g.textBaseline='middle';
+    g.fillText('VALET',128,52);g.font='700 20px "Times New Roman",serif';g.fillText('Hotel Guests',128,88);
+  });
+  const vsgn=new THREE.Mesh(new THREE.PlaneGeometry(1.8,.9),new THREE.MeshBasicMaterial({map:vsignT}));
+  vsgn.position.set(24,2.1,-6);SCENE.add(vsgn);
+  box(23,25,-6.6,-5.4);
+
+  // TOWER LIGHTS (warm downlights, few, per coffered ceiling — perf-safe)
+  for(const [lx,lz] of [[-24,10],[0,10],[24,10],[-24,-10],[0,-10],[24,-10]]){
+    const pl=new THREE.PointLight(0xffcc78,.55,22,2);pl.position.set(lx,5.8,lz);SCENE.add(pl);
+  }
+  obstacles=_restoreObs;                // restore for later Mall-scope box() calls
+}
+
+// TOWER hero cars — fewer, curated, hotel-valet mix (red hero, black, champagne van)
+const TOWER_HERO_BAYS=[
+  {x: 3.0, z:12.5, rot:-Math.PI/2, col:0xa11020, kind:'ferrari', group:'tower'},   // hero red drop-off
+  {x: 8.5, z:15.0, rot:-Math.PI/2, col:0x0a0a0d, kind:'concept', group:'tower'},
+  {x:14.0, z:15.0, rot:-Math.PI/2, col:0xdbc48a, kind:'van',     group:'tower'},
+  {x:-12.0,z:12.0, rot: Math.PI,   col:0xe6e2d8, kind:'ferrari', group:'tower'},   // pearl at porte-cochère line
+];
+
+// tag Mall hero bays so the spawner routes them correctly
+for(const b of HERO_BAYS) b.group='basement';
 
 
 /* ══ ASSET BUILDER · TALABAT BIKE ══════════════════════════ */
@@ -1102,7 +1468,8 @@ if(typeof THREE.GLTFLoader==='function'){
 /* ══ PHYSICS CONTROLLER ════════════════════════════════════ */
 const bike={x:0,z:26,heading:Math.PI,speed:0,wheelRot:0,lean:0,hitCd:0};
 const fwd=()=>({x:Math.sin(bike.heading),z:Math.cos(bike.heading)});
-function resetBike(){bike.x=0;bike.z=26;bike.heading=Math.PI;bike.speed=0;bike.hitCd=0;
+function resetBike(){const sp=SCEN.spawn;bike.x=sp.x;bike.z=sp.z;bike.heading=sp.heading;
+  bike.speed=0;bike.hitCd=0;
   bikeG.position.set(bike.x,0,bike.z);bikeG.rotation.y=bike.heading;}
 function physics(dt){
   const th=input.throttle,br=input.brake,steer=input.steer;
@@ -1189,8 +1556,11 @@ const fmt=t=>{t=Math.max(0,Math.ceil(t));return (t/60|0)+':'+String(t%60).padSta
 
 function openQuiz(j){
   $('quizJcn').textContent='JUNCTION '+j.id;
-  $('signBoard').innerHTML=j.rows.map(([t,a])=>
-    `<div class="srow"><span>${t}</span><span class="arr">${a}</span></div>`).join('');
+  $('signBoard').innerHTML=j.rows.map(row=>{
+    const t=row[0], a=row[1]||'';
+    return `<div class="srow"><span>${t}</span><span class="arr">${a}</span></div>`;
+  }).join('');
+  if(j.q) $('quizQ').textContent=j.q;
   $('quizBtns').innerHTML='';
   j.opts.forEach(o=>{
     const b=document.createElement('button');
@@ -1211,29 +1581,97 @@ function answer(j,o){
 }
 
 /* ══ STATE ENGINE ══════════════════════════════════════════ */
+// Active scenario id + config. Each scenario owns its spawn, goal,
+// junctions, obstacles, environment map and hero-cars group.
+const SCENARIOS={
+  basement:{ id:'basement', name:'Fashion Avenue Valet',
+             bestKey:'talabat_best_basement',
+             chip:'<b>#D11482</b> · Shake Shack · Fashion Ave<br><span style="opacity:.8">→ Rider Bay · P2 Fashion Avenue Valet</span>',
+             spawn:{x:0,z:26,heading:Math.PI},
+             goal:MALL_GOAL, junctions:MALL_JUNCTIONS, obstacles:mallObstacles,
+             group:mallGroup, envKey:'basement',
+             exposure:1.02, bgColor:0x0f0b08, fog:[0x120d09,22,64],
+             ambient:{c:0xe8cd94,i:.22}, hemi:{sky:0xffd58a,gnd:0x1a120c,i:.42},
+             sun:{c:0xffdca8,i:.38},
+             ready:true },
+  tower:   { id:'tower',    name:'Tower Porte-Cochère',
+             bestKey:'talabat_best_tower',
+             chip:'<b>#B83104</b> · Café Bateel · Downtown Tower<br><span style="opacity:.8">→ Rider Alcove · Porte-Cochère</span>',
+             spawn:{x:22,z:14,heading:-Math.PI/2},
+             goal:TOWER_GOAL, junctions:TOWER_JUNCTIONS, obstacles:towerObstacles,
+             group:towerGroup, envKey:'tower',
+             // Tower is an open covered space at golden hour — much brighter HDR
+             // than Mall's basement, so pull exposure + ambient way back
+             exposure:0.42, bgColor:0x8a5230, fog:[0x9a6238,28,80],
+             ambient:{c:0xffd0a0,i:.08}, hemi:{sky:0xffd58a,gnd:0x2a180c,i:.14},
+             sun:{c:0xffb066,i:.28},
+             ready:true },
+};
+let SCEN=SCENARIOS.basement;
+// activate a scenario: swap groups, HDR env, junctions, goal, obstacles, and
+// reposition the bike at the scenario's spawn.
+function activateScenario(id){
+  SCEN=SCENARIOS[id];
+  mallGroup.visible = (SCEN.group===mallGroup);
+  towerGroup.visible= (SCEN.group===towerGroup);
+  JUNCTIONS=SCEN.junctions;
+  GOAL=SCEN.goal;
+  obstacles=SCEN.obstacles;
+  if(ENVS[SCEN.envKey]) scene.environment=ENVS[SCEN.envKey];
+  renderer.toneMappingExposure=SCEN.exposure;
+  scene.background=new THREE.Color(SCEN.bgColor);
+  scene.fog=new THREE.Fog(SCEN.fog[0],SCEN.fog[1],SCEN.fog[2]);
+  ambient.color.setHex(SCEN.ambient.c);ambient.intensity=SCEN.ambient.i;
+  hemi.color.setHex(SCEN.hemi.sky);hemi.groundColor.setHex(SCEN.hemi.gnd);hemi.intensity=SCEN.hemi.i;
+  sun.color.setHex(SCEN.sun.c);sun.intensity=SCEN.sun.i;
+  resetBike();
+}
 let state='SPLASH',timeLeft=P.TIME,penalty=0,wrongs=0,camShake=0;
 function setState(s){
   state=s;
   (s==='SPLASH'?showOv:hideOv)($('splash'));
+  (s==='SELECT'?showOv:hideOv)($('select'));
   if(s!=='QUIZ')hideOv($('quiz'));
   (s==='WIN'?showOv:hideOv)($('win'));
   (s==='LOSE'?showOv:hideOv)($('lose'));
   $('hud').classList.toggle('hidden',!(s==='PLAY'||s==='QUIZ'));
+}
+// ── best-score persistence ──────────────────────────────
+function loadBest(scen){ try{const v=+localStorage.getItem(scen.bestKey);return v>0?v:0;}catch(e){return 0;} }
+function saveBest(scen,score){ try{localStorage.setItem(scen.bestKey,String(score));}catch(e){} }
+function refreshBestChips(){
+  for(const id of ['basement','tower']){
+    const el=$('best'+id[0].toUpperCase()+id.slice(1));
+    const v=loadBest(SCENARIOS[id]);
+    if(v>0){el.textContent=v;el.classList.remove('none');}
+    else{el.textContent='—';el.classList.add('none');}
+  }
 }
 function startRun(){
   AC.unlock();vib(15);
   timeLeft=P.TIME;penalty=0;wrongs=0;
   for(const j of JUNCTIONS){j.done=false;j.pending=false;j.asked=false;}
   resetBike();
+  $('orderChip').innerHTML=SCEN.chip;
   $('penVal').textContent='0s';
   setState('PLAY');
-  toast('Follow the arrows — beat the clock');
+  toast('Answer the signboard at each junction — beat the clock');
 }
 $('splash').addEventListener('pointerup',e=>{
-  if(!ready)return;e.preventDefault();AC.unlock();startRun();
+  if(!ready)return;e.preventDefault();AC.unlock();refreshBestChips();setState('SELECT');
+});
+document.querySelectorAll('.scard').forEach(card=>{
+  card.addEventListener('pointerup',e=>{e.preventDefault();
+    const id=card.dataset.scen, s=SCENARIOS[id];
+    if(!s.ready){toast(s.name+' — coming next');vib(20);return;}
+    activateScenario(id);
+    startRun();
+  });
 });
 $('btnWinAgain').addEventListener('pointerup',e=>{e.preventDefault();startRun();});
 $('btnLoseAgain').addEventListener('pointerup',e=>{e.preventDefault();startRun();});
+$('btnWinChange').addEventListener('pointerup',e=>{e.preventDefault();refreshBestChips();setState('SELECT');});
+$('btnLoseChange').addEventListener('pointerup',e=>{e.preventDefault();refreshBestChips();setState('SELECT');});
 document.addEventListener('contextmenu',e=>e.preventDefault());
 
 function step(dt){
@@ -1253,6 +1691,12 @@ function step(dt){
         winStop+=dt;
         if(winStop>.6){
           const score=Math.max(0,Math.round(1000+timeLeft*10-wrongs*100));
+          const grade=score>=1900?'S':score>=1500?'A':score>=1100?'B':score>=700?'C':'F';
+          const badge=$('gradeBadge');badge.textContent=grade;badge.className='gradeBadge '+grade;
+          // NEW BEST — persists per scenario
+          const prev=loadBest(SCEN);
+          if(score>prev){saveBest(SCEN,score);$('newBestChip').classList.add('show');}
+          else $('newBestChip').classList.remove('show');
           $('winTime').textContent=fmt(timeLeft);
           $('winWrong').textContent=wrongs;
           $('winPen').textContent=penalty+'s';
@@ -1341,8 +1785,10 @@ function frame(now){
   leanG.rotation.z=bike.lean;
   frontFork.rotation.y=-input.steer*.45;
   frontWheel.rotation.x=bike.wheelRot;rearWheel.rotation.x=bike.wheelRot;
-  beacon.rotation.y=now*.0018;beacon.position.y=2.3+Math.sin(now*.003)*.15;
-  window._goalGlow.material.opacity=.14+.1*Math.sin(now*.004);
+  const bc=SCEN.id==='tower'?window._towerBeacon:beacon;
+  if(bc){bc.rotation.y=now*.0018;bc.position.y=2.3+Math.sin(now*.003)*.15;}
+  const glow=SCEN.id==='tower'?window._towerGoalGlow:window._goalGlow;
+  if(glow) glow.material.opacity=.14+.1*Math.sin(now*.004);
   for(const p of peds){ // animated pedestrians
     p.t+=dt;
     const v=p.speed*p.dir*dt;
