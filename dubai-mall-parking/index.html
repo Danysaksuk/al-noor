@@ -831,6 +831,55 @@ for(const r of bayRows){
   }
 }
 
+/* ══ MAZE CORRIDOR BARRIERS ════════════════════════════════
+   Waist-high walls with brass top rail divide the open floor into
+   corridors. Gaps become the ONLY passages, so the bike must actually
+   navigate — no more driving in a straight line across an empty room.
+   The junction sensors sit at each gap so the quiz gate fires there. */
+const barGeo=new THREE.BoxGeometry(1,.85,.34);
+const barM=new THREE.MeshStandardMaterial({color:0x1a110a,roughness:.7,metalness:.35});
+const railM=new THREE.MeshStandardMaterial({color:0xc99a51,metalness:.92,roughness:.28,
+  emissive:0xffa64b,emissiveIntensity:.14});
+function mazeWall(x0,x1,z){
+  const w=x1-x0, m=new THREE.Mesh(new THREE.BoxGeometry(w,.85,.34),barM);
+  m.position.set((x0+x1)/2,.42,z);m.castShadow=true;m.receiveShadow=true;SCENE.add(m);
+  // brass top rail — hero moment, reads as a real hotel valet barrier
+  const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.06,.36),railM);
+  rail.position.set((x0+x1)/2,.88,z);SCENE.add(rail);
+  box(x0,x1,z-.2,z+.2);
+}
+// Barriers sit in the AISLES between bay rows (never in a row itself).
+// Real aisle gaps at Mall: z=17-22, z=3-8, z=-11..-1.
+// Aisle A · z=20 — first fork after entry. Gap x=-3 to +3 forces central entry.
+mazeWall(-38,-3,20);   mazeWall( 3,38,20);
+// Aisle B · z=6 — separates the goal area from the south wings. Gap x=-3 to +3.
+mazeWall(-38,-3,6);    mazeWall( 3,38,6);
+// Aisle C · z=-8 — divides the south Fashion/Cinema wings from below. Gap x=-3 to +3.
+mazeWall(-38,-3,-8);   mazeWall( 3,38,-8);
+
+// ── DECOY BAYS · wrong-park training ──────────────────────
+// Each decoy is a floor tile with obvious wrong colour + label. The bike
+// stopping inside triggers a coaching toast, not a win. This is the
+// training moment — teach newbie riders to find the designated spot.
+function decoyBay(x,z,label,sub,color){
+  const t=canvasTex(256,256,(g)=>{
+    g.fillStyle=color;g.fillRect(0,0,256,256);
+    g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=8;g.strokeRect(10,10,236,236);
+    g.fillStyle='#fff';g.font='800 32px system-ui';g.textAlign='center';g.textBaseline='middle';
+    g.fillText(label,128,116);g.font='800 22px system-ui';g.fillText(sub,128,150);
+  });
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,4.6),
+    new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.set(x,.03,z);SCENE.add(m);
+  return {x0:x-1.6,x1:x+1.6,z0:z-2.3,z1:z+2.3,label,sub};
+}
+const MALL_DECOYS=[
+  decoyBay( 15,15,'CUSTOMER','Blue bays only','#1f4fa8'),
+  decoyBay( 22,15,'EV ONLY','Green charging bay','#1e8a3a'),
+  decoyBay(-15,-3,'FIRE EXIT','Keep clear','#9c1d1d'),
+  decoyBay( 15,-3,'FAMILY','Reserved','#a3286d'),
+];
+
 // ── etched brass floor arrows guiding the route to the talabat bay ──
 const arrowTex=canvasTex(128,128,(g)=>{g.clearRect(0,0,128,128);
   g.fillStyle='rgba(217,169,98,.75)';g.beginPath();
@@ -1247,6 +1296,46 @@ const TOWER_JUNCTIONS=[
     p.position.set(px,3*sc,pz);SCENE.add(p);
   }
 
+  // MAZE BARRIERS — same brass-topped railings as Mall. Force the rider
+  // through a specific navigation path: spawn (east) → central chute →
+  // west turn into the alcove, past decoy zones on the way.
+  const tbarM=new THREE.MeshStandardMaterial({color:0x2a1a10,roughness:.65,metalness:.35});
+  const trailM=new THREE.MeshStandardMaterial({color:0xc99a51,metalness:.92,roughness:.28,
+    emissive:0xffa64b,emissiveIntensity:.14});
+  function tmaze(x0,x1,z){
+    const w=x1-x0, m=new THREE.Mesh(new THREE.BoxGeometry(w,.85,.34),tbarM);
+    m.position.set((x0+x1)/2,.42,z);m.castShadow=true;SCENE.add(m);
+    const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.06,.36),trailM);
+    rail.position.set((x0+x1)/2,.88,z);SCENE.add(rail);
+    box(x0,x1,z-.2,z+.2);
+  }
+  // Aisle A · z=17 — separates the drop-off arrivals from the alcove/valet.
+  //   Gap x=-6 to +6 (must pass through the central drop-off circle).
+  tmaze(-28,-6,17);   tmaze(6,28,17);
+  // Aisle B · z=5 — separates the alcove approach from the podium wing.
+  //   Gap x=-16 to -8 forces the west-turn toward the alcove.
+  tmaze(-28,-16,5);   tmaze(-8,28,5);
+
+  // DECOY BAYS — the training moment for Tower. Wrong stops teach the
+  // rider that valet/guest/service zones are NOT the Rider Alcove.
+  function decoyBayTower(x,z,label,sub,color){
+    const t=canvasTex(256,256,(g)=>{
+      g.fillStyle=color;g.fillRect(0,0,256,256);
+      g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=8;g.strokeRect(10,10,236,236);
+      g.fillStyle='#fff';g.font='800 32px system-ui';g.textAlign='center';g.textBaseline='middle';
+      g.fillText(label,128,116);g.font='800 22px system-ui';g.fillText(sub,128,150);
+    });
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,4.6),
+      new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));
+    m.rotation.x=-Math.PI/2;m.position.set(x,.03,z);SCENE.add(m);
+    return {x0:x-1.6,x1:x+1.6,z0:z-2.3,z1:z+2.3,label,sub};
+  }
+  var TOWER_DECOYS=[
+    decoyBayTower( 22, -2,'VALET','Hotel guests only','#1f4fa8'),
+    decoyBayTower( 10, 10,'GUEST DROP','No parking','#8a2f28'),
+    decoyBayTower(-20,-14,'SERVICE','Staff only','#5a4028'),
+  ];
+
   // DROP-OFF LANE MARKINGS — sweeping curve, cream painted arrows
   const arrM=new THREE.MeshBasicMaterial({map:arrowTex,transparent:true,depthWrite:false});
   for(const [ax,az,rot] of [[15,15,0],[8,10,-.4],[0,5,-.7],[-8,0,-1.1],[-15,-4,-1.4]]){
@@ -1323,12 +1412,21 @@ const TOWER_JUNCTIONS=[
   obstacles=_restoreObs;                // restore for later Mall-scope box() calls
 }
 
-// TOWER hero cars — fewer, curated, hotel-valet mix (red hero, black, champagne van)
+// TOWER hero cars — a busier valet mix so the level doesn't read empty.
+// Placed OUTSIDE the maze corridor gaps so navigation stays clear.
 const TOWER_HERO_BAYS=[
-  {x: 3.0, z:12.5, rot:-Math.PI/2, col:0xa11020, kind:'ferrari', group:'tower'},   // hero red drop-off
-  {x: 8.5, z:15.0, rot:-Math.PI/2, col:0x0a0a0d, kind:'concept', group:'tower'},
-  {x:14.0, z:15.0, rot:-Math.PI/2, col:0xdbc48a, kind:'van',     group:'tower'},
-  {x:-12.0,z:12.0, rot: Math.PI,   col:0xe6e2d8, kind:'ferrari', group:'tower'},   // pearl at porte-cochère line
+  // Drop-off arrivals (east side, south of aisle A z=17)
+  {x: 18, z: 25, rot: Math.PI,     col:0xa11020, kind:'ferrari', group:'tower'},   // red hero at valet arrival
+  {x: 25, z: 25, rot: Math.PI,     col:0x0a0a0d, kind:'concept', group:'tower'},
+  {x: 12, z: 22, rot:-Math.PI/2,   col:0xdbc48a, kind:'van',     group:'tower'},
+  // Valet holding row (north of aisle A, mid area)
+  {x:-25, z: 12, rot: 0,           col:0xe6e2d8, kind:'ferrari', group:'tower'},
+  {x:  0, z: 12, rot: 0,           col:0x1a2635, kind:'concept', group:'tower'},
+  // Along the west approach to the alcove
+  {x:-25, z:  0, rot: 0,           col:0x5a1418, kind:'ferrari', group:'tower'},
+  // South wing (Cinema / staff parking side)
+  {x: 20, z:-12, rot: Math.PI,     col:0x2a2a2f, kind:'ferrari', group:'tower'},
+  {x: -8, z:-14, rot: Math.PI,     col:0x14171a, kind:'concept', group:'tower'},
 ];
 
 // tag Mall hero bays so the spawner routes them correctly
@@ -1589,6 +1687,7 @@ const SCENARIOS={
              chip:'<b>#D11482</b> · Shake Shack · Fashion Ave<br><span style="opacity:.8">→ Rider Bay · P2 Fashion Avenue Valet</span>',
              spawn:{x:0,z:26,heading:Math.PI},
              goal:MALL_GOAL, junctions:MALL_JUNCTIONS, obstacles:mallObstacles,
+             decoys:MALL_DECOYS,
              group:mallGroup, envKey:'basement',
              exposure:1.02, bgColor:0x0f0b08, fog:[0x120d09,22,64],
              ambient:{c:0xe8cd94,i:.22}, hemi:{sky:0xffd58a,gnd:0x1a120c,i:.42},
@@ -1597,14 +1696,16 @@ const SCENARIOS={
   tower:   { id:'tower',    name:'Tower Porte-Cochère',
              bestKey:'talabat_best_tower',
              chip:'<b>#B83104</b> · Café Bateel · Downtown Tower<br><span style="opacity:.8">→ Rider Alcove · Porte-Cochère</span>',
-             spawn:{x:22,z:14,heading:-Math.PI/2},
+             spawn:{x:22,z:22,heading:-Math.PI/2},   // enters south of aisle A
              goal:TOWER_GOAL, junctions:TOWER_JUNCTIONS, obstacles:towerObstacles,
+             decoys:TOWER_DECOYS,
              group:towerGroup, envKey:'tower',
-             // Tower is an open covered space at golden hour — much brighter HDR
-             // than Mall's basement, so pull exposure + ambient way back
-             exposure:0.42, bgColor:0x8a5230, fog:[0x9a6238,28,80],
-             ambient:{c:0xffd0a0,i:.08}, hemi:{sky:0xffd58a,gnd:0x2a180c,i:.14},
-             sun:{c:0xffb066,i:.28},
+             // Tower is an open covered space at golden hour — brighter HDR
+             // than Mall's basement, but the canopy shades the interior so
+             // exposure can come up
+             exposure:0.62, bgColor:0x8a5230, fog:[0x9a6238,28,80],
+             ambient:{c:0xffd0a0,i:.16}, hemi:{sky:0xffd58a,gnd:0x2a180c,i:.24},
+             sun:{c:0xffb066,i:.32},
              ready:true },
 };
 let SCEN=SCENARIOS.basement;
@@ -1686,6 +1787,19 @@ function step(dt){
           setState('QUIZ');j.pending=true;break;
         }
       }
+      // wrong-park detection — the newbie-training moment. If the bike
+      // stops inside a decoy bay, coach the rider and DON'T award the win.
+      if(Math.abs(bike.speed)<.2 && SCEN.decoys){
+        for(const d of SCEN.decoys){
+          if(bike.x>d.x0&&bike.x<d.x1&&bike.z>d.z0&&bike.z<d.z1){
+            if(!d._coached){d._coached=true;
+              toast(`✗ ${d.label} — ${d.sub}. Rider Bay is ORANGE, west aisle.`,true);
+              AC.buzz();vib(120);flash('red');
+            }
+            break;
+          }
+        }
+      } else if(SCEN.decoys){ for(const d of SCEN.decoys) d._coached=false; }
       // win: stopped inside the glowing stall
       if(bike.x>GOAL.x0&&bike.x<GOAL.x1&&bike.z>GOAL.z0&&bike.z<GOAL.z1&&Math.abs(bike.speed)<.2){
         winStop+=dt;
