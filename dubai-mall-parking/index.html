@@ -247,11 +247,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--brown);
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/three.min.js"></script>
 <script src="GLTFLoader.js"></script>
 <script src="DRACOLoader.js"></script>
 <script src="RGBELoader.js"></script>
 <script src="vendor/CopyShader.js"></script>
+<script src="vendor/GammaCorrectionShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
 <script src="vendor/EffectComposer.js"></script>
 <script src="vendor/RenderPass.js"></script>
@@ -315,19 +316,27 @@ loadEnv('tower',   'assets/tex/env_tower.hdr');
 // ── HDR post-processing: bloom on the warm lights + brass + emissives ──
 // Composer initialises after the renderer + scene + camera are wired.
 let composer=null;
+// The composer buffer stays LINEAR. Encoding the intermediate target as sRGB
+// brightens the scene before bloom ever sees it, so the threshold catches far
+// more pixels than intended and the whole frame blows out. Scene → linear HDR
+// buffer → bloom (thresholded in linear space) → single sRGB conversion at the
+// very end via GammaCorrectionShader.
 { const rt=new THREE.WebGLRenderTarget(innerWidth,innerHeight,{
     minFilter:THREE.LinearFilter, magFilter:THREE.LinearFilter,
-    format:THREE.RGBAFormat, type:THREE.HalfFloatType, encoding:THREE.sRGBEncoding });
+    format:THREE.RGBAFormat, type:THREE.HalfFloatType });
   composer=new THREE.EffectComposer(renderer,rt);
   composer.setPixelRatio(renderer.getPixelRatio());
   composer.setSize(innerWidth,innerHeight);
   composer.addPass(new THREE.RenderPass(scene,camera));
+  // Values reaching here are ACES tone-mapped linear (0..1). 0.75 linear ≈ 0.89
+  // sRGB, so only real light sources and hot emissives bloom — not every wall.
   const bloom=new THREE.UnrealBloomPass(
     new THREE.Vector2(innerWidth,innerHeight),
-    /*strength*/ 0.62,
-    /*radius*/   0.42,
-    /*threshold*/0.82);
+    /*strength*/ 0.45,
+    /*radius*/   0.50,
+    /*threshold*/0.75);
   composer.addPass(bloom);
+  composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));  // linear → sRGB, once
   addEventListener('resize',()=>{composer.setSize(innerWidth,innerHeight);});
 }
 // Shared lights — intensities and colours are reassigned in activateScenario()
@@ -421,12 +430,10 @@ const HERO_BAYS=[
   {x: 32.0, z:15, rot:Math.PI, col:0x1a1a1e, kind:'ferrari'},
   // z=11 (opposite Fashion aisle)
   {x:-35.4, z:11, rot:0, col:0x2a2a2f, kind:'ferrari'},
-  {x:  4.8, z:11, rot:0, col:0xa0876b, kind:'concept'},
   {x: 25.2, z:11, rot:0, col:0x141414, kind:'ferrari'},
   // z=1 (Fashion faces north)
   {x:-32.6, z: 1, rot:Math.PI, col:0x1a2635, kind:'ferrari'},
   {x:-15.6, z: 1, rot:Math.PI, col:0x14171a, kind:'concept'},
-  {x:  4.8, z: 1, rot:Math.PI, col:0xe6e2d8, kind:'ferrari'},
   {x: 18.4, z: 1, rot:Math.PI, col:0xf4ede3, kind:'van'},
   // z=-3 (Cinema faces south)
   {x:-15.6, z:-3, rot:0, col:0x0a0a0d, kind:'ferrari'},
@@ -600,7 +607,7 @@ const floorTex=canvasTex(512,512,(g)=>{
     g.fillRect(240+Math.random()*30,Math.random()*512,10,10);}
 },9,6);
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(92,66),
-  new THREE.MeshStandardMaterial({map:floorTex,roughness:.32,metalness:.35,color:0x1a1410}));
+  new THREE.MeshStandardMaterial({map:floorTex,roughness:.38,metalness:.0,color:0x1a1410,envMapIntensity:.35}));
 floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;SCENE.add(floor);
 
 // ceiling — real photographed hardwood texture (diffuse + bump + roughness),
@@ -694,7 +701,7 @@ const ZONES=[
 const zoneOf=z=>ZONES.reduce((a,b)=>Math.abs(b.z-z)<Math.abs(a.z-z)?b:a);
 // the talabat bay rect, declared early so nothing can be parked into it.
 // GOAL is a mutable pointer — reassigned on scenario switch to TOWER_GOAL.
-const MALL_GOAL={x0:-10.5,x1:-5.5,z0:12.4,z1:17.4,cx:-8,cz:15};
+const MALL_GOAL={x0:.7,x1:4.3,z0:-2.5,z1:1.6,cx:2.5,cz:-.5};
 let GOAL=MALL_GOAL;
 
 // ── pillars: polished cream marble + walnut base + big serif letter + bronze zone plaque ──
@@ -842,7 +849,7 @@ for(const r of bayRows){
    navigate — no more driving in a straight line across an empty room.
    The junction sensors sit at each gap so the quiz gate fires there. */
 const barGeo=new THREE.BoxGeometry(1,.85,.34);
-const barM=new THREE.MeshStandardMaterial({color:0x1a110a,roughness:.7,metalness:.35});
+const barM=new THREE.MeshStandardMaterial({color:0x241a10,roughness:.72,metalness:.0,envMapIntensity:.3});
 const railM=new THREE.MeshStandardMaterial({color:0xc99a51,metalness:.92,roughness:.28,
   emissive:0xffa64b,emissiveIntensity:.14});
 function mazeWall(x0,x1,z){
@@ -860,30 +867,40 @@ function mazeWallV(x,z0,z1){
   rail.position.set(x,.88,(z0+z1)/2);SCENE.add(rail);
   box(x-.2,x+.2,z0,z1);
 }
-// ── MAZE V2 · corridor grid with dead ends and wrong routes ────
-// Horizontal barriers in the aisles between bay rows (never in a row).
-// Aisle A · z=20 — entry gate. Gap x=-3 to +3 (central chute only).
-mazeWall(-38,-3,20);   mazeWall( 3,38,20);
-// Aisle B · z=6 — splits Zone 2 (Rider Bay) from Zone 3 (wrong).
-// Two gaps: x=-16 to -12 (west, correct return) + x=13 to 17 (east, wrong).
-mazeWall(-38,-16,6);   mazeWall(-12,13,6);   mazeWall(17,38,6);
-// Aisle C · z=-8 — separates south wings. Gap only at x=-20 to -16 (very west, trap).
-mazeWall(-38,-20,-8);  mazeWall(-16,38,-8);
-// ── Vertical dividers · turn the open zones into corridors ──
-// Zone 2 (spawn side): narrow chute above aisle A gap so entry stays central
-mazeWallV( 6, 17, 20);            // east side of central chute
-mazeWallV(-6, 17, 20);            // west side of central chute
-// Zone 3 pockets — trap the wrong-turn rider around each decoy
-mazeWallV( 20, -8, 6);            // east extreme wall — FAMILY/HOTEL pocket boundary
-mazeWallV( 22, -8,-6);            // HOTEL sub-pocket back wall
-mazeWallV( 10, -8,-2);            // east corridor west edge (creates FAMILY pocket)
-mazeWallV(-10, -6, 4);            // west Zone 3 pocket around FIRE EXIT
-mazeWall (-16,-10, 4);            // horizontal top of west pocket
-// Zone 4 pockets — LOADING dead-end (accessible only via extreme west)
-mazeWallV( 10,-27,-8);            // Zone 4 east divider — traps LOADING behind it
-mazeWallV(-10,-14,-8);            // Zone 4 west divider — ACCESS at back
-mazeWall (-16,-4,-14);            // horizontal wall — LOADING dead-end north face
-mazeWall (  4, 10,-14);           // extension of dead-end wall
+/* ── MAZE V3 · a real branching route ────────────────────────────
+   Every junction below is a genuine T: the corridor ends and the rider
+   must physically turn LEFT or RIGHT into two different corridors. The
+   quiz answer opens the gate on the side chosen, so the signboard maps
+   1:1 onto the geometry instead of decorating a straight chute.
+
+   Route (rider drives −Z from spawn, so LEFT = −X / west):
+     stem A ↓ → J1 turn WEST along B → descend C ↓
+            → J2 turn EAST along D → J3 turn SOUTH into the Rider Bay
+   Wrong side of each T is a long visible dead end with a coaching decoy.
+
+   Corridor interiors:
+     A entry stem   x −5..5    z 22..28
+     B east-west    z 18..22   full width
+     C descent      x −13..−7  z 8..18
+     D east-west    z 4..8     full width
+     N wrong pocket x 0..5     z 8..13
+     G goal spur    x 0..5     z −3..4                                */
+// A — entry stem walls (open at the north so the portal frames the start)
+mazeWallV(-5, 22, 28);   mazeWallV( 5, 22, 28);
+// B — north face, gap = the stem the rider comes down
+mazeWall(-43,-5, 22);    mazeWall(  5, 43, 22);
+// B — south face, gap = corridor C (the correct westward continuation)
+mazeWall(-43,-13,18);    mazeWall( -7, 43, 18);
+// C — descent corridor walls
+mazeWallV(-13, 8, 18);   mazeWallV(-7,  8, 18);
+// D — north face, gaps = corridor C (in) and the N decoy pocket
+mazeWall(-43,-13, 8);    mazeWall( -7,  0,  8);   mazeWall( 5, 43, 8);
+// D — south face, gap = the goal spur
+mazeWall(-43,  0, 4);    mazeWall(  5, 43,  4);
+// N — wrong-turn pocket north of the final crossing (dead end)
+mazeWallV( 0, 8, 13);    mazeWallV( 5, 8, 13);    mazeWall( 0, 5, 13);
+// G — the Rider Bay spur itself
+mazeWallV( 0,-3, 4);     mazeWallV( 5,-3, 4);     mazeWall( 0, 5,-3);
 
 // ── DECOY BAYS · wrong-park training ──────────────────────
 // Each decoy is a floor tile with obvious wrong colour + label. The bike
@@ -901,18 +918,22 @@ function decoyBay(x,z,label,sub,color){
   m.rotation.x=-Math.PI/2;m.position.set(x,.03,z);SCENE.add(m);
   return {x0:x-1.6,x1:x+1.6,z0:z-2.3,z1:z+2.3,label,sub};
 }
+// Each decoy sits at the far end of a wrong branch, visible over the
+// waist-high rail from the junction so the rider can SEE the mistake
+// before committing to it.
 const MALL_DECOYS=[
-  // Zone 2 (goal zone) traps — east corridor after central chute
-  decoyBay( 15, 15,'CUSTOMER','Blue bays only',      '#1f4fa8'),
-  decoyBay( 25, 15,'EV ONLY', 'Green charging bay',  '#1e8a3a'),
-  // Zone 3 traps — wrong side of aisle B
-  decoyBay( 15, -3,'FAMILY',  'Reserved',            '#a3286d'),
-  decoyBay( 25, -3,'HOTEL',   'Guests only',         '#8b6a3a'),
-  decoyBay(-15, -3,'FIRE EXIT','Keep clear',         '#9c1d1d'),
-  decoyBay( 25,  3,'STAFF',   'Employees only',      '#5a4028'),
-  // Zone 4 (deep south, wrong route) — visible from center dead end
-  decoyBay(  0,-12,'LOADING', 'Trucks only',         '#8f5a1f'),
-  decoyBay(-24,-12,'ACCESS',  'Wheelchair reserved', '#1f6fa8'),
+  // J1 wrong (east along B) — long customer dead end
+  decoyBay( 16, 20,'CUSTOMER','Blue bays only',      '#1f4fa8'),
+  decoyBay( 30, 20,'EV ONLY', 'Green charging bay',  '#1e8a3a'),
+  // J1 west overrun — past the corridor C turn-off
+  decoyBay(-24, 20,'STAFF',   'Employees only',      '#5a4028'),
+  // J2 wrong (west along D) — service/loading dead end
+  decoyBay(-22,  6,'LOADING', 'Trucks only',         '#8f5a1f'),
+  decoyBay(-34,  6,'ACCESS',  'Wheelchair reserved', '#1f6fa8'),
+  // J2 east overrun — past the goal spur
+  decoyBay( 16,  6,'FIRE EXIT','Keep clear',         '#9c1d1d'),
+  // J3 wrong (north pocket) — the classic newbie mistake
+  decoyBay(  2.5, 10.5,'CUSTOMER','Not for riders',  '#1f4fa8'),
 ];
 
 // ── etched brass floor arrows guiding the route to the talabat bay ──
@@ -923,8 +944,11 @@ const arrowTex=canvasTex(128,128,(g)=>{g.clearRect(0,0,128,128);
 function arrow(x,z,rotY){const m=new THREE.Mesh(new THREE.PlaneGeometry(1.7,1.7),
   new THREE.MeshBasicMaterial({map:arrowTex,transparent:true,depthWrite:false}));
   m.rotation.x=-Math.PI/2;m.rotation.z=rotY;m.position.set(x,.03,z);SCENE.add(m);}
-arrow(0,26,0);arrow(0,22,0);                       // north up entry lane
-arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive toward bay
+// Only the legs the rider has already earned are marked — the arrows
+// confirm the route, they never give away the answer at a junction.
+arrow(0,25,0);                                     // down the entry stem
+arrow(-10,16,0);arrow(-10,11,0);                   // down corridor C after J1
+arrow(-1,6,-Math.PI/2);                            // east along D toward the spur
 
 // ── subtle brass-capped speed hump ──
 { const ht=canvasTex(128,32,(g)=>{
@@ -933,12 +957,12 @@ arrow(-4,20,Math.PI/2);arrow(-9,20,Math.PI/2);     // west along Grand Drive tow
     g.fillStyle=gr;g.fillRect(0,0,128,32);
     g.fillStyle='#5a4028';for(let i=0;i<12;i++)g.fillRect(i*11,0,2,32);},1,1);
   const hump=new THREE.Mesh(new THREE.BoxGeometry(7,.1,.6),new THREE.MeshStandardMaterial({map:ht,roughness:.4,metalness:.7}));
-  hump.position.set(0,.055,24);SCENE.add(hump); }
+  hump.position.set(0,.055,25.5);SCENE.add(hump); }
 
 // crosswalk only — cube-shaped pedestrians were an AAA-immersion killer
 { const cw=canvasTex(64,64,(g)=>{g.clearRect(0,0,64,64);g.fillStyle='rgba(217,169,98,.7)';for(let i=0;i<4;i++)g.fillRect(0,i*16,64,6);},1,1);
   const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,7),new THREE.MeshBasicMaterial({map:cw,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(18,.025,20);SCENE.add(m); }
+  m.rotation.x=-Math.PI/2;m.position.set(22,.025,20);SCENE.add(m); }
 
 /* ══ SET DRESSING · the details riders actually notice ════ */
 
@@ -998,10 +1022,10 @@ liftLobby(16,-23);
     g.fillText('MAX  HEIGHT   2.10 M',128,32);},2,1);
   const bar=new THREE.Mesh(new THREE.BoxGeometry(13,.4,.14),
     new THREE.MeshStandardMaterial({map:ht,roughness:.5,metalness:.6}));
-  bar.position.set(0,2.7,28.4);SCENE.add(bar);
+  bar.position.set(0,2.7,30.6);SCENE.add(bar);
   const post=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.92,roughness:.28});
   for(const px of [-6.6,6.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.95,.18),post);
-    p.position.set(px,1.5,28.4);p.castShadow=true;SCENE.add(p);box(px-.15,px+.15,28.3,28.5);}
+    p.position.set(px,1.5,30.6);p.castShadow=true;SCENE.add(p);box(px-.15,px+.15,30.5,30.7);}
 }
 
 // discreet etched-bronze level plaque, wall-mounted
@@ -1042,8 +1066,9 @@ function gantry(x,z,rotY,lines){
   for(const sx of [-5,5]){const rod=new THREE.Mesh(new THREE.BoxGeometry(.08,1.35,.08),rodMat);
     rod.position.set(x+(rotY?0:sx),4.27,z+(rotY?sx:0));SCENE.add(rod);}
 }
-gantry(0,17.5,0,[{t:'Fashion Ave',a:'‹‹'},{t:'Cinema',a:'››'},{t:'Metro',a:'▲'}]);
-gantry(-24,6,Math.PI/2,[{t:'Fashion Avenue',a:'▲'},{t:'The Souk',a:'▼'}]);
+// Wayfinding hangs over each T so the rider reads it on approach.
+gantry(0,21.5,0,[{t:'Service',a:'‹‹'},{t:'Customer',a:'››'}]);   // over J1
+gantry(-10,6.6,0,[{t:'Loading',a:'‹‹'},{t:'Rider Bays',a:'››'}]);// over J2
 
 // zone banners — dark walnut cards with brushed-bronze etched serif letters
 function zoneBanner(zone,x){
@@ -1119,10 +1144,10 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
     g.fillStyle='#d9a962';g.font='700 34px "Times New Roman",serif';g.fillText('RIDER  BAY',256,338);
   });
   const m=new THREE.Mesh(new THREE.PlaneGeometry(4.8,4.8),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));
-  m.rotation.x=-Math.PI/2;m.position.set(-8,.04,15);SCENE.add(m);
+  m.rotation.x=-Math.PI/2;m.position.set(2.5,.04,-.5);SCENE.add(m);
   // subtle warm halo — pulses gently instead of glowing lime
   const glow=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),new THREE.MeshBasicMaterial({color:0xff8a3c,transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending}));
-  glow.rotation.x=-Math.PI/2;glow.position.set(-8,.05,15);SCENE.add(glow);window._goalGlow=glow;
+  glow.rotation.x=-Math.PI/2;glow.position.set(2.5,.05,-.5);SCENE.add(glow);window._goalGlow=glow;
   // hanging premium sign — dark card, brass border, warm-lit talabat + serif RIDER BAY
   const st=canvasTex(512,160,(g)=>{
     g.fillStyle='#c99a51';g.fillRect(0,0,512,160);
@@ -1132,15 +1157,15 @@ countBoard(-40,-8,Math.PI/2,'CINEMA',204);
     g.fillStyle='#d9a962';g.font='700 30px "Times New Roman",serif';g.fillText('RIDER  BAY',388,84);
   });
   const sgn=new THREE.Mesh(new THREE.PlaneGeometry(5,1.6),new THREE.MeshBasicMaterial({map:st}));
-  sgn.position.set(-8,3.5,15);sgn.rotation.y=0;SCENE.add(sgn);
+  sgn.position.set(2.5,3.5,-2.9);sgn.rotation.y=0;SCENE.add(sgn);
   // brass rods holding the sign
   const rodMat=new THREE.MeshStandardMaterial({color:0x8b6a3a,metalness:.9,roughness:.35});
   for(const sx of [-2.2,2.2]){const rod=new THREE.Mesh(new THREE.BoxGeometry(.08,1.1,.08),rodMat);
-    rod.position.set(-8+sx,4.15,15);SCENE.add(rod);}
-  const pl=new THREE.PointLight(0xffb266,1.1,14,2);pl.position.set(-8,3.6,15);SCENE.add(pl);
+    rod.position.set(2.5+sx,4.15,-2.9);SCENE.add(rod);}
+  const pl=new THREE.PointLight(0xffb266,1.1,14,2);pl.position.set(2.5,3.6,-.5);SCENE.add(pl);
 }
 const beacon=new THREE.Mesh(new THREE.OctahedronGeometry(.28),new THREE.MeshStandardMaterial({color:0xd9a962,emissive:0xff7a20,emissiveIntensity:.6,metalness:.9,roughness:.28}));
-beacon.position.set(-8,2.6,15);SCENE.add(beacon);
+beacon.position.set(2.5,2.6,-.5);SCENE.add(beacon);
 
 // ── junction quiz sensors — the gated-training loop from the reference.
 // Each Mall junction has a binary LEFT / RIGHT choice; each choice carries a
@@ -1148,57 +1173,78 @@ beacon.position.set(-8,2.6,15);SCENE.add(beacon);
 // junction and stays CLOSED until the correct answer opens it. Wrong answer
 // disables that side (grey) so the rider can only progress by picking right.
 // Tower junctions still use the older `opts[]` array and remain penalty-only.
+// Each side owns a real gate box plugging a real gap in the wall layout.
+// LEFT / RIGHT are the rider's own left and right for the heading they
+// arrive on, so the signboard matches what they see through the windscreen.
 const MALL_JUNCTIONS=[
-  { id:'B1-1', x: 0, z:22, r:2.2,
+  // Arrives heading −Z (south) down the entry stem → left = west
+  { id:'B1-1', x: 0, z:20, r:2.4,
     q:'Basement B1 — which way to delivery parking?',
     rows:[['DELIVERY / SERVICE','←'],['CUSTOMER PARKING','→']],
-    left:  {label:'DELIVERY / SERVICE', ok:true,  note:'Service route leads to the rider bays.'},
-    right: {label:'CUSTOMER PARKING',   ok:false, note:"Customer zone — far from the lift, you'll add minutes."},
-    gate:  {x0:-3,x1:3,z:20} },
-  { id:'B1-2', x: 0, z:18, r:2.2,
-    q:'Junction ahead — left or right?',
-    rows:[['RIDER PARKING','←'],['STAFF & EXIT','→']],
-    left:  {label:'RIDER PARKING', ok:true,  note:'Designated rider parking by the service lift.'},
-    right: {label:'STAFF & EXIT',  ok:false, note:'Staff / exit ramp — dead end for a pickup.'},
-    gate:  {x0:-3,x1:3,z:16} },
-  { id:'B1-3', x:-6, z:16, r:2.2,
+    left:  {label:'DELIVERY / SERVICE', ok:true,  note:'Service route leads to the rider bays.',
+            gate:{x0:-7,x1:-5,z0:18,z1:22}},
+    right: {label:'CUSTOMER PARKING',   ok:false, note:"Customer zone — far from the lift, you'll add minutes.",
+            gate:{x0:5,x1:7,z0:18,z1:22}} },
+  // Arrives heading −Z (south) down corridor C → left = west
+  { id:'B1-2', x:-10, z:6.5, r:2.4,
+    q:'Service level — the rider bays are which way?',
+    rows:[['LOADING DOCK','←'],['RIDER BAYS','→']],
+    left:  {label:'LOADING DOCK', ok:false, note:'Loading dock — trucks only, and it dead-ends.',
+            gate:{x0:-19,x1:-17,z0:4,z1:8}},
+    right: {label:'RIDER BAYS',   ok:true,  note:'Rider bays are east along the service aisle.',
+            gate:{x0:-3,x1:-1,z0:4,z1:8}} },
+  // Arrives heading +X (east) along corridor D → left = south
+  { id:'B1-3', x:2.5, z:6, r:2.2,
     q:'Final approach — where do you park?',
     rows:[['DELIVERY RIDERS BAY','←'],['CUSTOMER BAYS','→']],
-    left:  {label:'DELIVERY RIDERS BAY', ok:true,  note:'The reserved delivery-rider bay. Correct.'},
-    right: {label:'CUSTOMER BAYS',       ok:false, note:'Customer bays — not allowed for riders.'},
-    gate:  {x0:-10,x1:-5,z:13.5} },
+    left:  {label:'DELIVERY RIDERS BAY', ok:true,  note:'The reserved delivery-rider bay. Correct.',
+            gate:{x0:0,x1:5,z0:3,z1:4.4}},
+    right: {label:'CUSTOMER BAYS',       ok:false, note:'Customer bays — not allowed for riders.',
+            gate:{x0:0,x1:5,z0:7.6,z1:9}} },
 ];
 let JUNCTIONS=MALL_JUNCTIONS;         // active junction list — reassigned per scenario
 
 // ── gate meshes — closed = orange-emissive brass rail across the corridor.
 // Each gate registers its collision box in mallObstacles; on correct answer
 // the mesh is hidden and the obstacle is spliced out of the array.
-const gateM=new THREE.MeshStandardMaterial({color:0x1a110a,roughness:.6,metalness:.4,
-  emissive:0xff5900,emissiveIntensity:.32});
+const gateM=new THREE.MeshStandardMaterial({color:0x2b1206,roughness:.62,metalness:.0,
+  envMapIntensity:.25,emissive:0xff5900,emissiveIntensity:.85});
 const gateRailM=new THREE.MeshStandardMaterial({color:0xff5900,metalness:.6,roughness:.35,
   emissive:0xff5900,emissiveIntensity:.65});
+// Both sides of every T are gated, so the rider sees two closed barriers and
+// the signboard decides which one lifts. The gate box is a general rectangle
+// (it may run along X or along Z) sized to plug its gap exactly.
+const GATE_SIDES=['left','right'];
 function buildGates(){
   for(const j of MALL_JUNCTIONS){
-    const g=j.gate; const w=g.x1-g.x0;
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,1.35,.36),gateM);
-    mesh.position.set((g.x0+g.x1)/2,.68,g.z);mesh.castShadow=true;mallGroup.add(mesh);
-    const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.08,.4),gateRailM);
-    rail.position.set((g.x0+g.x1)/2,1.34,g.z);mallGroup.add(rail);
-    const obs={x0:g.x0,x1:g.x1,z0:g.z-.2,z1:g.z+.2};
-    mallObstacles.push(obs);
-    j._mesh=mesh; j._rail=rail; j._obs=obs;
+    for(const side of GATE_SIDES){
+      const g=j[side].gate;
+      const w=g.x1-g.x0, d=g.z1-g.z0, cx=(g.x0+g.x1)/2, cz=(g.z0+g.z1)/2;
+      const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,1.35,d),gateM);
+      mesh.position.set(cx,.68,cz);mesh.castShadow=true;mallGroup.add(mesh);
+      const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.08,d+.04),gateRailM);
+      rail.position.set(cx,1.34,cz);mallGroup.add(rail);
+      const obs={x0:g.x0,x1:g.x1,z0:g.z0,z1:g.z1};
+      mallObstacles.push(obs);
+      j[side]._mesh=mesh; j[side]._rail=rail; j[side]._obs=obs;
+    }
   }
 }
-function openGate(j){
-  if(!j._mesh)return;
-  j._mesh.visible=false; j._rail.visible=false;
-  const i=mallObstacles.indexOf(j._obs);
+// Only the side the rider answered with ever lifts. The wrong gate stays
+// shut, so the dead end behind it remains visible but unreachable.
+function openGate(j,side){
+  const o=j[side]; if(!o||!o._mesh)return;
+  o._mesh.visible=false; o._rail.visible=false;
+  const i=mallObstacles.indexOf(o._obs);
   if(i>=0) mallObstacles.splice(i,1);
 }
 function resetGates(){
   for(const j of MALL_JUNCTIONS){
-    if(j._mesh){j._mesh.visible=true;j._rail.visible=true;}
-    if(j._obs && mallObstacles.indexOf(j._obs)<0) mallObstacles.push(j._obs);
+    for(const side of GATE_SIDES){
+      const o=j[side];
+      if(o._mesh){o._mesh.visible=true;o._rail.visible=true;}
+      if(o._obs && mallObstacles.indexOf(o._obs)<0) mallObstacles.push(o._obs);
+    }
     j.tried=null;                       // reset per-run tried side
   }
 }
@@ -1755,7 +1801,7 @@ function openQuiz(j){
 function answer(j,side){
   const o=j[side];
   if(o.ok){
-    openGate(j);
+    openGate(j,side);
     j.done=true;j.pending=false;
     hideOv($('quiz'));
     flash('green');toast('✓ '+o.note);AC.chime();vib(20);
