@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>talabat · Rider Academy — Design Direction (Modern)</title>
+<style>
+:root{
+  --orange:#FF5900; --orange-hot:#FF7A2E; --lime:#CFFF00;
+  --brown:#411517; --brown-deep:#2A0D0F; --brown-warm:#5A241F;
+  --off:#F4EDE3; --off-dim:#C9BEAE; --ink:#1A0708;
+  --amber:#F0B769;
+  --ff-body:'Inter var',system-ui,-apple-system,sans-serif;
+  --ff-display:'Fraunces',ui-serif,Georgia,serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;background:var(--brown-deep);color:var(--off);
+  font-family:var(--ff-body);font-feature-settings:'ss01','cv11';line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+body{min-height:100dvh;overflow-x:hidden}
+img{max-width:100%;display:block}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── shell ─────────────────────────────────────────────── */
+.wrap{max-width:1280px;margin:0 auto;padding:56px 32px 120px}
+@media (max-width:700px){.wrap{padding:36px 20px 80px}}
+
+/* top strip */
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding-bottom:32px;margin-bottom:48px;
+  border-bottom:1px solid rgba(244,237,227,.08)}
+.brand{display:flex;align-items:baseline;gap:14px}
+.brand-mark{font-family:var(--ff-display);font-weight:700;font-size:34px;
+  letter-spacing:-.03em;color:var(--orange);line-height:1}
+.brand-sub{font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--off-dim)}
+.crumb{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--off-dim)}
+.crumb b{color:var(--off)}
+
+/* section rhythm */
+.sec{margin-top:96px}
+.sec-head{margin-bottom:32px;display:flex;align-items:baseline;gap:20px;
+  flex-wrap:wrap;justify-content:space-between}
+.sec-eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--orange);font-weight:700}
+.sec-title{font-family:var(--ff-display);font-size:clamp(30px,4.4vw,54px);
+  font-weight:500;letter-spacing:-.028em;line-height:1.02;
+  text-wrap:balance;color:var(--off);flex:1;min-width:280px}
+.sec-desc{max-width:520px;font-size:15px;color:var(--off-dim);line-height:1.6}
+.sec-desc b{color:var(--off);font-weight:600}
+
+/* ── hero ──────────────────────────────────────────────── */
+.hero{position:relative;overflow:hidden;border-radius:24px;
+  min-height:min(78vh,720px);
+  background:
+    radial-gradient(1200px 500px at 20% 8%,rgba(255,180,90,.16),transparent 60%),
+    radial-gradient(900px 500px at 82% 92%,rgba(255,89,0,.22),transparent 55%),
+    linear-gradient(180deg,#1a0708 0%,#3a1210 60%,#4d1a15 100%);
+  border:1px solid rgba(255,89,0,.18);
+  padding:clamp(28px,4vw,64px);
+  display:grid;grid-template-columns:1fr;gap:40px}
+@media (min-width:900px){.hero{grid-template-columns:1.05fr .95fr;align-items:center}}
+.hero::before,.hero::after{content:'';position:absolute;pointer-events:none}
+.hero::before{ /* sodium ceiling glow */
+  inset:0 0 auto 0;height:34%;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,200,120,.18),transparent 70%);
+  animation:sodium 6s var(--ease) infinite alternate;filter:blur(1px)}
+.hero::after{ /* subtle grain */
+  inset:0;background:
+    radial-gradient(rgba(0,0,0,.35),transparent 65%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.6}
+@keyframes sodium{0%{opacity:.7}100%{opacity:1}}
+.hero-copy{position:relative;z-index:2}
+.hero-mark{font-family:var(--ff-display);font-weight:700;font-size:clamp(52px,10vw,124px);
+  color:var(--orange);letter-spacing:-.045em;line-height:.92}
+.hero-mark em{font-style:italic;color:var(--amber)}
+.hero-sub{margin-top:10px;font-size:clamp(14px,1.6vw,18px);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--off)}
+.hero-lede{margin-top:28px;font-family:var(--ff-display);font-weight:400;
+  font-size:clamp(20px,2.4vw,28px);line-height:1.35;color:var(--off);
+  text-wrap:balance;max-width:520px}
+.hero-lede b{font-weight:600;color:var(--amber)}
+.hero-meta{display:flex;gap:32px;margin-top:36px;flex-wrap:wrap}
+.hero-meta div{border-left:2px solid var(--orange);padding-left:14px}
+.hero-meta .k{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--off-dim)}
+.hero-meta .v{font-family:var(--ff-display);font-size:22px;font-weight:600;color:var(--off);margin-top:2px}
+.hero-cta{margin-top:36px;display:inline-flex;align-items:center;gap:14px;
+  background:var(--orange);color:var(--off);padding:16px 22px;border-radius:99px;
+  font-weight:700;letter-spacing:.1em;font-size:14px;
+  transition:transform .3s var(--ease),background .3s var(--ease);cursor:pointer}
+.hero-cta:hover{background:var(--orange-hot);transform:translateY(-2px)}
+.hero-cta .dot{width:8px;height:8px;border-radius:50%;background:var(--off);animation:pulse 1.6s var(--ease) infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* live 3D holder */
+.hero-3d{position:relative;height:min(60vh,520px);border-radius:18px;
+  overflow:hidden;background:
+    radial-gradient(circle at 50% 40%,rgba(255,140,60,.18),transparent 70%),
+    linear-gradient(180deg,#180608,#2d0e0e);
+  border:1px solid rgba(255,89,0,.16);z-index:1}
+.hero-3d canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-3d .badge{position:absolute;top:14px;left:14px;
+  padding:6px 12px;border-radius:99px;background:rgba(65,21,23,.72);
+  border:1px solid rgba(207,255,0,.35);color:var(--lime);
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  backdrop-filter:blur(6px);z-index:2}
+.hero-3d .caption{position:absolute;bottom:14px;left:14px;right:14px;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--off-dim);
+  display:flex;justify-content:space-between;align-items:center;z-index:2}
+.hero-3d .caption b{color:var(--off)}
+.hero-3d .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--off-dim);font-size:12px;letter-spacing:.2em;text-transform:uppercase;z-index:1}
+.hero-3d .loading::after{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--orange);margin-left:10px;animation:pulse 1s var(--ease) infinite}
+
+/* ── two-col explainer ────────────────────────────────── */
+.grid2{display:grid;grid-template-columns:1fr;gap:36px}
+@media (min-width:900px){.grid2{grid-template-columns:1fr 1fr;gap:56px;align-items:start}}
+
+/* ── phone frame ──────────────────────────────────────── */
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:36px}
+.phone{position:relative;justify-self:center;
+  width:min(320px,90vw);aspect-ratio:390/844;
+  border-radius:44px;padding:14px;
+  background:linear-gradient(160deg,#25100f,#150506);
+  border:1px solid rgba(244,237,227,.06);
+  box-shadow:0 40px 80px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.02)}
+.phone::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:110px;height:26px;border-radius:99px;background:#0a0303;z-index:3}
+.phone-screen{position:relative;width:100%;height:100%;border-radius:32px;
+  overflow:hidden;background:var(--brown);isolation:isolate}
+.phone-label{margin-top:16px;text-align:center;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--off-dim)}
+.phone-label b{color:var(--off)}
+
+/* splash screen */
+.scr-splash{position:absolute;inset:0;background:var(--brown);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;text-align:center}
+.scr-splash .logo{font-family:var(--ff-display);font-weight:700;
+  font-size:64px;color:var(--orange);letter-spacing:-.045em;line-height:1}
+.scr-splash .sub{margin-top:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--off-dim)}
+.scr-splash .tap{position:absolute;bottom:80px;font-size:11px;letter-spacing:.28em;font-weight:700;
+  color:var(--off);animation:pulse 1.4s var(--ease) infinite}
+.scr-splash::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 20%,rgba(255,180,90,.14),transparent 60%)}
+
+/* scenario select */
+.scr-select{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(30,9,10,.72),rgba(30,9,10,.72)),
+  linear-gradient(160deg,#3a1210,#180506);
+  padding:56px 20px 24px;display:flex;flex-direction:column;gap:14px}
+.scr-select .eyebrow{text-align:center;font-size:10px;letter-spacing:.3em;font-weight:800;
+  color:var(--off-dim);margin-bottom:18px;text-transform:uppercase}
+.scard{background:var(--brown);border:1px solid rgba(255,89,0,.4);border-radius:16px;
+  padding:12px;display:flex;align-items:center;gap:10px}
+.scard .sw{width:52px;height:52px;border-radius:13px;flex:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.scard .sw.a{background:linear-gradient(135deg,#2a1710 15%,#FF5900)}
+.scard .sw.b{background:linear-gradient(135deg,#f7c98c,#FF9648 55%,#FF5900)}
+.scard .mid{flex:1;min-width:0}
+.scard .nm{font-weight:700;font-size:13px;color:var(--off)}
+.scard .dt{font-size:8px;letter-spacing:.14em;color:var(--off-dim);margin-top:4px;text-transform:uppercase}
+.scard .dt i{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(244,237,227,.18);margin-right:3px;vertical-align:middle}
+.scard .dt i.on{background:var(--orange)}
+.scard .best{text-align:right;font-size:9px;letter-spacing:.14em;color:var(--off-dim);text-transform:uppercase}
+.scard .best b{display:block;font-size:16px;color:var(--lime);margin-top:2px;letter-spacing:0}
+
+/* order card */
+.scr-order{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(30,9,10,.7),rgba(30,9,10,.9)),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23411517"/><g opacity=".14"><rect x="30" y="40" width="60" height="8" fill="%23f4ede3"/><rect x="30" y="52" width="140" height="4" fill="%23f4ede3"/><rect x="30" y="60" width="100" height="4" fill="%23f4ede3"/></g></svg>') center/cover;
+  padding:36px 18px 24px;display:flex;flex-direction:column;justify-content:flex-end}
+.orderc{background:var(--off);color:var(--brown);border-radius:18px;padding:16px 14px 12px;
+  box-shadow:0 20px 44px rgba(0,0,0,.5)}
+.orderc .tag{display:inline-block;background:var(--orange);color:var(--off);font-size:9px;
+  font-weight:800;letter-spacing:.14em;padding:3px 8px;border-radius:99px;text-transform:uppercase}
+.orderc h3{font-family:var(--ff-display);font-size:22px;font-weight:600;margin-top:8px;
+  letter-spacing:-.01em;line-height:1.05}
+.orderc .row{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;
+  border-top:1px solid rgba(65,21,23,.12);margin-top:5px}
+.orderc .row span:first-child{opacity:.55;font-weight:500}
+.orderc .row span:last-child{font-weight:700}
+.orderc .disp{margin-top:12px;padding:11px;background:var(--orange);color:var(--off);
+  text-align:center;border-radius:11px;font-weight:800;letter-spacing:.14em;font-size:12px}
+
+/* HUD screen */
+.scr-hud{position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 60%,#3a1210 0%,#180608 80%);
+  overflow:hidden}
+.scr-hud .roadmap{position:absolute;inset:60px 0 220px;background:
+  linear-gradient(180deg,transparent,rgba(255,140,60,.14) 30%,transparent),
+  repeating-linear-gradient(90deg,transparent 0 44px,rgba(244,237,227,.06) 44px 45px)}
+.scr-hud .pillar{position:absolute;width:26px;background:linear-gradient(180deg,#a89f92,#5e5750);border-radius:3px}
+.scr-hud .pillar::after{content:'';position:absolute;left:0;right:0;top:52%;height:6px;background:#e2c130}
+.scr-hud .pillar.p1{left:30px;top:110px;height:180px}
+.scr-hud .pillar.p2{right:30px;top:130px;height:160px}
+.scr-hud .pillar.p3{left:44%;top:150px;height:130px;opacity:.6}
+.scr-hud .bay{position:absolute;left:50%;bottom:230px;transform:translateX(-50%);
+  width:70px;height:130px;background:linear-gradient(180deg,#FF5900,#c94500);
+  border:2px solid var(--off);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--off);font-weight:800;font-size:11px;letter-spacing:.14em}
+.scr-hud .bay::after{content:'▲';position:absolute;bottom:2px;color:var(--off);font-size:10px}
+.scr-hud .bike{position:absolute;left:50%;bottom:255px;transform:translateX(-50%);
+  width:52px;height:52px;border-radius:12px;
+  background:linear-gradient(150deg,#FF5900,#a83700);
+  box-shadow:0 6px 12px rgba(255,89,0,.35);
+  display:flex;align-items:center;justify-content:center;color:var(--off);
+  font-family:var(--ff-display);font-weight:700;font-size:11px;letter-spacing:.04em}
+.scr-hud .chip{position:absolute;background:rgba(65,21,23,.85);
+  border:1px solid rgba(255,89,0,.5);border-radius:10px;padding:7px 10px;
+  font-size:10px;line-height:1.4;color:var(--off);max-width:130px;backdrop-filter:blur(6px)}
+.scr-hud .chip b{color:var(--orange);font-weight:800}
+.scr-hud .chip.order{top:12px;left:12px}
+.scr-hud .timer{position:absolute;top:12px;right:12px;
+  background:var(--orange);color:var(--off);padding:6px 14px;border-radius:99px;
+  font-weight:800;font-size:15px}
+.scr-hud .park-banner{position:absolute;top:56px;left:50%;transform:translateX(-50%);
+  background:rgba(65,21,23,.9);border:1px solid var(--lime);color:var(--lime);
+  padding:5px 12px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.14em;white-space:nowrap}
+.scr-hud .speed{position:absolute;right:14px;bottom:184px;text-align:right;font-size:9px;color:var(--off)}
+.scr-hud .speed b{display:block;font-size:22px;font-weight:800;color:var(--off)}
+.scr-hud .joy{position:absolute;left:18px;bottom:24px;width:80px;height:80px;border-radius:50%;
+  background:rgba(65,21,23,.78);border:2px solid rgba(244,237,227,.2)}
+.scr-hud .joy::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:34px;height:34px;border-radius:50%;background:var(--orange);box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.scr-hud .thr{position:absolute;right:20px;bottom:24px;width:48px;height:130px;border-radius:14px;
+  background:linear-gradient(to bottom,rgba(255,89,0,.42) 0 49%,rgba(65,21,23,.85) 51% 100%);
+  border:2px solid rgba(244,237,227,.2)}
+.scr-hud .thr::before{content:'';position:absolute;left:6px;right:6px;top:50%;height:2px;background:var(--lime);
+  box-shadow:0 0 6px var(--lime)}
+.scr-hud .thr::after{content:'';position:absolute;left:50%;top:38%;transform:translateX(-50%);
+  width:36px;height:20px;border-radius:8px;background:var(--orange);box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.scr-hud .coach{position:absolute;bottom:184px;left:50%;transform:translateX(-50%);
+  background:rgba(65,21,23,.92);border:1px solid rgba(207,255,0,.55);color:var(--lime);
+  padding:7px 12px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+
+/* result card */
+.scr-result{position:absolute;inset:0;background:linear-gradient(180deg,rgba(30,9,10,.5),rgba(30,9,10,.75));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.scr-result::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%,rgba(255,140,60,.14),transparent 70%)}
+.resc{position:relative;width:100%;background:var(--brown);border:1px solid rgba(255,89,0,.5);
+  border-radius:18px;padding:20px 18px;text-align:center;box-shadow:0 20px 48px rgba(0,0,0,.55)}
+.resc .rt{font-size:10px;font-weight:800;letter-spacing:.26em;color:var(--off);opacity:.7;text-transform:uppercase}
+.resc .nb{display:inline-block;margin-top:8px;padding:3px 10px;border:1px solid var(--lime);
+  border-radius:99px;color:var(--lime);font-size:9px;font-weight:800;letter-spacing:.2em}
+.resc .badge{width:78px;height:78px;margin:14px auto 4px;border-radius:50%;
+  border:3px solid var(--lime);color:var(--lime);
+  font-family:var(--ff-display);font-weight:700;font-size:44px;
+  display:flex;align-items:center;justify-content:center;
+  animation:badgein .7s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes badgein{0%{transform:scale(.2);opacity:0}55%{transform:scale(1.14);opacity:1}
+  75%{transform:scale(.94)}100%{transform:scale(1)}}
+.resc .big{font-family:var(--ff-display);font-size:46px;font-weight:700;letter-spacing:-.02em}
+.resc .big small{font-size:16px;opacity:.5;font-weight:500;font-family:var(--ff-body)}
+.resc .rows{margin:12px 0 4px;text-align:left;font-size:11px}
+.resc .rows div{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid rgba(244,237,227,.1)}
+.resc .rows div span:first-child{opacity:.65}
+.resc .rows b{color:var(--lime)}
+.resc .coach{margin-top:8px;font-size:11px;line-height:1.4;color:var(--off);opacity:.9}
+.resc .cta{margin-top:14px;padding:10px;background:var(--orange);color:var(--off);
+  text-align:center;border-radius:10px;font-weight:800;letter-spacing:.14em;font-size:11px}
+
+/* ── tokens ───────────────────────────────────────────── */
+.tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.tokcard{background:linear-gradient(180deg,#2a0d0f,#1a0708);border:1px solid rgba(255,89,0,.14);
+  border-radius:18px;padding:22px}
+.tokcard h4{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--off-dim);
+  font-weight:700;margin-bottom:14px}
+.swatches{display:flex;gap:10px;margin-bottom:14px}
+.sw{width:44px;height:44px;border-radius:10px;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.sw::after{content:attr(data-hex);position:absolute;top:100%;left:0;margin-top:6px;
+  font-size:9px;letter-spacing:.06em;color:var(--off-dim);white-space:nowrap;font-family:ui-monospace,monospace}
+.swatches+.list{margin-top:22px}
+.list{list-style:none;padding:0}
+.list li{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;
+  border-top:1px solid rgba(244,237,227,.08);color:var(--off)}
+.list li:first-child{border-top:0}
+.list li b{color:var(--orange);font-family:ui-monospace,monospace;font-weight:500}
+.typescale{display:flex;flex-direction:column;gap:10px}
+.typescale div{color:var(--off);line-height:1;font-family:var(--ff-display)}
+.typescale .t-hero{font-size:44px;font-weight:700;letter-spacing:-.035em;color:var(--orange)}
+.typescale .t-h1{font-size:30px;font-weight:600;letter-spacing:-.025em}
+.typescale .t-h2{font-size:22px;font-weight:600;letter-spacing:-.015em}
+.typescale .t-body{font-size:15px;font-family:var(--ff-body);color:var(--off-dim);line-height:1.5;letter-spacing:0;font-weight:400}
+.typescale .t-label{font-size:11px;font-family:var(--ff-body);letter-spacing:.24em;text-transform:uppercase;color:var(--off-dim);font-weight:600}
+
+/* ── principles ───────────────────────────────────────── */
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.principle{background:linear-gradient(180deg,rgba(255,89,0,.06),transparent);
+  border:1px solid rgba(255,89,0,.18);border-radius:14px;padding:22px;position:relative}
+.principle .n{position:absolute;top:14px;right:16px;font-family:var(--ff-display);
+  font-size:38px;font-weight:700;color:var(--orange);opacity:.4;line-height:1}
+.principle h4{font-family:var(--ff-display);font-size:17px;font-weight:600;color:var(--off);
+  margin-bottom:6px;padding-right:44px}
+.principle p{font-size:13px;color:var(--off-dim);line-height:1.5}
+
+/* ── footer ───────────────────────────────────────────── */
+.foot{margin-top:120px;padding-top:36px;border-top:1px solid rgba(244,237,227,.08);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--off-dim)}
+.foot b{color:var(--off);letter-spacing:.04em;text-transform:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="brand">
+      <div class="brand-mark">talabat</div>
+      <div class="brand-sub">Rider Academy</div>
+    </div>
+    <div class="crumb">Design direction · <b>Modern</b> · 21 Jul 2026</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="hero-mark">Every park.<br><em>Every time.</em></div>
+      <div class="hero-sub">Rider Training · Parking Simulator</div>
+      <div class="hero-lede">
+        A cinematic training tool that teaches UAE riders the discipline of a
+        <b>clean park</b> — through play, not policy PDFs. Set in real talabat
+        pickup environments, scored on the details that actually matter.
+      </div>
+      <div class="hero-meta">
+        <div><div class="k">Format</div><div class="v">Mobile · 3D</div></div>
+        <div><div class="k">Runtime</div><div class="v">3 min / drop</div></div>
+        <div><div class="k">Scenarios</div><div class="v">2 → 6</div></div>
+      </div>
+      <a class="hero-cta" href="#screens"><span class="dot"></span> View the flow</a>
+    </div>
+    <div class="hero-3d">
+      <div class="badge">Branded scooter · live</div>
+      <div class="loading">Loading model</div>
+      <canvas></canvas>
+      <div class="caption"><span>Simulation_branded_v2.glb</span><b>Rotating · GL preview</b></div>
+    </div>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Design principles</div>
+        <div class="sec-title">Warm, considered, operational — not gamey.</div>
+      </div>
+      <div class="sec-desc">A training tool that reads as a talabat product first
+        and a game second. Every visual choice reinforces the operational story:
+        <b>you're a rider on a real job</b>, in a real city, being taught to park with respect.
+      </div>
+    </div>
+    <div class="principles">
+      <div class="principle"><div class="n">01</div><h4>Warm cinema, not neon arcade</h4><p>Sodium-lamp basement, golden-hour porte-cochère. The world is lit like a film, not a puzzle app.</p></div>
+      <div class="principle"><div class="n">02</div><h4>Brand orange used hot</h4><p>Reserved for CTA, target zones, and success accents — never as a wash. Restraint gives it weight.</p></div>
+      <div class="principle"><div class="n">03</div><h4>Type carries the personality</h4><p>Fraunces display against a clean Inter body. Serif restraint tells the CEO this is a considered product.</p></div>
+      <div class="principle"><div class="n">04</div><h4>Motion is honest</h4><p>250ms open, 150ms close on modals. Cubic-bezier(0.22, 1, 0.36, 1). No slide-from-edge cheapness anywhere.</p></div>
+    </div>
+  </section>
+
+  <!-- SCREENS -->
+  <section class="sec" id="screens">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Screen flow</div>
+        <div class="sec-title">Splash → Select → Dispatch → Drive → Result.</div>
+      </div>
+      <div class="sec-desc">Six taps from launch to a scored run. Every screen is thumb-reachable,
+        the timer is visible without covering the road, and the coaching copy on failure treats
+        the rider as a professional, not a player.
+      </div>
+    </div>
+
+    <div class="phones">
+      <!-- splash -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr-splash">
+            <div class="logo">talabat</div>
+            <div class="sub">Rider Training · Parking Simulator</div>
+            <div class="tap">TAP TO START</div>
+          </div>
+        </div></div>
+        <div class="phone-label">01 · <b>Splash</b></div>
+      </div>
+
+      <!-- select -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr-select">
+            <div class="eyebrow">Choose scenario</div>
+            <div class="scard">
+              <div class="sw a"></div>
+              <div class="mid">
+                <div class="nm">Mall Basement B-03</div>
+                <div class="dt"><i class="on"></i><i class="on"></i><i></i>Difficulty</div>
+              </div>
+              <div class="best">Best<b>—</b></div>
+            </div>
+            <div class="scard">
+              <div class="sw b"></div>
+              <div class="mid">
+                <div class="nm">Tower Porte-Cochère</div>
+                <div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i>Difficulty</div>
+              </div>
+              <div class="best">Best<b style="color:var(--lime)">92</b></div>
+            </div>
+          </div>
+        </div></div>
+        <div class="phone-label">02 · <b>Scenario select</b></div>
+      </div>
+
+      <!-- order -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr-order">
+            <div class="orderc">
+              <span class="tag">New order</span>
+              <h3>Zaatar w Zeit</h3>
+              <div class="row"><span>Order</span><span class="num">#A47291</span></div>
+              <div class="row"><span>For</span><span>Tomaso Perez</span></div>
+              <div class="row"><span>Pickup in</span><span>4 min</span></div>
+              <div class="row"><span>Park at</span><span>Rider bay · near lift</span></div>
+              <div class="disp">Dispatch</div>
+            </div>
+          </div>
+        </div></div>
+        <div class="phone-label">03 · <b>Dispatch card</b></div>
+      </div>
+
+      <!-- HUD -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr-hud">
+            <div class="chip order"><b>#A47291</b> · Zaatar w Zeit<br><span style="opacity:.75">→ Rider bay · B-03</span></div>
+            <div class="timer num">0:42</div>
+            <div class="park-banner">PARK MODE · MAX 8 KM/H</div>
+            <div class="roadmap"></div>
+            <div class="pillar p1"></div>
+            <div class="pillar p2"></div>
+            <div class="pillar p3"></div>
+            <div class="bay">RIDER</div>
+            <div class="bike">TLB</div>
+            <div class="coach">You're aligned — ease the throttle</div>
+            <div class="speed"><b class="num">8</b>km/h</div>
+            <div class="joy"></div>
+            <div class="thr"></div>
+          </div>
+        </div></div>
+        <div class="phone-label">04 · <b>Live HUD</b></div>
+      </div>
+
+      <!-- result -->
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="scr-result">
+            <div class="resc">
+              <div class="rt">Parked · 0:47</div>
+              <span class="nb">NEW BEST</span>
+              <div class="badge">S</div>
+              <div class="big"><span class="num">100</span><small>/100</small></div>
+              <div class="rows">
+                <div><span>Correct bay</span><b>+60</b></div>
+                <div><span>Alignment</span><b>+20</b></div>
+                <div><span>Centering</span><b>+10</b></div>
+                <div><span>Clean approach</span><b>+10</b></div>
+              </div>
+              <div class="coach">Perfect — bay-aligned, doors clear.</div>
+              <div class="cta">Try again</div>
+            </div>
+          </div>
+        </div></div>
+        <div class="phone-label">05 · <b>Result card</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKENS -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Design system</div>
+        <div class="sec-title">A tokened brand, ready for handoff.</div>
+      </div>
+      <div class="sec-desc">Every colour, type step, and motion timing exposed as a token —
+        so the CEO's design team can extend this into the next 4 scenarios without touching CSS.
+      </div>
+    </div>
+    <div class="tokens">
+      <div class="tokcard">
+        <h4>Palette</h4>
+        <div class="swatches">
+          <div class="sw" data-hex="#FF5900" style="background:#FF5900"></div>
+          <div class="sw" data-hex="#CFFF00" style="background:#CFFF00"></div>
+          <div class="sw" data-hex="#411517" style="background:#411517"></div>
+          <div class="sw" data-hex="#F4EDE3" style="background:#F4EDE3"></div>
+        </div>
+        <ul class="list">
+          <li><span>Accent — Orange</span><b>#FF5900</b></li>
+          <li><span>Success — Lime</span><b>#CFFF00</b></li>
+          <li><span>Surface — Brown</span><b>#411517</b></li>
+          <li><span>Type — Off-white</span><b>#F4EDE3</b></li>
+          <li><span>Warm amber (fill)</span><b>#F0B769</b></li>
+        </ul>
+      </div>
+      <div class="tokcard">
+        <h4>Type scale</h4>
+        <div class="typescale">
+          <div class="t-hero">talabat</div>
+          <div class="t-h1">Zaatar w Zeit</div>
+          <div class="t-h2">Rider bay · near lift</div>
+          <div class="t-body">The default body face is Inter — set at 15/24, tabular-nums for HUD digits, with quiet feature settings enabled.</div>
+          <div class="t-label">Pickup in 4 minutes</div>
+        </div>
+        <ul class="list" style="margin-top:22px">
+          <li><span>Display</span><b>Fraunces · serif</b></li>
+          <li><span>Body</span><b>Inter · sans</b></li>
+          <li><span>Numerals</span><b>tabular-nums</b></li>
+        </ul>
+      </div>
+      <div class="tokcard">
+        <h4>Motion &amp; radii</h4>
+        <ul class="list">
+          <li><span>Modal open</span><b>250ms · ease</b></li>
+          <li><span>Modal close</span><b>150ms · fast-out</b></li>
+          <li><span>Grade badge</span><b>bounce · 0.65s</b></li>
+          <li><span>Ease curve</span><b>0.22, 1, 0.36, 1</b></li>
+          <li><span>Card radius</span><b>20px</b></li>
+          <li><span>Chip radius</span><b>12px</b></li>
+          <li><span>Reduced motion</span><b>respected</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div>talabat · Rider Academy · <b>Design direction — Modern</b></div>
+    <div>Mockup for CEO review · non-shippable</div>
+  </div>
+
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const wrap = document.querySelector('.hero-3d');
+const canvas = wrap.querySelector('canvas');
+const loading = wrap.querySelector('.loading');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+
+// warm procedural environment
+{
+  const c = document.createElement('canvas'); c.width = 64; c.height = 32;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0,0,0,32);
+  gr.addColorStop(0,'#7a5a38'); gr.addColorStop(.55,'#2b1810'); gr.addColorStop(1,'#0e0605');
+  g.fillStyle = gr; g.fillRect(0,0,64,32);
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromEquirectangular(tex).texture;
+  tex.dispose(); pm.dispose();
+}
+
+const camera = new THREE.PerspectiveCamera(35, 1, .05, 30);
+camera.position.set(2.2, 1.35, 3.2);
+camera.lookAt(0, 0.55, 0);
+
+scene.add(new THREE.AmbientLight(0xffe8c8, .5));
+scene.add(new THREE.HemisphereLight(0xffe0b0, 0x2a1710, .55));
+const key = new THREE.DirectionalLight(0xffcc90, 1.6);
+key.position.set(3, 4, 3);
+key.castShadow = true;
+key.shadow.mapSize.set(1024,1024);
+key.shadow.camera.left = -3; key.shadow.camera.right = 3;
+key.shadow.camera.top = 3; key.shadow.camera.bottom = -3;
+key.shadow.bias = -0.0008;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xff6a20, .9);
+rim.position.set(-3, 2, -2); scene.add(rim);
+const fill = new THREE.PointLight(0xffbb70, 12, 6, 2);
+fill.position.set(0, 3.2, 0); scene.add(fill);
+
+// stage floor
+const floorTex = (() => {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#2a1a13'; g.fillRect(0,0,128,128);
+  for (let i=0;i<80;i++) { g.fillStyle = `rgba(${20+Math.random()*30|0},${18+Math.random()*22|0},${14+Math.random()*18|0},${.15+Math.random()*.2})`;
+    g.beginPath(); g.arc(Math.random()*128, Math.random()*128, 2+Math.random()*7, 0, 7); g.fill(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(6,6);
+  t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(4, 40),
+  new THREE.MeshStandardMaterial({ map:floorTex, roughness:.85, metalness:.15 })
+);
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+// orange spotlight on the ground under the bike
+const spot = new THREE.Mesh(
+  new THREE.CircleGeometry(1.4, 40),
+  new THREE.MeshBasicMaterial({ color:0xFF5900, transparent:true, opacity:.14, depthWrite:false, blending:THREE.AdditiveBlending })
+);
+spot.rotation.x = -Math.PI/2; spot.position.y = .01; scene.add(spot);
+
+const bikeGroup = new THREE.Group();
+scene.add(bikeGroup);
+
+// resize
+function resize() {
+  const r = wrap.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height;
+  camera.updateProjectionMatrix();
+}
+resize();
+addEventListener('resize', resize);
+
+// procedural talabat logo (canvas → texture) — mounted BEHIND the delivery box
+function makeLogoTex() {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 384;
+  const g = c.getContext('2d');
+  g.fillStyle = '#FF5900'; g.fillRect(0,0,512,384);
+  g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(0,344,512,40);
+  g.fillStyle = '#F4EDE3';
+  g.font = "700 168px 'Fraunces', ui-serif, Georgia, serif";
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('talabat', 256, 200);
+  g.font = "700 30px 'Inter', system-ui, sans-serif";
+  g.fillStyle = 'rgba(244,237,227,.75)'; g.letterSpacing = '4px';
+  g.fillText('RIDER ACADEMY', 256, 310);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+
+new GLTFLoader().load(
+  './assets/Simulation_branded_v2.glb',
+  gltf => {
+    const model = gltf.scene;
+    // normalize scale & ground it
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const s = 1.6 / Math.max(maxDim, .001);
+    model.scale.setScalar(s);
+    bbox.setFromObject(model);
+    model.position.set(-((bbox.min.x + bbox.max.x)/2), -bbox.min.y, -((bbox.min.z + bbox.max.z)/2));
+    model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    bikeGroup.add(model);
+
+    // Mount the missing brand logo behind the delivery box.
+    // Heuristic: place a plane at the rear of the bounding box, upright.
+    const wb = new THREE.Box3().setFromObject(model);
+    const wSize = wb.getSize(new THREE.Vector3());
+    const logo = new THREE.Mesh(
+      new THREE.PlaneGeometry(wSize.x * .42, wSize.x * .42 * (384/512)),
+      new THREE.MeshStandardMaterial({ map: makeLogoTex(), roughness:.55, metalness:.15, side:THREE.DoubleSide })
+    );
+    logo.position.set(0, wSize.y * .58, wb.min.z - .002);
+    logo.rotation.y = Math.PI;
+    logo.castShadow = false;
+    bikeGroup.add(logo);
+    loading.style.display = 'none';
+  },
+  ev => {
+    if (ev.total) loading.textContent = 'Loading model · ' + Math.round(ev.loaded/ev.total*100) + '%';
+  },
+  () => { loading.textContent = 'Preview unavailable (GLB not deployed)'; }
+);
+
+let t0 = performance.now();
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = (now - t0)/1000; t0 = now;
+  bikeGroup.rotation.y += dt * 0.6;
+  bikeGroup.position.y = Math.sin(now * 0.0018) * 0.02;
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

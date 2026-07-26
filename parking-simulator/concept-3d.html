@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>talabat 3D concept</title>
+<style>html,body{margin:0;height:100%;background:#07040a;overflow:hidden}#c{display:block;width:100vw;height:100vh}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const OR=0xFF5900, LI=0xCFFF00, OFF=0xF4EDE3;
+const renderer=new THREE.WebGLRenderer({canvas:c,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x0a0710,0.021);
+
+// env map — warm gradient w/ bright spots for glossy reflections
+const pmrem=new THREE.PMREMGenerator(renderer);
+{ const cv=document.createElement('canvas'); cv.width=128; cv.height=64; const g=cv.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,64); gr.addColorStop(0,'#3a2a44'); gr.addColorStop(.5,'#241826'); gr.addColorStop(1,'#0c0710');
+  g.fillStyle=gr; g.fillRect(0,0,128,64);
+  g.fillStyle='rgba(255,120,40,.7)'; g.fillRect(20,26,20,3); g.fillRect(80,24,26,4);
+  g.fillStyle='rgba(207,255,0,.4)'; g.fillRect(56,30,8,2);
+  const tx=new THREE.CanvasTexture(cv); tx.mapping=THREE.EquirectangularReflectionMapping;
+  scene.environment=pmrem.fromEquirectangular(tx).texture; tx.dispose(); }
+
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,300);
+
+// ── lighting: cinematic warm key + cool fill + orange rim ──
+scene.add(new THREE.HemisphereLight(0x40304a,0x0a0710,0.5));
+const key=new THREE.DirectionalLight(0xffd9a0,2.2); key.position.set(6,10,6);
+key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.left=-18;key.shadow.camera.right=18;key.shadow.camera.top=18;key.shadow.camera.bottom=-18;
+key.shadow.camera.near=1;key.shadow.camera.far=50;key.shadow.bias=-0.0004; scene.add(key);
+const rim=new THREE.SpotLight(OR,220,60,0.5,0.6,1.6); rim.position.set(-8,9,-6); scene.add(rim);
+const fill=new THREE.PointLight(0x5a7fff,90,40,2); fill.position.set(10,4,-8); scene.add(fill);
+const key2=new THREE.PointLight(0xffe6c0,60,30,2); key2.position.set(3,5,5); scene.add(key2);  // soft frontal fill on scooter
+const bayGlow=new THREE.PointLight(OR,22,14,2); bayGlow.position.set(0,2.2,-3); scene.add(bayGlow);
+
+// ── wet reflective floor ──
+const mirrorGroup=new THREE.Group(); scene.add(mirrorGroup);   // holds reflected clone
+const floor=new THREE.Mesh(new THREE.CircleGeometry(60,64),
+  new THREE.MeshStandardMaterial({color:0x0a0710,metalness:0.9,roughness:0.16,
+    envMapIntensity:1.1,transparent:true,opacity:0.82}));
+floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; floor.position.y=0.001; scene.add(floor);
+// faint hex/holo grid on floor
+{ const cv=document.createElement('canvas'); cv.width=cv.height=512; const g=cv.getContext('2d');
+  g.strokeStyle='rgba(255,120,40,.5)'; g.lineWidth=2;
+  for(let i=0;i<=16;i++){g.beginPath();g.moveTo(i*32,0);g.lineTo(i*32,512);g.stroke();g.beginPath();g.moveTo(0,i*32);g.lineTo(512,i*32);g.stroke();}
+  const tx=new THREE.CanvasTexture(cv); tx.wrapS=tx.wrapT=THREE.RepeatWrapping; tx.repeat.set(10,10);
+  const grid=new THREE.Mesh(new THREE.CircleGeometry(60,64),
+    new THREE.MeshBasicMaterial({map:tx,transparent:true,opacity:0.10,depthWrite:false,blending:THREE.AdditiveBlending}));
+  grid.rotation.x=-Math.PI/2; grid.position.y=0.01; scene.add(grid); }
+
+// ── glowing orange RIDER bay ──
+const bay=new THREE.Group(); scene.add(bay);
+{ const bmat=new THREE.MeshStandardMaterial({color:OR,emissive:OR,emissiveIntensity:0.55,roughness:.5});
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(3.2,0.06,5.2),bmat); slab.position.set(0,0.03,-3); bay.add(slab);
+  const inner=new THREE.Mesh(new THREE.BoxGeometry(2.6,0.07,4.6),
+    new THREE.MeshStandardMaterial({color:0x120a08,roughness:.6})); inner.position.set(0,0.035,-3); bay.add(inner);
+  // hovering holo target rings
+  for(let i=0;i<3;i++){ const r=new THREE.Mesh(new THREE.TorusGeometry(1.1+i*0.5,0.03,8,48),
+    new THREE.MeshBasicMaterial({color:i===1?LI:OR,transparent:true,opacity:.8-i*0.18}));
+    r.rotation.x=-Math.PI/2; r.position.set(0,0.5+i*0.9,-3); bay.add(r); r.userData.spin=0.4-i*0.1; }
+  // vertical beacon beam
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.4,6,16,1,true),
+    new THREE.MeshBasicMaterial({color:OR,transparent:true,opacity:0.14,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));
+  beam.position.set(0,3,-3); bay.add(beam);
+  // floating PICKUP label
+  const lc=document.createElement('canvas'); lc.width=256; lc.height=64; const lg=lc.getContext('2d');
+  lg.fillStyle='#FF5900'; lg.font='800 40px system-ui'; lg.textAlign='center'; lg.fillText('PICKUP',128,46);
+  const lt=new THREE.CanvasTexture(lc);
+  const lbl=new THREE.Mesh(new THREE.PlaneGeometry(2,0.5),new THREE.MeshBasicMaterial({map:lt,transparent:true}));
+  lbl.position.set(0,3.4,-3); bay.add(lbl); lbl.userData.face=true;
+}
+
+// ── concrete pillars w/ orange band + emissive strip ──
+function pillar(x,z){ const g=new THREE.Group();
+  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.55,7,20),
+    new THREE.MeshStandardMaterial({color:0x2a2320,roughness:.85})); p.position.y=3.5; p.castShadow=true; g.add(p);
+  const band=new THREE.Mesh(new THREE.CylinderGeometry(0.53,0.53,0.7,20),
+    new THREE.MeshStandardMaterial({color:OR,emissive:OR,emissiveIntensity:0.8,roughness:.5})); band.position.y=1.4; g.add(band);
+  g.position.set(x,0,z); scene.add(g); return g; }
+const pillars=new THREE.Group();
+for(const x of [-9,-4.5,4.5,9]) for(const z of [-10,8]) pillar(x,z);   // clear the mid hero area
+
+// ── parked cars (simple, muted) ──
+function car(x,z,col,rot){ const g=new THREE.Group();
+  const m=new THREE.MeshStandardMaterial({color:col,metalness:.7,roughness:.4});
+  const b=new THREE.Mesh(new THREE.BoxGeometry(1.9,.62,4.4),m); b.position.y=.64; b.castShadow=true; g.add(b);
+  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.7,.55,2.3),m); cab.position.set(0,1.16,-.15); g.add(cab);
+  const win=new THREE.Mesh(new THREE.BoxGeometry(1.72,.32,2.0),new THREE.MeshStandardMaterial({color:0x0a1014,metalness:.7,roughness:.15})); win.position.set(0,1.14,-.15); g.add(win);
+  for(const[wx,wz]of[[-.85,1.5],[.85,1.5],[-.85,-1.5],[.85,-1.5]]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.24,12),new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:.9}));w.rotation.z=Math.PI/2;w.position.set(wx,.34,wz);g.add(w);}
+  g.position.set(x,0,z); g.rotation.y=rot; scene.add(g); return g; }
+car(-7,7,0xdcd8d0,Math.PI/2); car(7,-9,0x1e3350,Math.PI/2); car(7,7,0x17181a,Math.PI/2);
+
+// ── stylized Dubai skyline (emissive windows + Burj Khalifa) ──
+const skyline=new THREE.Group(); scene.add(skyline);
+{ const winMat=[new THREE.MeshBasicMaterial({color:0xFF8A3D}),new THREE.MeshBasicMaterial({color:OFF}),new THREE.MeshBasicMaterial({color:0x5a7fff})];
+  function building(x,w,h,d){ const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
+      new THREE.MeshStandardMaterial({color:0x100a16,roughness:1,emissive:0x0a0610})); b.position.set(x,h/2,-34); skyline.add(b);
+    for(let i=0;i<h*2.2;i++){ if(Math.random()>.5)continue; const wm=winMat[(Math.random()*3)|0];
+      const win=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),wm);
+      win.position.set(x-w/2+0.4+Math.random()*(w-0.8), 1+Math.random()*(h-2), -34+d/2+0.02); skyline.add(win);} }
+  let x=-38; while(x<38){ const w=3+Math.random()*4, h=8+Math.random()*22; building(x,w,h,4); x+=w+1.5; }
+  // Burj Khalifa spire
+  const spire=new THREE.Mesh(new THREE.CylinderGeometry(0.15,3.2,52,6),
+    new THREE.MeshStandardMaterial({color:0x181020,roughness:1,emissive:0x120a1a})); spire.position.set(2,26,-40); skyline.add(spire);
+  const tip=new THREE.PointLight(OR,60,20,2); tip.position.set(2,52,-40); skyline.add(tip);
+}
+
+// ── holo HUD ring around whole scene (training-sim flavor) ──
+const holo=new THREE.Group(); scene.add(holo);
+{ const ring=new THREE.Mesh(new THREE.TorusGeometry(13,0.04,8,80),
+    new THREE.MeshBasicMaterial({color:OR,transparent:true,opacity:0.35})); ring.rotation.x=-Math.PI/2; ring.position.y=0.05; holo.add(ring);
+  const ring2=new THREE.Mesh(new THREE.TorusGeometry(13.6,0.02,8,80),
+    new THREE.MeshBasicMaterial({color:LI,transparent:true,opacity:0.2})); ring2.rotation.x=-Math.PI/2; ring2.position.y=0.05; holo.add(ring2); }
+
+// ── the branded scooter (GLB) ──
+let scooter=null, mirror=null;
+const loader=new GLTFLoader();
+loader.load('./assets/Simulation_branded_v2.glb', gltf=>{
+  const m=gltf.scene;
+  const bb=new THREE.Box3().setFromObject(m); const sz=bb.getSize(new THREE.Vector3());
+  const s=2.2/Math.max(sz.x,sz.z,0.001); m.scale.setScalar(s);
+  bb.setFromObject(m); m.position.set(-(bb.min.x+bb.max.x)/2, -bb.min.y, -(bb.min.z+bb.max.z)/2);
+  m.traverse(o=>{ if(o.isMesh){o.castShadow=true;o.receiveShadow=true;} });
+  const holder=new THREE.Group(); holder.add(m); holder.position.set(0.6,0,2.4); holder.rotation.y=-0.35; scene.add(holder); scooter=holder;
+  // mirrored clone for reflection
+  mirror=holder.clone(); mirror.scale.y=-1; mirror.position.y=-0.002; mirrorGroup.add(mirror);
+  window.__ready=true;
+}, undefined, ()=>{ window.__ready=true; /* keep scene even w/o glb */ });
+
+// ── shots ──
+const SHOTS={
+  hero:   {pos:[4.6,1.6,6.0], tgt:[0.4,1.0,1.2], fov:38, exposure:1.0, bloom:0.42},
+  chase:  {pos:[0.5,2.3,7.4], tgt:[0.2,1.0,-2.0], fov:50, exposure:0.95, bloom:0.36},
+  diorama:{pos:[10,10.5,12], tgt:[0.4,0.7,0.2], fov:34, exposure:1.02, bloom:0.5},
+  low:    {pos:[-3.2,0.7,4.6], tgt:[0.4,1.1,0.4], fov:40, exposure:1.02, bloom:0.5},
+};
+window.applyShot=(name)=>{ const s=SHOTS[name]||SHOTS.hero;
+  camera.fov=s.fov; camera.position.set(...s.pos); camera.lookAt(...s.tgt);
+  camera.updateProjectionMatrix(); renderer.toneMappingExposure=s.exposure;
+  bloom.strength=s.bloom; window.__tgt=s.tgt; };
+
+// ── post ──
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.42,0.5,0.9);
+composer.addPass(bloom); composer.addPass(new OutputPass());
+
+addEventListener('resize',()=>{ renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight);
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); });
+
+applyShot('hero');
+let t0=performance.now();
+function frame(now){ requestAnimationFrame(frame); const dt=(now-t0)/1000; t0=now;
+  bay.children.forEach(o=>{ if(o.userData.spin) o.rotation.z+=o.userData.spin*dt; if(o.userData.face) o.lookAt(camera.position); });
+  holo.rotation.y+=dt*0.1;
+  if(window.__tgt) camera.lookAt(...window.__tgt);
+  composer.render(); }
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
